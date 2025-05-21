@@ -3,6 +3,7 @@ import UpdateElectron from '@/components/update'
 import logoVite from './assets/logo-vite.svg'
 import logoElectron from './assets/logo-electron.svg'
 import './App.css'
+import { Button } from '@mui/material';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -16,6 +17,7 @@ function App() {
       </div>
       <h1>Electron + Vite + React</h1>
       <div className='card'>
+        <Button variant="contained">Contained</Button>
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
         </button>
