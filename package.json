@@ -1,10 +1,14 @@
 {
-  "name": "electron-vite-react",
-  "version": "2.2.0",
+  "name": "elo-jr-agent-app",
+  "version": "0.0.1",
   "main": "dist-electron/main/index.js",
-  "description": "Electron Vite React boilerplate.",
-  "author": "草鞋没号 <308487730@qq.com>",
-  "license": "MIT",
+  "description": "elo Java Runtime Agent APP",
+  "author": "Carsten Rambow",
+  "license": "Apache-2.0",
+  "funding": {
+    "type": "buyMeACoffee",
+    "url": "https://buymeacoffee.com/elomagic"
+  },
   "private": true,
   "debug": {
     "env": {
@@ -14,10 +18,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && electron-builder",
+    "build": "npm run licenses && tsc && vite build && electron-builder",
+    "lint": "eslint .",
     "preview": "vite preview",
     "pretest": "vite build --mode=test",
-    "test": "vitest run"
+    "test": "vitest run",
+    "licenses": "license-report --only=prod --json > ./src/assets/license-report.json"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
