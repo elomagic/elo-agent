@@ -1,15 +1,11 @@
-import IpcChannels from "./shared/IpcChannels";
-import OpenDialogReturnValue = Electron.OpenDialogReturnValue;
+const { contextBridge, ipcRenderer } = require('electron/renderer')
 
-export const listFiles = (folder: string): Promise<string[]> => {
-  return window.ipcRenderer.invoke(IpcChannels.ListFiles, folder);
-}
+contextBridge.exposeInMainWorld('electronAPI', {
 
-export const readFile = (file: string): Promise<Buffer> => {
-  return window.ipcRenderer.invoke(IpcChannels.ReadFile, file)
-}
+  listFiles: (folder: string): Promise<string[]> => ipcRenderer.invoke('list-files', folder),
 
-export const openFolder = (initDirectory: string | (() => string) | undefined, ): Promise<OpenDialogReturnValue> => {
-  return window.ipcRenderer.invoke(IpcChannels.ChooseDirectory, initDirectory);
-}
+  readFile: (file: string): Promise<Buffer> => ipcRenderer.invoke('read-file', file),
 
+  chooseFolder: (initDirectory: string | (() => string) | undefined, ): Promise<string | undefined> => ipcRenderer.invoke('choose-directory', initDirectory),
+
+})

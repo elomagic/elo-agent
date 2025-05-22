@@ -14,6 +14,11 @@ export const JarsInUseView = () => {
 
   const handleAddSourceClick = () => {
     // TODO Add ChooseDirectoryDialog
+    window.ipcRenderer
+        .chooseFolder("./")
+        .then((folder: string | undefined) => folder && setSourceFolders([...sourceFolders, folder]))
+
+
     const newFolder = "c:\\project\\libs\\";
 
     // List must be unique

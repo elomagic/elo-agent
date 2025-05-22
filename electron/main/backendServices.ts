@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import { ipcMain } from 'electron';
-import IpcChannels from '@/shared/IpcChannels';
 
 const listFiles = (
   folder: string | undefined,
@@ -36,11 +35,16 @@ const readFile = (file: string,): Promise<Buffer> => {
   });
 }
 
-ipcMain.handle(IpcChannels.ListFiles, (_event, folder: string) => {
-  return listFiles(folder);
-})
+export const registerMainHandlers = () => {
+  ipcMain.handle("list-files", (_event, folder: string) => {
+    return listFiles(folder);
+  })
 
-ipcMain.handle(IpcChannels.ReadFile, (_event, file: string) => {
-  return readFile(file);
-})
+  ipcMain.handle("read-file", (_event, file: string) => {
+    return readFile(file);
+  })
 
+  ipcMain.handle("choose-directory", (_event, _folder: string) => {
+    return Promise.reject();
+  })
+}
