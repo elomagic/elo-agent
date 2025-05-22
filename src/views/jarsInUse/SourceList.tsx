@@ -1,6 +1,6 @@
 "use client"
 
-import { IconButton, List, ListItem, ListItemText, Stack } from '@mui/material';
+import { Box, IconButton, List, ListItem, ListItemText, Stack } from '@mui/material';
 import { AddCircle, RemoveCircle } from '@mui/icons-material';
 
 interface ComponentProps {
@@ -12,7 +12,8 @@ interface ComponentProps {
 export const SourceList = ({ items, onAddClick, onDeleteClick }: Readonly<ComponentProps>) => {
 
   return (
-    <Stack direction="row" spacing={2}>
+    <Stack direction="column" spacing={2} width="100%">
+      <Box>Source Folders</Box>
       <Stack direction="column">
         <IconButton aria-label="add" onClick={onAddClick}>
           <AddCircle />

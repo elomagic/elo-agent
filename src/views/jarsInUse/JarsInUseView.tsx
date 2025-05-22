@@ -30,18 +30,22 @@ export const JarsInUseView = () => {
 
   const loadJarLists = (_folders: string[]) => {
     // TODO Get files by folder
+    //folders.map(folder => { IpcServices.listFiles(folder) })
     const totalJars: string[] = [];
+
+    //readFile(".\\my-agent.csv").then((file => file.));
 
     // TODO Get agent loaded jars
     const loadedJars: string[] = [];
+
     setInUseItems(loadedJars);
 
     const leftJars = totalJars.filter(jar => loadedJars.indexOf(jar) >= 0);
     setNotInUseItems(leftJars);
-  }
+  };
 
   return (
-    <Stack direction='row'>
+    <Stack direction='row' width="100%">
       <SourceList items={sourceFolders} onAddClick={handleAddSourceClick} onDeleteClick={handleDeleteSourceClick} />
       <JarsInUseList items={inUseItems} />
       <JarsNotInUseList items={notInUseItems} />

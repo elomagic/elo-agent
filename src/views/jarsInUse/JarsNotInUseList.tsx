@@ -1,6 +1,6 @@
 "use client"
 
-import { List, ListItem, ListItemText } from '@mui/material';
+import { Box, List, ListItem, ListItemText, Stack } from '@mui/material';
 
 interface ComponentProps {
   items: string[];
@@ -9,13 +9,16 @@ interface ComponentProps {
 export const JarsNotInUseList = ({ items }: Readonly<ComponentProps>) => {
 
   return (
-    <List style={{ height: "100%" }}>
-      {items.map((item) => (
-        <ListItem key={item} disablePadding>
-          <ListItemText id={item} primary={item} />
-        </ListItem>)
-        )}
-    </List>
+    <Stack direction="column" spacing={2} width="100%">
+      <Box>JARs not in use</Box>
+      <List style={{ height: "100%" }}>
+        {items.map((item) => (
+          <ListItem key={item} disablePadding>
+            <ListItemText id={item} primary={item} />
+          </ListItem>)
+          )}
+      </List>
+    </Stack>
   );
 
 }
