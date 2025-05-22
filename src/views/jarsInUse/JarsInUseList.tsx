@@ -1,12 +1,20 @@
 "use client"
 
-import { List } from '@mui/material';
+import { List, ListItem, ListItemText } from '@mui/material';
 
-export const JarsInUseList = () => {
+interface ComponentProps {
+  items: string[];
+}
+
+export const JarsInUseList = ({ items }: Readonly<ComponentProps>) => {
 
   return (
       <List style={{ height: "100%" }}>
-        Test
+        {items.map((item) => (
+          <ListItem key={item} disablePadding>
+            <ListItemText id={item} primary={item} />
+          </ListItem>)
+        )}
       </List>
   );
 
