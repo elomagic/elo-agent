@@ -1,59 +1,79 @@
 "use client"
 
 import { Stack } from '@mui/material';
-import { SourceList } from '@/views/jarsInUse/SourceList';
-import { JarsInUseList } from '@/views/jarsInUse/JarsInUseList';
-import { JarsNotInUseList } from '@/views/jarsInUse/JarsNotInUseList';
 import { useState } from 'react';
+import { chooseFolder, listFiles, readAgentFile } from '@/IpcServices';
+import { FileStatus, FileStatusTable } from '@/views/jarsInUse/FileStatusTable';
+import { FileFilters } from '@/views/jarsInUse/FileFilters';
 
 export const JarsInUseView = () => {
 
   const [sourceFolders, setSourceFolders] = useState<string[]>([]);
-  const [inUseItems, setInUseItems] = useState<string[]>([]);
-  const [notInUseItems, setNotInUseItems] = useState<string[]>([]);
+  const [agentFile, setAgentFile] = useState<string>("./agent-file.csv");
+  const [fileStatus, setFileStatus] = useState<FileStatus[]>([]);
+
+  const reloadTable = (folders: string[], agentFilename: string) => {
+    listFiles(folders).then(files => {
+      console.info("Files found: " + files.length);
+
+      const status: FileStatus[] = [];
+
+      readAgentFile(agentFilename)
+        .then((lines: string[]) => {
+          const files: string[] = []
+          for (const line of lines) {
+            files.push(line.endsWith("|") ? line.split("|")[0]: line);
+          }
+          return files;
+        })
+        .then((usedFiles) => {
+          for (const file of files) {
+            status.push({ id: file, loaded: usedFiles.indexOf(file) !== -1});
+          }
+
+          setFileStatus(status);
+        })
+    })
+  };
 
   const handleAddSourceClick = () => {
-    // TODO Add ChooseDirectoryDialog
-    window.ipcRenderer
-        .chooseFolder("./")
-        .then((folder: string | undefined) => folder && setSourceFolders([...sourceFolders, folder]))
-
-
-    const newFolder = "c:\\project\\libs\\";
-
-    // List must be unique
-    const folders = sourceFolders.filter(i => newFolder !== i)
-    folders.push(newFolder);
+    chooseFolder("./")
+      .then((folder: string | undefined) => {
+        folder && sourceFolders.indexOf(folder) === -1 && setSourceFolders([...sourceFolders, folder]);
+        return folder && [...sourceFolders, folder]
+      })
+      .then((folders) => {
+        folders && reloadTable(folders, agentFile)
+      });
   }
 
   const handleDeleteSourceClick = (item: string) => {
     const folders = sourceFolders.filter(i => item !== i);
     setSourceFolders(folders);
-
-    loadJarLists(folders);
+    reloadTable(folders, agentFile);
   }
 
-  const loadJarLists = (_folders: string[]) => {
-    // TODO Get files by folder
-    //folders.map(folder => { IpcServices.listFiles(folder) })
-    const totalJars: string[] = [];
+  const handleSelectAgentFileClick = () => {
+    // TODO Add file select dialog
+    const file = "./agent-file.csv";
 
-    //readFile(".\\my-agent.csv").then((file => file.));
+    setAgentFile(file);
+    reloadTable(sourceFolders, file);
+  }
 
-    // TODO Get agent loaded jars
-    const loadedJars: string[] = [];
-
-    setInUseItems(loadedJars);
-
-    const leftJars = totalJars.filter(jar => loadedJars.indexOf(jar) >= 0);
-    setNotInUseItems(leftJars);
-  };
+  const handleReloadAgentFileClick = () => {
+    reloadTable(sourceFolders, agentFile);
+  }
 
   return (
-    <Stack direction='row' width="100%">
-      <SourceList items={sourceFolders} onAddClick={handleAddSourceClick} onDeleteClick={handleDeleteSourceClick} />
-      <JarsInUseList items={inUseItems} />
-      <JarsNotInUseList items={notInUseItems} />
+    <Stack direction='column' width="100%">
+      <FileFilters items={sourceFolders}
+                   onAddSourceClick={handleAddSourceClick}
+                   onDeleteSourceClick={handleDeleteSourceClick}
+                   onSelectAgentFileClick={handleSelectAgentFileClick}
+                   onReloadAgentFileClick={handleReloadAgentFileClick}
+      />
+      <FileStatusTable items={fileStatus} />
     </Stack>
   );
 

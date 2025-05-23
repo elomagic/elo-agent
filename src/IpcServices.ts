@@ -1,11 +1,17 @@
-const { contextBridge, ipcRenderer } = require('electron/renderer')
+"use client"
 
-contextBridge.exposeInMainWorld('electronAPI', {
+export function chooseFolder(initFolder: string): Promise<string | undefined> {
+  return window.ipcRenderer.invoke('choose-directory', initFolder)
+}
 
-  listFiles: (folder: string): Promise<string[]> => ipcRenderer.invoke('list-files', folder),
+export function listFiles(folders: string[]): Promise<string[]> {
+  return window.ipcRenderer.invoke('list-files', folders)
+}
 
-  readFile: (file: string): Promise<Buffer> => ipcRenderer.invoke('read-file', file),
+export function readAgentFile(file: string): Promise<string[]> {
+  return window.ipcRenderer.invoke('read-agent-file', file)
+}
 
-  chooseFolder: (initDirectory: string | (() => string) | undefined, ): Promise<string | undefined> => ipcRenderer.invoke('choose-directory', initDirectory),
-
-})
+export function readFile(file: string): Promise<Buffer> {
+  return window.ipcRenderer.invoke('read-file', file)
+}

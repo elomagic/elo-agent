@@ -9,12 +9,12 @@ interface ComponentProps {
   onDeleteClick: (itemId: string) => void;
 }
 
-export const SourceList = ({ items, onAddClick, onDeleteClick }: Readonly<ComponentProps>) => {
+export const SourceFiles = ({ items, onAddClick, onDeleteClick }: Readonly<ComponentProps>) => {
 
   return (
     <Stack direction="column" spacing={2} width="100%">
       <Box>Source Folders</Box>
-      <Stack direction="column">
+      <Stack direction="row">
         <IconButton aria-label="add" onClick={onAddClick}>
           <AddCircle />
         </IconButton>
@@ -25,8 +25,8 @@ export const SourceList = ({ items, onAddClick, onDeleteClick }: Readonly<Compon
             <ListItem key={item}
                       disablePadding
                       secondaryAction={
-                        <IconButton edge="end" aria-label="remove" sx={{padding: 0}}>
-                          <RemoveCircle color="error" onClick={() => onDeleteClick(item)}/>
+                        <IconButton edge="end" aria-label="remove" sx={{padding: 0}} onClick={() => onDeleteClick(item)}>
+                          <RemoveCircle color="error" />
                         </IconButton>
                       }
             >
