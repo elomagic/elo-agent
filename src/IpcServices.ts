@@ -1,5 +1,9 @@
 "use client"
 
+export function chooseAgentFile(initFolder: string): Promise<string | undefined> {
+  return window.ipcRenderer.invoke("choose-agent-file", initFolder)
+}
+
 export function chooseFolder(initFolder: string): Promise<string | undefined> {
   return window.ipcRenderer.invoke('choose-directory', initFolder)
 }

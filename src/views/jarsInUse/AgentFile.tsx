@@ -1,6 +1,6 @@
 "use client"
 
-import { IconButton, Stack, TextField } from '@mui/material';
+import {Box, IconButton, Stack, TextField} from '@mui/material';
 import { InsertDriveFileOutlined, ReplayOutlined } from '@mui/icons-material';
 
 interface ComponentProps {
@@ -11,8 +11,9 @@ interface ComponentProps {
 export const AgentFile = ({ onSelectAgentFileClick, onReloadAgentFileClick }: Readonly<ComponentProps>) => {
 
   return (
-    <Stack direction="row">
-        <TextField fullWidth />
+    <Stack direction="row" alignItems="center" spacing={1} marginLeft={1}>
+        <Box whiteSpace={"nowrap"}>Agent File</Box>
+        <TextField fullWidth size="small" placeholder="Agent File" disabled={true} />
         <IconButton aria-label="add" onClick={onSelectAgentFileClick}>
           <InsertDriveFileOutlined />
         </IconButton>

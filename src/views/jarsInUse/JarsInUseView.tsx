@@ -2,7 +2,7 @@
 
 import { Stack } from '@mui/material';
 import { useState } from 'react';
-import { chooseFolder, listFiles, readAgentFile } from '@/IpcServices';
+import {chooseAgentFile, chooseFolder, listFiles, readAgentFile} from '@/IpcServices';
 import { FileStatus, FileStatusTable } from '@/views/jarsInUse/FileStatusTable';
 import { FileFilters } from '@/views/jarsInUse/FileFilters';
 
@@ -22,7 +22,7 @@ export const JarsInUseView = () => {
         .then((lines: string[]) => {
           const files: string[] = []
           for (const line of lines) {
-            files.push(line.endsWith("|") ? line.split("|")[0]: line);
+            files.push(line.endsWith(";") ? line.split(";")[0]: line);
           }
           return files;
         })
@@ -39,8 +39,8 @@ export const JarsInUseView = () => {
   const handleAddSourceClick = () => {
     chooseFolder("./")
       .then((folder: string | undefined) => {
-        folder && sourceFolders.indexOf(folder) === -1 && setSourceFolders([...sourceFolders, folder]);
-        return folder && [...sourceFolders, folder]
+        folder && sourceFolders.indexOf(folder) === -1 && setSourceFolders([folder, ...sourceFolders]);
+        return folder && [folder, ...sourceFolders]
       })
       .then((folders) => {
         folders && reloadTable(folders, agentFile)
@@ -54,11 +54,10 @@ export const JarsInUseView = () => {
   }
 
   const handleSelectAgentFileClick = () => {
-    // TODO Add file select dialog
-    const file = "./agent-file.csv";
-
-    setAgentFile(file);
-    reloadTable(sourceFolders, file);
+    chooseAgentFile("./")
+        .then((file: string | undefined) => {
+          file && setAgentFile(file) && reloadTable(sourceFolders, file);
+        })
   }
 
   const handleReloadAgentFileClick = () => {
@@ -66,7 +65,7 @@ export const JarsInUseView = () => {
   }
 
   return (
-    <Stack direction='column' width="100%">
+    <Stack direction='column' width="100%" height="100vh">
       <FileFilters items={sourceFolders}
                    onAddSourceClick={handleAddSourceClick}
                    onDeleteSourceClick={handleDeleteSourceClick}

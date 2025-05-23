@@ -33,27 +33,20 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
   ];
 
   return (
-    <Stack direction="column" spacing={2} width="100%">
-      {/*
-      <Stack direction="row">
-        <FormControlLabel control={<Checkbox defaultChecked />} label="Loaded files" />
-        <FormControlLabel control={<Checkbox defaultChecked />} label="Unused files" />
-      </Stack>
-      */}
-
-      <Box sx={{ height: 500, width: '100%' }}>
+    <Stack direction="column" spacing={2} width="100%" height="100vh">
+      <Box flexGrow={1} sx={{ height: 500, width: '100%' }}>
         <DataGrid
-          rows={items}
-          columns={columns}
-          rowHeight={32}
-          columnHeaderHeight={32}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 100,
+            rows={items}
+            columns={columns}
+            rowHeight={32}
+            columnHeaderHeight={32}
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 100,
+                },
               },
-            },
-          }}
+            }}
           //pageSizeOptions={[5]}
           //checkboxSelection
           //disableRowSelectionOnClick

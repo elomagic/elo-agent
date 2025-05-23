@@ -15,7 +15,7 @@ interface ComponentProps {
 export const FileFilters = ({ items, onAddSourceClick, onDeleteSourceClick, onSelectAgentFileClick, onReloadAgentFileClick }: Readonly<ComponentProps>) => {
 
   return (
-    <Grid container spacing={2}>
+    <Grid container>
       <Grid size={6}>
         <SourceFiles items={items} onAddClick={onAddSourceClick} onDeleteClick={onDeleteSourceClick} />
       </Grid>

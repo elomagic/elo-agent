@@ -12,14 +12,15 @@ interface ComponentProps {
 export const SourceFiles = ({ items, onAddClick, onDeleteClick }: Readonly<ComponentProps>) => {
 
   return (
-    <Stack direction="column" spacing={2} width="100%">
-      <Box>Source Folders</Box>
-      <Stack direction="row">
-        <IconButton aria-label="add" onClick={onAddClick}>
-          <AddCircle />
-        </IconButton>
-      </Stack>
-      <List style={{ height: "100%" }}>
+    <Stack direction="column" width="100%" borderRight={1} borderColor={"gray"}>
+        <Stack direction="row" alignItems="center" marginLeft={1}>
+            <Box>Source Folders</Box>
+            <IconButton aria-label="add" onClick={onAddClick}>
+              <AddCircle />
+            </IconButton>
+        </Stack>
+
+      <List style={{ height: "90px", overflow: "scroll", marginLeft: "8px" }}>
         {items
           .map((item) => (
             <ListItem key={item}

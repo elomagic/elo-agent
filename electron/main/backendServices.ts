@@ -80,6 +80,15 @@ export const registerMainHandlers = () => {
     return readFile(file);
   })
 
+  ipcMain.handle("choose-agent-file", (_event, defaultFolder: string): Promise<string | undefined> => {
+    return dialog.showOpenDialog({
+      title: 'Select the agent file',
+      filters: [{ name: 'CSV', extensions: ['csv'] }],
+      defaultPath: defaultFolder,
+      properties: ['openFile'],
+    }).then(result => result.canceled ? undefined : result.filePaths[0]);
+  })
+
   ipcMain.handle("choose-directory", (_event, defaultFolder: string): Promise<string | undefined> => {
     return dialog.showOpenDialog({
       title: 'Select a folder',
