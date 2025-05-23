@@ -45,7 +45,8 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
         <DataGrid
           rows={items}
           columns={columns}
-          rowHeight={38}
+          rowHeight={32}
+          columnHeaderHeight={32}
           initialState={{
             pagination: {
               paginationModel: {
