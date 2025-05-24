@@ -1,41 +1,49 @@
 "use client"
 
-import { Box, IconButton, List, ListItem, ListItemText, Stack } from '@mui/material';
-import { AddCircle, RemoveCircle } from '@mui/icons-material';
+import {Box, IconButton, List, ListItem, ListItemText, Paper, Stack} from '@mui/material';
+import {AddCircle, RemoveCircle} from '@mui/icons-material';
 
 interface ComponentProps {
-  items: string[];
-  onAddClick: () => void;
-  onDeleteClick: (itemId: string) => void;
+    items: string[];
+    onAddClick: () => void;
+    onDeleteClick: (itemId: string) => void;
 }
 
-export const SourceFiles = ({ items, onAddClick, onDeleteClick }: Readonly<ComponentProps>) => {
+export const SourceFiles = ({items, onAddClick, onDeleteClick}: Readonly<ComponentProps>) => {
 
-  return (
-    <Stack direction="column" width="100%" borderRight={1} borderColor={"gray"}>
-        <Stack direction="row" alignItems="center" marginLeft={1}>
-            <Box>Source Folders</Box>
-            <IconButton aria-label="add" onClick={onAddClick}>
-              <AddCircle />
-            </IconButton>
+    return (
+        <Stack direction="column" width="100%" borderRight={1} borderColor={"gray"}>
+            <Stack direction="row" alignItems="center" marginLeft={1}>
+                <Box>Source Folders</Box>
+                <IconButton aria-label="add" onClick={onAddClick}>
+                    <AddCircle/>
+                </IconButton>
+            </Stack>
+
+            <Paper elevation={1}>
+                <List     sx={{
+                    height: "85px",
+                    overflow: "auto",
+                    marginLeft: "8px"
+                    ,
+                }}>
+                    {items
+                        .map((item) => (
+                            <ListItem key={item}
+                                      disablePadding
+                                      secondaryAction={
+                                          <IconButton edge="end" aria-label="remove" sx={{padding: 0}}
+                                                      onClick={() => onDeleteClick(item)}>
+                                              <RemoveCircle color="error"/>
+                                          </IconButton>
+                                      }
+                            >
+                                <ListItemText id={item} primary={item}/>
+                            </ListItem>)
+                        )}
+                </List>
+            </Paper>
         </Stack>
-
-      <List style={{ height: "90px", overflow: "scroll", marginLeft: "8px" }}>
-        {items
-          .map((item) => (
-            <ListItem key={item}
-                      disablePadding
-                      secondaryAction={
-                        <IconButton edge="end" aria-label="remove" sx={{padding: 0}} onClick={() => onDeleteClick(item)}>
-                          <RemoveCircle color="error" />
-                        </IconButton>
-                      }
-            >
-              <ListItemText id={item} primary={item} />
-            </ListItem>)
-          )}
-      </List>
-    </Stack>
-  );
+    );
 
 }
