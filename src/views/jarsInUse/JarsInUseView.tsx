@@ -23,7 +23,10 @@ export const JarsInUseView = () => {
                 .then((lines: string[]) => {
                     const files: string[] = []
                     for (const line of lines) {
-                        files.push(line.endsWith(";") ? line.split(";")[0] : line);
+                        const columns = line.split(";");
+                        if (columns.length > 1) {
+                            files.push(columns[1]);
+                        }
                     }
                     return files;
                 })
