@@ -8,6 +8,7 @@ interface ComponentProps {
     items: string[];
     onAddSourceClick: () => void;
     onDeleteSourceClick: (itemId: string) => void;
+    agentFile: string;
     onSelectAgentFileClick: () => void;
     onReloadAgentFileClick: () => void;
 }
@@ -16,6 +17,7 @@ export const FileFilters = ({
                                 items,
                                 onAddSourceClick,
                                 onDeleteSourceClick,
+                                agentFile,
                                 onSelectAgentFileClick,
                                 onReloadAgentFileClick,
                             }: Readonly<ComponentProps>) => {
@@ -26,7 +28,8 @@ export const FileFilters = ({
                 <SourceFiles items={items} onAddClick={onAddSourceClick} onDeleteClick={onDeleteSourceClick} />
             </Grid>
             <Grid size={6}>
-                <AgentFile onSelectAgentFileClick={onSelectAgentFileClick}
+                <AgentFile agentFile={agentFile}
+                           onSelectAgentFileClick={onSelectAgentFileClick}
                            onReloadAgentFileClick={onReloadAgentFileClick}
                 />
             </Grid>

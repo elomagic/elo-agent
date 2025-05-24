@@ -69,6 +69,7 @@ export const JarsInUseView = () => {
       <FileFilters items={sourceFolders}
                    onAddSourceClick={handleAddSourceClick}
                    onDeleteSourceClick={handleDeleteSourceClick}
+                   agentFile={agentFile}
                    onSelectAgentFileClick={handleSelectAgentFileClick}
                    onReloadAgentFileClick={handleReloadAgentFileClick}
       />

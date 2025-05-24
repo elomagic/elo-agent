@@ -6,9 +6,10 @@ import {InsertDriveFileOutlined, ReplayOutlined} from '@mui/icons-material';
 interface ComponentProps {
     onSelectAgentFileClick: () => void;
     onReloadAgentFileClick: () => void;
+    agentFile: string;
 }
 
-export const AgentFile = ({onSelectAgentFileClick, onReloadAgentFileClick}: Readonly<ComponentProps>) => {
+export const AgentFile = ({onSelectAgentFileClick, onReloadAgentFileClick, agentFile}: Readonly<ComponentProps>) => {
 
     return (
         <Stack direction="row"
@@ -17,7 +18,18 @@ export const AgentFile = ({onSelectAgentFileClick, onReloadAgentFileClick}: Read
                marginLeft={1}
         >
             <Box whiteSpace={"nowrap"}>Agent File</Box>
-            <TextField fullWidth size="small" placeholder="Agent File" disabled />
+            <TextField fullWidth
+                       size="small"
+                       placeholder="Agent File"
+                       disabled
+                       value={agentFile}
+                       sx={{
+                           "& .MuiInputBase-input": {
+                               overflow: "hidden",
+                               textOverflow: "ellipsis"
+                           }
+                       }}
+            />
             <IconButton aria-label="add" onClick={onSelectAgentFileClick}>
                 <InsertDriveFileOutlined/>
             </IconButton>
