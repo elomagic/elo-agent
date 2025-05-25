@@ -8,9 +8,11 @@ A tool for identifying unused libraries like JARs, with a focus on Java applicat
 ---
 
 [![Apache License, Version 2.0, January 2004](https://img.shields.io/github/license/apache/maven.svg?label=License)][license]
+[![Latest](https://img.shields.io/github/release/elomagic/jr-agent.svg)](https://github.com/elomagic/jr-agent-app/releases)
 ![GitHub stars](https://img.shields.io/github/stars/elomagic/jr-agent-app?color=fa6470)
 ![GitHub issues](https://img.shields.io/github/issues/elomagic/jr-agent-app?color=d8b22d)
 [![Required Node.JS >= 22.12.0 || >=22.99.0](https://img.shields.io/static/v1?label=node&message=22.12.0%20||%20%3E=22.99.0&logo=node.js&color=3f893e)](https://nodejs.org/about/releases)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/elomagic/jr-agent-app/graphs/commit-activity)
 [![Buymeacoffee](https://badgen.net/badge/icon/buymeacoffee?icon=buymeacoffee&label)](https://www.buymeacoffee.com/elomagic)
 
 ## 👀 Overview
@@ -94,5 +96,13 @@ export default {
 
 - [C/C++ addons, Node.js modules - Pre-Bundling](https://github.com/electron-vite/vite-plugin-electron-renderer#dependency-pre-bundling)
 - [dependencies vs devDependencies](https://github.com/electron-vite/vite-plugin-electron-renderer#dependencies-vs-devdependencies)
+
+## Donations
+
+Donations will ensure the following:
+
+* 🔨 Long term maintenance of the project
+* 🛣 Progress on the roadmap
+* 🐛 Quick responses to bug reports and help requests
 
 [license]: https://www.apache.org/licenses/LICENSE-2.0
