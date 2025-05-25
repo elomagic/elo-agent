@@ -34,7 +34,7 @@
     "perMachine": false,
     "allowToChangeInstallationDirectory": true,
     "deleteAppDataOnUninstall": false,
-    "installerIcon": "public/favicon.ico",
+    "installerIcon": "public/favicon.ico"
   },
   "publish": {
     "provider": "generic",
