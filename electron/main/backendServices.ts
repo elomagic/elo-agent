@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {dialog, ipcMain} from 'electron';
+import {dialog, ipcMain, shell} from 'electron';
 import {applyRecentAgentFile, applyRecentFolder, getSettings, Settings, writeSettings} from "./appSettings";
 
 const listFilesSync = (
@@ -73,8 +73,18 @@ const readAgentFile = (file: string | undefined): Promise<string[]> => {
 }
 
 export const registerMainHandlers = () => {
+    ipcMain.handle("copy-txt-to-clipboard", (_event, _text: string): Promise<void> => {
+        //clipboard.writeText(text);
+        return Promise.resolve();
+    })
+
     ipcMain.handle("list-files", (_event, folder: string[]): Promise<string[]> => {
         return listFiles(folder);
+    })
+
+    ipcMain.handle("open-folder", (_event, folder: string): Promise<void> => {
+        shell.showItemInFolder(folder)
+        return Promise.resolve();
     })
 
     ipcMain.handle("read-agent-file", (_event, file: string | undefined): Promise<string[]> => {

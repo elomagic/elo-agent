@@ -8,8 +8,16 @@ export function chooseFolder(initFolder: string | undefined): Promise<string | u
     return window.ipcRenderer.invoke('choose-directory', initFolder)
 }
 
+export function copyTextToClipboard(text: string) {
+    window.ipcRenderer.invoke('copy-txt-to-clipboard', text)
+}
+
 export function listFiles(folders: string[]): Promise<string[]> {
     return window.ipcRenderer.invoke('list-files', folders)
+}
+
+export function openFolder(folder: string) {
+    window.ipcRenderer.invoke('open-folder', folder)
 }
 
 export function readAgentFile(file: string | undefined): Promise<string[]> {
