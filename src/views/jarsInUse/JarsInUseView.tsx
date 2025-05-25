@@ -1,17 +1,21 @@
 "use client"
 
 import {Stack} from '@mui/material';
-import { useEffect, useState } from 'react';
-import {chooseAgentFile, chooseFolder, listFiles, readAgentFile} from '@/IpcServices';
+import {useEffect, useState} from 'react';
+import {chooseAgentFile, listFiles, readAgentFile} from '@/IpcServices';
 import {FileStatus, FileStatusTable} from '@/views/jarsInUse/FileStatusTable';
 import {FileFilters} from '@/views/jarsInUse/FileFilters';
 import {toast, ToastContainer} from 'react-toastify';
+import {ProcessId, SelectProcessDialog} from "@/views/jarsInUse/SelectProcessDialog";
 
 export const JarsInUseView = () => {
 
     const [sourceFolders, setSourceFolders] = useState<string[]>([]);
     const [agentFile, setAgentFile] = useState<string | undefined>(undefined);
     const [fileStatus, setFileStatus] = useState<FileStatus[]>([]);
+
+    const [processIds, setProcessIds] = useState<ProcessId[]>([]);
+    const [openProcess, setOpenProcess] = useState<boolean>(false);
 
     const reloadTable = (folders: string[], agentFilename: string | undefined) => {
         listFiles(folders).then(files => {
@@ -46,17 +50,6 @@ export const JarsInUseView = () => {
         })
     };
 
-    const handleAddFoldersEvent = () => {
-        chooseFolder(undefined)
-            .then((folder: string | undefined) => {
-                folder && sourceFolders.indexOf(folder) === -1 && setSourceFolders([folder, ...sourceFolders]);
-                return folder && [folder, ...sourceFolders]
-            })
-            .then((folders) => {
-                folders && reloadTable(folders, agentFile)
-            });
-    }
-
     const handleDeleteSourceClick = (item: string) => {
         const folders = sourceFolders.filter(i => item !== i);
         setSourceFolders(folders);
@@ -75,21 +68,23 @@ export const JarsInUseView = () => {
         reloadTable(sourceFolders, agentFile);
     }
 
-  useEffect(() => {
-    /*
-    window.electronAPI.onNachricht((folders: string[]) => {
-      folders && sourceFolders.indexOf(folder) === -1 && setSourceFolders([folder, ...sourceFolders]);
-      return folder && [folder, ...sourceFolders]
-        .then((folders) => {
-          folders && reloadTable(folders, agentFile)
+    useEffect(() => {
+        window.ipcRenderer.on('add-folders', (_event,folders: string[])=> {
+            // TODO filter duplicates
+            setSourceFolders([...folders, ...sourceFolders]);
+            reloadTable([...folders, ...sourceFolders], agentFile)
         });
-    });
-    */
-  }, []);
+        window.ipcRenderer.on('choose-processes', (_event, processes: string[])=> {
+            const pi: ProcessId[] = processes.map((p) => { return { id: p, args: p }});
+
+            setProcessIds(pi);
+            setOpenProcess(true);
+        });
+    }, []);
 
     return (
         <Stack direction='column' width="100%" height="100vh">
-            <ToastContainer position='top-center' theme='colored' />
+            <ToastContainer position='top-center' theme='colored'/>
             <FileFilters items={sourceFolders}
                          onDeleteSourceClick={handleDeleteSourceClick}
                          agentFile={agentFile}
@@ -97,6 +92,7 @@ export const JarsInUseView = () => {
                          onReloadAgentFileClick={handleReloadAgentFileClick}
             />
             <FileStatusTable items={fileStatus}/>
+            <SelectProcessDialog items={processIds} open={openProcess} onYesClick={() => {}} onNoClick={() => {}}/>
         </Stack>
     );
 

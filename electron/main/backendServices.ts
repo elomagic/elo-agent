@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import {dialog, ipcMain, shell} from 'electron';
 import {applyRecentAgentFile, applyRecentFolder, getSettings, Settings, writeSettings} from "./appSettings";
+import { exec } from 'child_process';
 
 export const chooseDirectory = (defaultFolder: string | undefined) => {
     return dialog.showOpenDialog({
@@ -14,9 +15,21 @@ export const chooseDirectory = (defaultFolder: string | undefined) => {
     });
 }
 
-const listFilesSync = (
-    folder: string,
-): string[] => {
+export const getJavaProcesses = (): Promise<string[]> => {
+    return new Promise<string[]>((resolve) => {
+        exec('jps -lv', (err, stdout, _stderr) => {
+            if (err) {
+                resolve([]);
+            }
+
+            const lines = stdout.split('\n').filter(line => line.trim() !== '');
+
+            resolve(lines);
+        });
+    });
+}
+
+const listFilesSync = (folder: string): string[] => {
     if (!fs.statSync(folder).isDirectory()) {
         return [];
     }
