@@ -29,6 +29,16 @@ export const getSettings = () => {
     return settingsCache;
 };
 
+export const applyRecentFolder = (folder: string) => {
+    settingsCache.recentFolder = folder;
+    writeSettings().catch((ex) => logger.error(ex));
+}
+
+export const applyRecentAgentFile = (file: string) => {
+    settingsCache.recentAgentFile = file;
+    writeSettings().catch((ex) => logger.error(ex));
+}
+
 export const writeSettings = (): Promise<Settings> => {
     logger.log('Writing settings file: ', getFilename());
     const json = JSON.stringify(settingsCache, null, 2);

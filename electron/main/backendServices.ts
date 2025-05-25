@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {dialog, ipcMain} from 'electron';
-import {getSettings, Settings, writeSettings} from "./appSettings";
+import {applyRecentAgentFile, applyRecentFolder, getSettings, Settings, writeSettings} from "./appSettings";
 
 const listFilesSync = (
     folder: string,
@@ -86,7 +86,7 @@ export const registerMainHandlers = () => {
     })
 
     ipcMain.handle("write-settings", (_event): Promise<Settings> => {
-        return  writeSettings();
+        return writeSettings();
     })
 
     ipcMain.handle("choose-agent-file", (_event, defaultFolder: string | undefined): Promise<string | undefined> => {
@@ -95,7 +95,10 @@ export const registerMainHandlers = () => {
             filters: [{name: 'CSV', extensions: ['csv']}],
             defaultPath: defaultFolder ?? getSettings().recentAgentFile,
             properties: ['openFile'],
-        }).then(result => result.canceled ? undefined : result.filePaths[0]);
+        }).then(result => {
+            !result.canceled && applyRecentAgentFile(result.filePaths[0]);
+            return result.canceled ? undefined : result.filePaths[0];
+        });
     })
 
     ipcMain.handle("choose-directory", (_event, defaultFolder: string | undefined): Promise<string | undefined> => {
@@ -103,6 +106,9 @@ export const registerMainHandlers = () => {
             title: 'Select a folder',
             defaultPath: defaultFolder ?? getSettings().recentFolder,
             properties: ['openDirectory'],
-        }).then(result => result.canceled ? undefined : result.filePaths[0]);
+        }).then(result => {
+            !result.canceled && applyRecentFolder(result.filePaths[0]);
+            return result.canceled ? undefined : result.filePaths[0];
+        });
     })
 }

@@ -17,6 +17,11 @@ export const JarsInUseView = () => {
         listFiles(folders).then(files => {
             console.info("Files found: " + files.length);
 
+            // Normalize paths
+            for (let i = 0; i < files.length; i++) {
+                files[i] = files[i].replace(/\\/g, '/');
+            }
+
             const status: FileStatus[] = [];
 
             readAgentFile(agentFilename)
