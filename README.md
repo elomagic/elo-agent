@@ -1,11 +1,4 @@
-<div style="display: flex; align-items: center;">
-  <img height="128" src="./doc/logo.png" title="Logo" width="128" alt="Logo"/>
-  <span style="font-weight: bold; font-size: 2em; vertical-align: middle;">elomagic's Java Agent UI Tool</span>
-</div>
-
-A tool for identifying unused libraries like JARs, with a focus on Java applications.
-
----
+# elomagic's Java Agent UI Tool ![](/doc/logo.png)
 
 [![Apache License, Version 2.0, January 2004](https://img.shields.io/github/license/apache/maven.svg?label=License)][license]
 [![Latest](https://img.shields.io/github/release/elomagic/jr-agent.svg)](https://github.com/elomagic/jr-agent-app/releases)
@@ -14,6 +7,8 @@ A tool for identifying unused libraries like JARs, with a focus on Java applicat
 [![Required Node.JS >= 22.12.0 || >=22.99.0](https://img.shields.io/static/v1?label=node&message=22.12.0%20||%20%3E=22.99.0&logo=node.js&color=3f893e)](https://nodejs.org/about/releases)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/elomagic/jr-agent-app/graphs/commit-activity)
 [![Buymeacoffee](https://badgen.net/badge/icon/buymeacoffee?icon=buymeacoffee&label)](https://www.buymeacoffee.com/elomagic)
+
+A tool for identifying unused libraries like JARs, with a focus on Java applications.
 
 ## 👀 Overview
 
