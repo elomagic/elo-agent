@@ -9,7 +9,7 @@
 [![Buymeacoffee](https://badgen.net/badge/icon/buymeacoffee?icon=buymeacoffee&label)](https://www.buymeacoffee.com/elomagic)
 
 A tool for identifying unused libraries like JARs, with a focus on Java applications.
-
+![](/Users/carsten/projects/jr-agent-app/doc/logo.png)
 ## 👀 Overview
 
 📦 Ready out of the box  
@@ -91,6 +91,18 @@ export default {
 
 - [C/C++ addons, Node.js modules - Pre-Bundling](https://github.com/electron-vite/vite-plugin-electron-renderer#dependency-pre-bundling)
 - [dependencies vs devDependencies](https://github.com/electron-vite/vite-plugin-electron-renderer#dependencies-vs-devdependencies)
+
+## Contributing
+
+Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](../../issues/new).
+
+### Versioning
+
+Versioning follows the semantic of [Semantic Versioning 2.0.0](https://semver.org/)
+
+## License
+
+The elo-java-agent-ui tool is distributed under [Apache License, Version 2.0][license]
 
 ## Donations
 
