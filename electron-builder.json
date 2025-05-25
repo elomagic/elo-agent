@@ -14,7 +14,8 @@
     "target": [
       "dmg",
       "zip"
-    ]
+    ],
+    "icon": "public/mac-icon.icns"
   },
   "win": {
     "target": [
@@ -25,13 +26,15 @@
         ]
       }
     ],
+    "icon": "public/favicon.ico",
     "artifactName": "${productName}_${version}.${ext}"
   },
   "nsis": {
     "oneClick": false,
     "perMachine": false,
     "allowToChangeInstallationDirectory": true,
-    "deleteAppDataOnUninstall": false
+    "deleteAppDataOnUninstall": false,
+    "installerIcon": "public/favicon.ico",
   },
   "publish": {
     "provider": "generic",

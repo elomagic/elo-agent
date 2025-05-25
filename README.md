@@ -1,6 +1,9 @@
-# elo JR Agent APP
+<div style="display: flex; align-items: center;">
+  <img height="128" src="./doc/logo.png" title="Logo" width="128" alt="Logo"/>
+  <span style="font-weight: bold; font-size: 2em; vertical-align: middle;">elomagic's Java Agent UI Tool</span>
+</div>
 
-A tool that ...
+A tool for identifying unused libraries like JARs, with a focus on Java applications.
 
 ---
 
