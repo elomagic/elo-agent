@@ -6,7 +6,7 @@ import {InsertDriveFileOutlined, ReplayOutlined} from '@mui/icons-material';
 interface ComponentProps {
     onSelectAgentFileClick: () => void;
     onReloadAgentFileClick: () => void;
-    agentFile: string;
+    agentFile: string | undefined;
 }
 
 export const AgentFile = ({onSelectAgentFileClick, onReloadAgentFileClick, agentFile}: Readonly<ComponentProps>) => {
