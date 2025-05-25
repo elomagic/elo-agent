@@ -6,7 +6,6 @@ import {AgentFile} from './AgentFile';
 
 interface ComponentProps {
     items: string[];
-    onAddSourceClick: () => void;
     onDeleteSourceClick: (itemId: string) => void;
     agentFile: string | undefined;
     onSelectAgentFileClick: () => void;
@@ -15,7 +14,6 @@ interface ComponentProps {
 
 export const FileFilters = ({
                                 items,
-                                onAddSourceClick,
                                 onDeleteSourceClick,
                                 agentFile,
                                 onSelectAgentFileClick,
@@ -25,7 +23,7 @@ export const FileFilters = ({
     return (
         <Grid container>
             <Grid size={6}>
-                <SourceFiles items={items} onAddClick={onAddSourceClick} onDeleteClick={onDeleteSourceClick} />
+                <SourceFiles items={items} onDeleteClick={onDeleteSourceClick} />
             </Grid>
             <Grid size={6}>
                 <AgentFile agentFile={agentFile}

@@ -1,10 +1,10 @@
 import { app, BrowserWindow, shell, ipcMain } from 'electron'
-//import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import os from 'node:os'
 import { update } from './update'
 import {registerMainHandlers} from "./backendServices";
+import { initAppMenu } from './appMenu';
 
 //const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -79,6 +79,8 @@ async function createWindow() {
     if (url.startsWith('https:')) shell.openExternal(url)
     return { action: 'deny' }
   })
+
+  initAppMenu(win);
 
   // Auto update
   update(win)

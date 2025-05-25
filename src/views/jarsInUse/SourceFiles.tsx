@@ -1,23 +1,19 @@
 "use client"
 
 import {Box, IconButton, List, ListItem, ListItemText, Paper, Stack} from '@mui/material';
-import {AddCircle, RemoveCircle} from '@mui/icons-material';
+import {RemoveCircle} from '@mui/icons-material';
 
 interface ComponentProps {
     items: string[];
-    onAddClick: () => void;
     onDeleteClick: (itemId: string) => void;
 }
 
-export const SourceFiles = ({items, onAddClick, onDeleteClick}: Readonly<ComponentProps>) => {
+export const SourceFiles = ({items, onDeleteClick}: Readonly<ComponentProps>) => {
 
     return (
         <Stack direction="column" width="100%" borderRight={1} borderColor={"gray"}>
             <Stack direction="row" alignItems="center" marginLeft={1}>
-                <Box>Source Folders</Box>
-                <IconButton aria-label="add" onClick={onAddClick}>
-                    <AddCircle/>
-                </IconButton>
+                <Box>Sources</Box>
             </Stack>
 
             <Paper elevation={1}>

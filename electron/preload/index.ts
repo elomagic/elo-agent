@@ -21,6 +21,7 @@ contextBridge.exposeInMainWorld('ipcRenderer', {
 
   // You can expose other APTs you need here.
   // ...
+  onAddFolders: (callback: (folders: string[]) => void ) => ipcRenderer.on('add-folders', (_event, value) => callback(value))
 })
 
 // --------- Preload scripts loading ---------

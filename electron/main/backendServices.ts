@@ -3,6 +3,17 @@ import path from 'path';
 import {dialog, ipcMain, shell} from 'electron';
 import {applyRecentAgentFile, applyRecentFolder, getSettings, Settings, writeSettings} from "./appSettings";
 
+export const chooseDirectory = (defaultFolder: string | undefined) => {
+    return dialog.showOpenDialog({
+        title: 'Select a folder',
+        defaultPath: defaultFolder ?? getSettings().recentFolder,
+        properties: ['openDirectory'],
+    }).then(result => {
+        !result.canceled && applyRecentFolder(result.filePaths[0]);
+        return result.canceled ? undefined : result.filePaths[0];
+    });
+}
+
 const listFilesSync = (
     folder: string,
 ): string[] => {
@@ -112,13 +123,7 @@ export const registerMainHandlers = () => {
     })
 
     ipcMain.handle("choose-directory", (_event, defaultFolder: string | undefined): Promise<string | undefined> => {
-        return dialog.showOpenDialog({
-            title: 'Select a folder',
-            defaultPath: defaultFolder ?? getSettings().recentFolder,
-            properties: ['openDirectory'],
-        }).then(result => {
-            !result.canceled && applyRecentFolder(result.filePaths[0]);
-            return result.canceled ? undefined : result.filePaths[0];
-        });
+        return chooseDirectory(defaultFolder);
     })
+
 }

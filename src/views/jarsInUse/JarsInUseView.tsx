@@ -1,7 +1,7 @@
 "use client"
 
 import {Stack} from '@mui/material';
-import {useState} from 'react';
+import { useEffect, useState } from 'react';
 import {chooseAgentFile, chooseFolder, listFiles, readAgentFile} from '@/IpcServices';
 import {FileStatus, FileStatusTable} from '@/views/jarsInUse/FileStatusTable';
 import {FileFilters} from '@/views/jarsInUse/FileFilters';
@@ -46,7 +46,7 @@ export const JarsInUseView = () => {
         })
     };
 
-    const handleAddSourceClick = () => {
+    const handleAddFoldersEvent = () => {
         chooseFolder(undefined)
             .then((folder: string | undefined) => {
                 folder && sourceFolders.indexOf(folder) === -1 && setSourceFolders([folder, ...sourceFolders]);
@@ -75,11 +75,22 @@ export const JarsInUseView = () => {
         reloadTable(sourceFolders, agentFile);
     }
 
+  useEffect(() => {
+    /*
+    window.electronAPI.onNachricht((folders: string[]) => {
+      folders && sourceFolders.indexOf(folder) === -1 && setSourceFolders([folder, ...sourceFolders]);
+      return folder && [folder, ...sourceFolders]
+        .then((folders) => {
+          folders && reloadTable(folders, agentFile)
+        });
+    });
+    */
+  }, []);
+
     return (
         <Stack direction='column' width="100%" height="100vh">
             <ToastContainer position='top-center' theme='colored' />
             <FileFilters items={sourceFolders}
-                         onAddSourceClick={handleAddSourceClick}
                          onDeleteSourceClick={handleDeleteSourceClick}
                          agentFile={agentFile}
                          onSelectAgentFileClick={handleSelectAgentFileClick}
