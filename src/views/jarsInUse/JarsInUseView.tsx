@@ -66,7 +66,8 @@ export const JarsInUseView = () => {
     const handleSelectAgentFileClick = () => {
         chooseAgentFile(undefined)
             .then((file: string | undefined) => {
-                file && setAgentFile(file) && reloadTable(sourceFolders, file);
+                file && setAgentFile(file)
+                file && reloadTable(sourceFolders, file);
             })
     }
 
