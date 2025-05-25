@@ -10,10 +10,10 @@ import {toast, ToastContainer} from 'react-toastify';
 export const JarsInUseView = () => {
 
     const [sourceFolders, setSourceFolders] = useState<string[]>([]);
-    const [agentFile, setAgentFile] = useState<string>("./agent-file.csv");
+    const [agentFile, setAgentFile] = useState<string | undefined>(undefined);
     const [fileStatus, setFileStatus] = useState<FileStatus[]>([]);
 
-    const reloadTable = (folders: string[], agentFilename: string) => {
+    const reloadTable = (folders: string[], agentFilename: string | undefined) => {
         listFiles(folders).then(files => {
             console.info("Files found: " + files.length);
 
@@ -42,7 +42,7 @@ export const JarsInUseView = () => {
     };
 
     const handleAddSourceClick = () => {
-        chooseFolder("./")
+        chooseFolder(undefined)
             .then((folder: string | undefined) => {
                 folder && sourceFolders.indexOf(folder) === -1 && setSourceFolders([folder, ...sourceFolders]);
                 return folder && [folder, ...sourceFolders]
@@ -59,7 +59,7 @@ export const JarsInUseView = () => {
     }
 
     const handleSelectAgentFileClick = () => {
-        chooseAgentFile("./")
+        chooseAgentFile(undefined)
             .then((file: string | undefined) => {
                 file && setAgentFile(file) && reloadTable(sourceFolders, file);
             })

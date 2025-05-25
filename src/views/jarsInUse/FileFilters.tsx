@@ -8,7 +8,7 @@ interface ComponentProps {
     items: string[];
     onAddSourceClick: () => void;
     onDeleteSourceClick: (itemId: string) => void;
-    agentFile: string;
+    agentFile: string | undefined;
     onSelectAgentFileClick: () => void;
     onReloadAgentFileClick: () => void;
 }
