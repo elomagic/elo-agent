@@ -1,3 +1,4 @@
+import {CheckCircleOutline, NotInterested} from "@mui/icons-material";
 import { Box, Stack } from "@mui/material";
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 
@@ -20,6 +21,9 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
       editable: false,
       type: 'boolean',
       hideable: false,
+      renderCell: (params) => params.value ? (
+          <CheckCircleOutline color="success" />
+      ) : <NotInterested color="disabled" />,
     },
     {
       field: 'id',
