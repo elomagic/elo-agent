@@ -1,7 +1,8 @@
 "use client"
 
-import {Box, IconButton, Stack, TextField} from '@mui/material';
-import {InsertDriveFileOutlined, ReplayOutlined} from '@mui/icons-material';
+import {Box, IconButton, Stack, TextField, Tooltip} from '@mui/material';
+import {InsertDriveFileOutlined, OpenInNew, ReplayOutlined} from '@mui/icons-material';
+import { openFileExternal } from '@/IpcServices';
 
 interface ComponentProps {
     onSelectAgentFileClick: () => void;
@@ -16,6 +17,7 @@ export const AgentFile = ({onSelectAgentFileClick, onReloadAgentFileClick, agent
                alignItems="center"
                spacing={1}
                marginLeft={1}
+               flexGrow={1}
         >
             <Box whiteSpace={"nowrap"}>Agent File</Box>
             <TextField fullWidth
@@ -30,12 +32,23 @@ export const AgentFile = ({onSelectAgentFileClick, onReloadAgentFileClick, agent
                            }
                        }}
             />
-            <IconButton aria-label="add" onClick={onSelectAgentFileClick}>
-                <InsertDriveFileOutlined/>
-            </IconButton>
-            <IconButton aria-label="reload" onClick={onReloadAgentFileClick}>
-                <ReplayOutlined/>
-            </IconButton>
+            <Tooltip title="Load agent file">
+                <IconButton aria-label="add" onClick={onSelectAgentFileClick}>
+                    <InsertDriveFileOutlined/>
+                </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Reload agent file">
+                <IconButton aria-label="reload" onClick={onReloadAgentFileClick}>
+                    <ReplayOutlined/>
+                </IconButton>
+            </Tooltip>
+
+            <Tooltip title="Open agent in external application">
+                <IconButton aria-label="reload" onClick={() => agentFile && openFileExternal(agentFile)}>
+                    <OpenInNew/>
+                </IconButton>
+            </Tooltip>
         </Stack>
     );
 

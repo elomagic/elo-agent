@@ -1,12 +1,12 @@
 "use client"
 
-import {Grid} from '@mui/material';
+import { Stack } from '@mui/material';
 import {SourceFiles} from '@/views/jarsInUse/SourceFiles';
 import {AgentFile} from './AgentFile';
 
 interface ComponentProps {
     items: string[];
-    onDeleteSourceClick: (itemId: string) => void;
+    onUpdateSources: (files: string[]) => void;
     agentFile: string | undefined;
     onSelectAgentFileClick: () => void;
     onReloadAgentFileClick: () => void;
@@ -14,24 +14,21 @@ interface ComponentProps {
 
 export const FileFilters = ({
                                 items,
-                                onDeleteSourceClick,
+                                onUpdateSources,
                                 agentFile,
                                 onSelectAgentFileClick,
                                 onReloadAgentFileClick,
                             }: Readonly<ComponentProps>) => {
 
     return (
-        <Grid container>
-            <Grid size={6}>
-                <SourceFiles items={items} onDeleteClick={onDeleteSourceClick} />
-            </Grid>
-            <Grid size={6}>
-                <AgentFile agentFile={agentFile}
-                           onSelectAgentFileClick={onSelectAgentFileClick}
-                           onReloadAgentFileClick={onReloadAgentFileClick}
-                />
-            </Grid>
-        </Grid>
+        <Stack direction="row">
+            <SourceFiles items={items} onUpdateSources={onUpdateSources} />
+
+            <AgentFile agentFile={agentFile}
+                       onSelectAgentFileClick={onSelectAgentFileClick}
+                       onReloadAgentFileClick={onReloadAgentFileClick}
+            />
+        </Stack>
     );
 
 }

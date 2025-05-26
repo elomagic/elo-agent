@@ -1,44 +1,36 @@
 "use client"
 
-import {Box, IconButton, List, ListItem, ListItemText, Paper, Stack} from '@mui/material';
-import {RemoveCircle} from '@mui/icons-material';
+import {Box, IconButton, Stack, Tooltip} from '@mui/material';
+import { EditNote } from '@mui/icons-material';
+import { FileId, SourceFilesDialog } from '@/views/jarsInUse/SourceFilesDialog';
+import { useState } from 'react';
 
 interface ComponentProps {
     items: string[];
-    onDeleteClick: (itemId: string) => void;
+    onUpdateSources: (items: string[]) => void;
 }
 
-export const SourceFiles = ({items, onDeleteClick}: Readonly<ComponentProps>) => {
+export const SourceFiles = ({items, onUpdateSources}: Readonly<ComponentProps>) => {
+
+    const [openSources, setOpenSources] = useState<boolean>(false);
+
+    const handleSourcesOkClick = (fileIds: FileId[]) => {
+        setOpenSources(false);
+
+        onUpdateSources(fileIds.map((ids) => ids.file));
+    }
 
     return (
-        <Stack direction="column" width="100%" borderRight={1} borderColor={"gray"}>
-            <Stack direction="row" alignItems="center" marginLeft={1}>
-                <Box>Sources</Box>
-            </Stack>
+        <Stack direction="row" alignItems="center" marginLeft={1} spacing={1} borderRight={1} borderColor={"gray"}>
+            <Box>Sources ({items.length} files)</Box>
 
-            <Paper elevation={1}>
-                <List     sx={{
-                    height: "85px",
-                    overflow: "auto",
-                    marginLeft: "8px"
-                    ,
-                }}>
-                    {items
-                        .map((item) => (
-                            <ListItem key={item}
-                                      disablePadding
-                                      secondaryAction={
-                                          <IconButton edge="end" aria-label="remove" sx={{padding: 0}}
-                                                      onClick={() => onDeleteClick(item)}>
-                                              <RemoveCircle color="error"/>
-                                          </IconButton>
-                                      }
-                            >
-                                <ListItemText id={item} primary={item}/>
-                            </ListItem>)
-                        )}
-                </List>
-            </Paper>
+            <Tooltip title="Show / edit class file sources">
+                <IconButton onClick={() => setOpenSources(true)}>
+                    <EditNote />
+                </IconButton>
+            </Tooltip>
+
+            <SourceFilesDialog items={items.map((i) => { return {id: i, file: i}})} open={openSources} onOkClick={handleSourcesOkClick} onCancelClick={() => setOpenSources(false)} />
         </Stack>
     );
 

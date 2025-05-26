@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import {dialog, ipcMain, shell} from 'electron';
 import {applyRecentAgentFile, applyRecentFolder, getSettings, Settings, writeSettings} from "./appSettings";
-import { exec } from 'child_process';
+import { spawn } from 'child_process';
 
 export const chooseDirectory = (defaultFolder: string | undefined) => {
     return dialog.showOpenDialog({
@@ -17,13 +17,23 @@ export const chooseDirectory = (defaultFolder: string | undefined) => {
 
 export const getJavaProcesses = (): Promise<string[]> => {
     return new Promise<string[]>((resolve) => {
-        exec('jps -lv', (err, stdout, _stderr) => {
-            if (err) {
-                resolve([]);
-            }
+        // jps or jcmd works only with JDK not with JRE :-/
 
-            const lines = stdout.split('\n').filter(line => line.trim() !== '');
+        // TODO Works only on Windows with Powershell. Mac / Linux support required
+        const ps = spawn('powershell.exe', [
+            '-Command',
+            'Get-CimInstance Win32_Process -Filter "Name = \'java.exe\'" | ForEach-Object { $_.ProcessId.ToString() + \' \' + $_.CommandLine }'
+        ]);
 
+        let stdout: string = "";
+
+        ps.stdout.on('data', data => {
+            stdout += data;
+            console.log('OUTPUT:\n' + data.toString());
+        });
+
+        ps.on('exit', _code => {
+            const lines = stdout.trim().split('\n').filter(line => line.trim() !== '');
             resolve(lines);
         });
     });
@@ -50,21 +60,27 @@ const listFilesSync = (folder: string): string[] => {
 }
 
 const listFiles = (
-    folders: string[],
+    files: string[],
+    _recursive: boolean,
+    includeFiles: boolean,
 ): Promise<string[]> => {
-    const files: string[] = [];
+    const collectedFiles: string[] = [];
 
-    for (const folder of folders) {
-        if (folder === undefined || !fs.statSync(folder).isDirectory()) {
-            return Promise.resolve([]);
+    for (const file of files) {
+        if (file === undefined) {
+            continue;
         }
 
-        files.push(...listFilesSync(folder));
+        if (fs.statSync(file).isDirectory()) {
+            collectedFiles.push(...listFilesSync(file));
+        } else if (includeFiles) {
+            collectedFiles.push(file);
+        }
     }
 
-    console.info("Jar files found: " + files.length);
+    console.info("Count of files found: " + collectedFiles.length);
 
-    return Promise.resolve(files);
+    return Promise.resolve(collectedFiles);
 }
 
 const readFile = (file: string,): Promise<Buffer> => {
@@ -102,8 +118,16 @@ export const registerMainHandlers = () => {
         return Promise.resolve();
     })
 
-    ipcMain.handle("list-files", (_event, folder: string[]): Promise<string[]> => {
-        return listFiles(folder);
+    ipcMain.handle("list-files", (_event,
+                                  folder: string[],
+                                  recursive: boolean,
+                                  includeFiles: boolean): Promise<string[]> => {
+        return listFiles(folder, recursive, includeFiles);
+    })
+
+    ipcMain.handle("open-file-external", (_event, file: string): Promise<void> => {
+        shell.openExternal(file);
+        return Promise.resolve();
     })
 
     ipcMain.handle("open-folder", (_event, folder: string): Promise<void> => {

@@ -10,15 +10,15 @@ import {ProcessId, SelectProcessDialog} from "@/views/jarsInUse/SelectProcessDia
 
 export const JarsInUseView = () => {
 
-    const [sourceFolders, setSourceFolders] = useState<string[]>([]);
+    const [sourceFiles, setSourceFiles] = useState<string[]>([]);
     const [agentFile, setAgentFile] = useState<string | undefined>(undefined);
     const [fileStatus, setFileStatus] = useState<FileStatus[]>([]);
 
     const [processIds, setProcessIds] = useState<ProcessId[]>([]);
     const [openProcess, setOpenProcess] = useState<boolean>(false);
 
-    const reloadTable = (folders: string[], agentFilename: string | undefined) => {
-        listFiles(folders).then(files => {
+    const reloadTable = (files: string[], agentFilename: string | undefined) => {
+        listFiles(files, false, true).then(files => {
             console.info("Files found: " + files.length);
 
             // Normalize paths
@@ -44,48 +44,66 @@ export const JarsInUseView = () => {
                         status.push({id: file, loaded: usedFiles.indexOf(file) !== -1});
                     }
 
+
                     setFileStatus(status);
                 })
                 .then(() => toast.success("View reloaded!"))
         })
     };
 
-    const handleDeleteSourceClick = (item: string) => {
-        const folders = sourceFolders.filter(i => item !== i);
-        setSourceFolders(folders);
-        reloadTable(folders, agentFile);
+    const applySourceFiles = (files: string[]) => {
+        // filter duplicates
+        const uniqueFolders = files.filter((folder) => !sourceFiles.includes(folder));
+        uniqueFolders.push(...sourceFiles.filter((folder) => !files.includes(folder)));
+
+        setSourceFiles(uniqueFolders);
+        reloadTable(uniqueFolders, agentFile)
+    }
+
+    const handleUpdateSourcesClick = (newFiles: string[]) => {
+        setSourceFiles(newFiles);
+        reloadTable(newFiles, agentFile);
     }
 
     const handleSelectAgentFileClick = () => {
         chooseAgentFile(undefined)
             .then((file: string | undefined) => {
                 file && setAgentFile(file)
-                file && reloadTable(sourceFolders, file);
+                file && reloadTable(sourceFiles, file);
             })
     }
 
     const handleReloadAgentFileClick = () => {
-        reloadTable(sourceFolders, agentFile);
+        reloadTable(sourceFiles, agentFile);
     }
 
-    const handleSelectProcessClick = (args: string) => {
+    const handleSelectProcessClick = (a: string) => {
         setOpenProcess(false);
-        // TODO extract classpath files and filter on duplicates
+
+        const args = a.split(" ");
+        const cpIndex = args.indexOf("-classpath");
+        const cp = args[cpIndex + 1];
+        const files = cp.split(";");
+
+        // TODO Classpath from Manifest in case when argument -jar is set
+
+        applySourceFiles(files);
     }
 
     useEffect(() => {
-        window.ipcRenderer.on('add-folders', (_event,folders: string[])=> {
-            // filter duplicates
-            const uniqueFolders = folders.filter((folder) => !sourceFolders.includes(folder));
-            uniqueFolders.push(...sourceFolders.filter((folder) => !folders.includes(folder)));
-
-            setSourceFolders(uniqueFolders);
-            reloadTable(uniqueFolders, agentFile)
+        window.ipcRenderer.on('add-folders', (_event, folders: string[])=> {
+            applySourceFiles(folders);
         });
         window.ipcRenderer.on('choose-processes', (_event, processes: string[])=> {
-            const pi: ProcessId[] = processes.map((p) => { return { id: p.split(" ")[0], args: p }});
+            const pids: ProcessId[] = processes.map((line) => {
+                const spaceIndex = line.indexOf(' ');
+                return {
+                    id: line.substring(0, spaceIndex),
+                    args: line.substring(spaceIndex + 1),
+                }
+            });
 
-            setProcessIds(pi);
+            setProcessIds(pids);
             setOpenProcess(true);
         });
     }, []);
@@ -93,8 +111,8 @@ export const JarsInUseView = () => {
     return (
         <Stack direction='column' width="100%" height="100vh">
             <ToastContainer position='top-center' theme='colored'/>
-            <FileFilters items={sourceFolders}
-                         onDeleteSourceClick={handleDeleteSourceClick}
+            <FileFilters items={sourceFiles}
+                         onUpdateSources={handleUpdateSourcesClick}
                          agentFile={agentFile}
                          onSelectAgentFileClick={handleSelectAgentFileClick}
                          onReloadAgentFileClick={handleReloadAgentFileClick}

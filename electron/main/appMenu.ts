@@ -11,12 +11,14 @@ export const initAppMenu = (win: BrowserWindow) => {
             submenu: [
                 {
                     label: 'Add Java process',
+                    toolTip: 'Try to identify JARs by scanning Java process (Experimental)',
                     click()  {
                         getJavaProcesses().then((processes) => win.webContents.send('choose-processes', processes));
                     }
                 },
                 {
                     label: 'Add directory',
+                    toolTip: 'Scans a given directory for JAR files',
                     click() {
                         chooseDirectory(undefined)
                             .then((folder) => folder && win.webContents.send('add-folders', [folder]));
@@ -24,13 +26,15 @@ export const initAppMenu = (win: BrowserWindow) => {
                 },
                 {
                     label: 'Add directory recursive',
+                    toolTip: 'Scans a given directory recursive for JAR files',
                 },
                 {
                     type: 'separator'
                 },
                 {
                     label: 'Quit',
-                    role: 'quit'
+                    role: 'quit',
+                    toolTip: 'Quit this application'
                 }
             ]
         },

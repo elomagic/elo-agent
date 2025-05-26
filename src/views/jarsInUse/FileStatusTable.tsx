@@ -22,7 +22,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
         {
             field: 'loaded',
             headerName: 'Is loaded',
-            width: 180,
+            width: 80,
             editable: false,
             type: 'boolean',
             hideable: false,

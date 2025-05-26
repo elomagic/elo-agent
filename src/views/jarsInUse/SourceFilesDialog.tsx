@@ -1,7 +1,7 @@
 import {Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Slide} from "@mui/material";
 import {DataGrid, GridColDef} from "@mui/x-data-grid";
 import {TransitionProps} from "@mui/material/transitions";
-import {forwardRef, useState} from "react";
+import {forwardRef} from "react";
 
 const Transition = forwardRef(function Transition(
     props: TransitionProps & {
@@ -12,47 +12,37 @@ const Transition = forwardRef(function Transition(
     return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export type ProcessId = {
+export type FileId = {
     id: string;
-    args: string;
+    file: string;
 }
 
 interface ComponentProps {
-    items: ProcessId[];
+    items: FileId[];
     open: boolean;
-    onSelectClick: (args: string) => void;
+    onOkClick: (items: FileId[]) => void;
     onCancelClick: () => void;
 }
 
-export const SelectProcessDialog = ({ items, open, onSelectClick, onCancelClick }: Readonly<ComponentProps>) => {
-
-    const [args, setArgs] = useState<string | undefined>(undefined);
+export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Readonly<ComponentProps>) => {
 
     const columns: GridColDef<(typeof items)[number]>[] = [
         {
             field: 'id',
-            headerName: 'Process Id',
+            headerName: 'Folder / File',
             width: 90,
             editable: false,
-            type: 'number',
-            hideable: false,
-        },
-        {
-            field: 'args',
-            headerName: 'Process',
-            width: 500,
-            editable: false,
             type: 'string',
-            flex: 1,
             hideable: false,
+            flex: 1
         },
     ];
 
     return (
         <Dialog fullScreen open={open} onClose={onCancelClick} TransitionComponent={Transition}>
-            <DialogTitle>Select Java Process</DialogTitle>
+            <DialogTitle>Data sources</DialogTitle>
             <DialogContent sx={{ display: "flex", flexDirection: "column" }}>
-                <DialogContentText>Please select the Java process you want to use for this operation.</DialogContentText>
+                <DialogContentText>Identified folder and files</DialogContentText>
 
                 <Box flexGrow={1} sx={{ width: '100%' }}>
                     <DataGrid
@@ -67,14 +57,12 @@ export const SelectProcessDialog = ({ items, open, onSelectClick, onCancelClick 
                                 },
                             },
                         }}
-                        onRowClick={(e) => setArgs(e.row.args)}
                     />
                 </Box>
-
             </DialogContent>
             <DialogActions>
-                <Button onClick={onCancelClick}>Cancel</Button>
-                <Button onClick={() => args &&onSelectClick(args)}>Select</Button>
+                <Button onClick={onCancelClick}>Close</Button>
+                <Button onClick={() => items && onOkClick(items)}>OK</Button>
             </DialogActions>
         </Dialog>
     );
