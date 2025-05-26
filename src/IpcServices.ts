@@ -12,6 +12,10 @@ export function copyTextToClipboard(text: string) {
     window.ipcRenderer.invoke('copy-txt-to-clipboard', text);
 }
 
+export function getJavaProcesses(): Promise<string[]> {
+    return window.ipcRenderer.invoke('get-java-processes');
+}
+
 export function listFiles(folders: string[],
                           recursive: boolean = false,
                           includeFiles: boolean = false): Promise<string[]> {

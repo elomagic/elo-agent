@@ -25,6 +25,8 @@ export const getJavaProcesses = (): Promise<string[]> => {
             'Get-CimInstance Win32_Process -Filter "Name = \'java.exe\'" | ForEach-Object { $_.ProcessId.ToString() + \' \' + $_.CommandLine }'
         ]);
 
+        // ps -x -o pid=,command=
+
         let stdout: string = "";
 
         ps.stdout.on('data', data => {
@@ -116,6 +118,10 @@ export const registerMainHandlers = () => {
     ipcMain.handle("copy-txt-to-clipboard", (_event, _text: string): Promise<void> => {
         //clipboard.writeText(text);
         return Promise.resolve();
+    })
+
+    ipcMain.handle("get-java-processes", (_event): Promise<string[]> => {
+        return getJavaProcesses();
     })
 
     ipcMain.handle("list-files", (_event,

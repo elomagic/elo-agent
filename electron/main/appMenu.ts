@@ -1,5 +1,5 @@
 import {BrowserWindow, Menu, shell} from 'electron';
-import {chooseDirectory, getJavaProcesses} from './backendServices';
+import {chooseDirectory} from './backendServices';
 import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions;
 import MenuItem = Electron.MenuItem;
 
@@ -13,7 +13,7 @@ export const initAppMenu = (win: BrowserWindow) => {
                     label: 'Add Java process',
                     toolTip: 'Try to identify JARs by scanning Java process (Experimental)',
                     click()  {
-                        getJavaProcesses().then((processes) => win.webContents.send('choose-processes', processes));
+                        win.webContents.send('show-process-dialog');
                     }
                 },
                 {

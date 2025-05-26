@@ -1,7 +1,18 @@
-import {Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Slide} from "@mui/material";
+import {
+    Box,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Slide,
+    Stack
+} from "@mui/material";
 import {DataGrid, GridColDef} from "@mui/x-data-grid";
 import {TransitionProps} from "@mui/material/transitions";
-import {forwardRef, useState} from "react";
+import {forwardRef, useEffect, useState} from "react";
+import {getJavaProcesses} from "@/IpcServices";
 
 const Transition = forwardRef(function Transition(
     props: TransitionProps & {
@@ -18,15 +29,15 @@ export type ProcessId = {
 }
 
 interface ComponentProps {
-    items: ProcessId[];
     open: boolean;
     onSelectClick: (args: string) => void;
     onCancelClick: () => void;
 }
 
-export const SelectProcessDialog = ({ items, open, onSelectClick, onCancelClick }: Readonly<ComponentProps>) => {
+export const SelectProcessDialog = ({ open, onSelectClick, onCancelClick }: Readonly<ComponentProps>) => {
 
     const [args, setArgs] = useState<string | undefined>(undefined);
+    const [items, setItems] = useState<ProcessId[]>([]);
 
     const columns: GridColDef<(typeof items)[number]>[] = [
         {
@@ -48,11 +59,35 @@ export const SelectProcessDialog = ({ items, open, onSelectClick, onCancelClick 
         },
     ];
 
+    const handleRefreshClick = () => {
+        getJavaProcesses().then(processes => {
+            const pids: ProcessId[] = processes.map((line) => {
+                const spaceIndex = line.indexOf(' ');
+                return {
+                    id: line.substring(0, spaceIndex),
+                    args: line.substring(spaceIndex + 1),
+                }
+            });
+
+            setItems(pids);
+        });
+    }
+
+    useEffect(() => {
+        if (open) {
+            handleRefreshClick();
+        }
+    }, [open]);
+
     return (
         <Dialog fullScreen open={open} onClose={onCancelClick} TransitionComponent={Transition}>
             <DialogTitle>Select Java Process</DialogTitle>
             <DialogContent sx={{ display: "flex", flexDirection: "column" }}>
-                <DialogContentText>Please select the Java process you want to use for this operation.</DialogContentText>
+                <Stack spacing={2} direction="row">
+                    <Button variant="outlined" onClick={handleRefreshClick}>Refresh</Button>
+                </Stack>
+
+                <DialogContentText sx={{ mt: 2 }}>Please select the Java process you want to use for this operation.</DialogContentText>
 
                 <Box flexGrow={1} sx={{ width: '100%' }}>
                     <DataGrid

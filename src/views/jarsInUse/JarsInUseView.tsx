@@ -6,7 +6,7 @@ import {chooseAgentFile, listFiles, readAgentFile} from '@/IpcServices';
 import {FileStatus, FileStatusTable} from '@/views/jarsInUse/FileStatusTable';
 import {FileFilters} from '@/views/jarsInUse/FileFilters';
 import {toast, ToastContainer} from 'react-toastify';
-import {ProcessId, SelectProcessDialog} from "@/views/jarsInUse/SelectProcessDialog";
+import {SelectProcessDialog} from "@/views/jarsInUse/SelectProcessDialog";
 
 export const JarsInUseView = () => {
 
@@ -14,7 +14,6 @@ export const JarsInUseView = () => {
     const [agentFile, setAgentFile] = useState<string | undefined>(undefined);
     const [fileStatus, setFileStatus] = useState<FileStatus[]>([]);
 
-    const [processIds, setProcessIds] = useState<ProcessId[]>([]);
     const [openProcess, setOpenProcess] = useState<boolean>(false);
 
     const reloadTable = (files: string[], agentFilename: string | undefined) => {
@@ -94,16 +93,7 @@ export const JarsInUseView = () => {
         window.ipcRenderer.on('add-folders', (_event, folders: string[])=> {
             applySourceFiles(folders);
         });
-        window.ipcRenderer.on('choose-processes', (_event, processes: string[])=> {
-            const pids: ProcessId[] = processes.map((line) => {
-                const spaceIndex = line.indexOf(' ');
-                return {
-                    id: line.substring(0, spaceIndex),
-                    args: line.substring(spaceIndex + 1),
-                }
-            });
-
-            setProcessIds(pids);
+        window.ipcRenderer.on('show-process-dialog', (_event)=> {
             setOpenProcess(true);
         });
     }, []);
@@ -118,7 +108,7 @@ export const JarsInUseView = () => {
                          onReloadAgentFileClick={handleReloadAgentFileClick}
             />
             <FileStatusTable items={fileStatus}/>
-            <SelectProcessDialog items={processIds} open={openProcess} onSelectClick={handleSelectProcessClick} onCancelClick={() => setOpenProcess(false)}/>
+            <SelectProcessDialog open={openProcess} onSelectClick={handleSelectProcessClick} onCancelClick={() => setOpenProcess(false)}/>
         </Stack>
     );
 
