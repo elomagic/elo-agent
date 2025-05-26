@@ -20,12 +20,12 @@ export type ProcessId = {
 interface ComponentProps {
     items: ProcessId[];
     open: boolean;
-    onYesClick: () => void;
-    onNoClick: () => void;
+    onSelectClick: () => void;
+    onCancelClick: () => void;
 }
 
 // eslint-disable-next-line react/function-component-definition
-export const SelectProcessDialog = ({ items, open, onYesClick, onNoClick }: Readonly<ComponentProps>) => {
+export const SelectProcessDialog = ({ items, open, onSelectClick, onCancelClick }: Readonly<ComponentProps>) => {
 
     const columns: GridColDef<(typeof items)[number]>[] = [
         {
@@ -40,7 +40,7 @@ export const SelectProcessDialog = ({ items, open, onYesClick, onNoClick }: Read
     ];
 
     return (
-        <Dialog fullScreen open={open} onClose={onNoClick} TransitionComponent={Transition}>
+        <Dialog fullScreen open={open} onClose={onCancelClick} TransitionComponent={Transition}>
             <DialogTitle>Select Java Process</DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-slide-description">
@@ -61,8 +61,8 @@ export const SelectProcessDialog = ({ items, open, onYesClick, onNoClick }: Read
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
-                <Button onClick={onNoClick}>Cancel</Button>
-                <Button onClick={onYesClick}>Select</Button>
+                <Button onClick={onCancelClick}>Cancel</Button>
+                <Button onClick={onSelectClick}>Select</Button>
             </DialogActions>
         </Dialog>
     );

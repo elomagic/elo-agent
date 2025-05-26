@@ -68,6 +68,10 @@ export const JarsInUseView = () => {
         reloadTable(sourceFolders, agentFile);
     }
 
+    const handleSelectProcessClick = () => {
+        // TODO extract classath files and filter on duplicates
+    }
+
     useEffect(() => {
         window.ipcRenderer.on('add-folders', (_event,folders: string[])=> {
             // TODO filter duplicates
@@ -92,7 +96,7 @@ export const JarsInUseView = () => {
                          onReloadAgentFileClick={handleReloadAgentFileClick}
             />
             <FileStatusTable items={fileStatus}/>
-            <SelectProcessDialog items={processIds} open={openProcess} onYesClick={() => {}} onNoClick={() => {}}/>
+            <SelectProcessDialog items={processIds} open={openProcess} onSelectClick={handleSelectProcessClick} onCancelClick={() => setOpenProcess(false)}/>
         </Stack>
     );
 
