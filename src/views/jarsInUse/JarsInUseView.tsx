@@ -68,18 +68,22 @@ export const JarsInUseView = () => {
         reloadTable(sourceFolders, agentFile);
     }
 
-    const handleSelectProcessClick = () => {
-        // TODO extract classath files and filter on duplicates
+    const handleSelectProcessClick = (args: string) => {
+        setOpenProcess(false);
+        // TODO extract classpath files and filter on duplicates
     }
 
     useEffect(() => {
         window.ipcRenderer.on('add-folders', (_event,folders: string[])=> {
-            // TODO filter duplicates
-            setSourceFolders([...folders, ...sourceFolders]);
-            reloadTable([...folders, ...sourceFolders], agentFile)
+            // filter duplicates
+            const uniqueFolders = folders.filter((folder) => !sourceFolders.includes(folder));
+            uniqueFolders.push(...sourceFolders.filter((folder) => !folders.includes(folder)));
+
+            setSourceFolders(uniqueFolders);
+            reloadTable(uniqueFolders, agentFile)
         });
         window.ipcRenderer.on('choose-processes', (_event, processes: string[])=> {
-            const pi: ProcessId[] = processes.map((p) => { return { id: p, args: p }});
+            const pi: ProcessId[] = processes.map((p) => { return { id: p.split(" ")[0], args: p }});
 
             setProcessIds(pi);
             setOpenProcess(true);

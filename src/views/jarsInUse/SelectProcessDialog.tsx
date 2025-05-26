@@ -1,7 +1,7 @@
 import {Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Slide} from "@mui/material";
 import {DataGrid, GridColDef} from "@mui/x-data-grid";
 import {TransitionProps} from "@mui/material/transitions";
-import {forwardRef} from "react";
+import {forwardRef, useState} from "react";
 
 const Transition = forwardRef(function Transition(
     props: TransitionProps & {
@@ -20,16 +20,26 @@ export type ProcessId = {
 interface ComponentProps {
     items: ProcessId[];
     open: boolean;
-    onSelectClick: () => void;
+    onSelectClick: (args:string) => void;
     onCancelClick: () => void;
 }
 
 // eslint-disable-next-line react/function-component-definition
 export const SelectProcessDialog = ({ items, open, onSelectClick, onCancelClick }: Readonly<ComponentProps>) => {
 
+    const [args, setArgs] = useState<string | undefined>(undefined);
+
     const columns: GridColDef<(typeof items)[number]>[] = [
         {
             field: 'id',
+            headerName: 'Process Id',
+            width: 90,
+            editable: false,
+            type: 'number',
+            hideable: false,
+        },
+        {
+            field: 'args',
             headerName: 'Process',
             width: 500,
             editable: false,
@@ -44,7 +54,7 @@ export const SelectProcessDialog = ({ items, open, onSelectClick, onCancelClick 
             <DialogTitle>Select Java Process</DialogTitle>
             <DialogContent>
                 <DialogContentText id="alert-dialog-slide-description">
-                    <Box>Please select the Java process you want to use for this operation.</Box>
+                    <span>Please select the Java process you want to use for this operation.</span>
                     <DataGrid
                         rows={items}
                         columns={columns}
@@ -57,12 +67,13 @@ export const SelectProcessDialog = ({ items, open, onSelectClick, onCancelClick 
                                 },
                             },
                         }}
+                        onRowClick={(e) => setArgs(e.row.args)}
                     />
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
                 <Button onClick={onCancelClick}>Cancel</Button>
-                <Button onClick={onSelectClick}>Select</Button>
+                <Button onClick={() => args &&onSelectClick(args)}>Select</Button>
             </DialogActions>
         </Dialog>
     );
