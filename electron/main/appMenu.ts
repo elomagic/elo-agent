@@ -10,7 +10,7 @@ export const initAppMenu = (win: BrowserWindow) => {
             label: 'File',
             submenu: [
                 {
-                    label: 'Add Java process',
+                    label: 'Add Java process (Experimental)',
                     toolTip: 'Try to identify JARs by scanning Java process (Experimental)',
                     click()  {
                         win.webContents.send('show-process-dialog');
