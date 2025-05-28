@@ -3,10 +3,11 @@
 import { Stack } from '@mui/material';
 import {SourceFiles} from '@/views/jarsInUse/SourceFiles';
 import {AgentFile} from './AgentFile';
+import {SourceFile} from "@/shared/Types";
 
 interface ComponentProps {
-    items: string[];
-    onUpdateSources: (files: string[]) => void;
+    items: SourceFile[];
+    onUpdateSources: (files: SourceFile[]) => void;
     agentFile: string | undefined;
     onSelectAgentFileClick: () => void;
     onReloadAgentFileClick: () => void;

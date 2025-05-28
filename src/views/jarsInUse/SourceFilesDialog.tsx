@@ -2,6 +2,9 @@ import {Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, Di
 import {DataGrid, GridColDef} from "@mui/x-data-grid";
 import {TransitionProps} from "@mui/material/transitions";
 import {forwardRef} from "react";
+import {FileType, SourceFile} from "@/shared/Types";
+import {Description, Folder} from "@mui/icons-material";
+import {yellow} from "@mui/material/colors";
 
 const Transition = forwardRef(function Transition(
     props: TransitionProps & {
@@ -12,15 +15,14 @@ const Transition = forwardRef(function Transition(
     return <Slide direction="up" ref={ref} {...props} />;
 });
 
-export type FileId = {
+type SourceFileId = SourceFile & {
     id: string;
-    file: string;
 }
 
 interface ComponentProps {
-    items: FileId[];
+    items: SourceFileId[];
     open: boolean;
-    onOkClick: (items: FileId[]) => void;
+    onOkClick: (items: SourceFile[]) => void;
     onCancelClick: () => void;
 }
 
@@ -28,9 +30,23 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
 
     const columns: GridColDef<(typeof items)[number]>[] = [
         {
+            field: 'type',
+            headerName: 'Type',
+            width: 90,
+            editable: false,
+            type: 'string',
+            align: 'center',
+            headerAlign: 'center',
+            hideable: false,
+            renderCell: (params) => params.value === FileType.Directory ? (
+                <Folder sx={{ color: yellow[500] }} />
+            ) : <Description color="secondary" />,
+            // TODO Support recursive icon FolderCopy
+        },
+        {
             field: 'id',
             headerName: 'Folder / File',
-            width: 90,
+            width: 900,
             editable: false,
             type: 'string',
             hideable: false,

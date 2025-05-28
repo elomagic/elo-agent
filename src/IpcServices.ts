@@ -1,5 +1,7 @@
 'use client';
 
+import {SourceFile} from "@/shared/Types";
+
 export function chooseAgentFile(initFolder: string | undefined): Promise<string | undefined> {
     return window.ipcRenderer.invoke('choose-agent-file', initFolder);
 }
@@ -16,10 +18,9 @@ export function getJavaProcesses(): Promise<string[]> {
     return window.ipcRenderer.invoke('get-java-processes');
 }
 
-export function listFiles(folders: string[],
-                          recursive: boolean = false,
+export function listFiles(folders: SourceFile[],
                           includeFiles: boolean = false): Promise<string[]> {
-    return window.ipcRenderer.invoke('list-files', folders, recursive, includeFiles);
+    return window.ipcRenderer.invoke('list-files', folders, includeFiles);
 }
 
 export const openFileExternal = (file: string) => {
