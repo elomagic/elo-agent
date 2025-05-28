@@ -6,9 +6,7 @@
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/elomagic/jr-agent-app/graphs/commit-activity)
 [![Buymeacoffee](https://badgen.net/badge/icon/buymeacoffee?icon=buymeacoffee&label)](https://www.buymeacoffee.com/elomagic)
 
-![](/doc/logo.png "Logo")
-
-# elomagic's Java Agent UI Tool !
+![](/doc/header.png "Logo")
 
 A tool for identifying unused libraries like JARs, with a focus on Java applications.
 
@@ -94,7 +92,7 @@ Versioning follows the semantic of [Semantic Versioning 2.0.0](https://semver.or
 
 ## License
 
-The elo-java-agent-ui tool is distributed under [Apache License, Version 2.0][license]
+The Elo Agent tool is distributed under [Apache License, Version 2.0][license]
 
 ## Donations
 

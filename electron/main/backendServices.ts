@@ -3,6 +3,7 @@ import path from 'path';
 import {dialog, ipcMain, shell} from 'electron';
 import {applyRecentAgentFile, applyRecentFolder, getSettings, Settings, writeSettings} from "./appSettings";
 import { spawn } from 'child_process';
+import {SourceFile} from "@/shared/Types";
 
 export const chooseDirectory = (defaultFolder: string | undefined): Promise<string | undefined> => {
     return dialog.showOpenDialog({
@@ -41,23 +42,23 @@ export const getJavaProcesses = (): Promise<string[]> => {
     });
 }
 
-const listFilesSync = (folder: string, recursive: boolean): string[] => {
-    if (!fs.statSync(folder).isDirectory()) {
+const listFilesSync = (sourceFile: SourceFile): string[] => {
+    if (!fs.statSync(sourceFile.file).isDirectory()) {
         return [];
     }
 
-    console.info("Scanning folder: " + folder + " recursively: " + recursive);
+    console.info("Scanning folder: " + sourceFile.file + " recursively: " + sourceFile.recursive);
 
-    const files = fs.readdirSync(folder)
+    const files = fs.readdirSync(sourceFile.file)
         .map((filename) => {
-            return path.join(folder, filename);
+            return path.join(sourceFile.file, filename);
         });
 
     const result = [];
 
     for (const file of files) {
-        if (fs.statSync(file).isDirectory() && recursive) {
-            result.push(...listFilesSync(file, recursive));
+        if (fs.statSync(file).isDirectory() && sourceFile.recursive) {
+            result.push(...listFilesSync({ file: file + path.sep, recursive: sourceFile.recursive }));
         } else if (file.toLowerCase().endsWith('.jar') ||
             file.toLowerCase().endsWith('.class')) {
             result.push(file)
@@ -68,8 +69,7 @@ const listFilesSync = (folder: string, recursive: boolean): string[] => {
 }
 
 const listFiles = (
-    files: string[],
-    recursive: boolean,
+    files: SourceFile[],
     includeFiles: boolean,
 ): Promise<string[]> => {
     const collectedFiles: string[] = [];
@@ -79,10 +79,10 @@ const listFiles = (
             continue;
         }
 
-        if (fs.statSync(file).isDirectory()) {
-            collectedFiles.push(...listFilesSync(file, recursive));
+        if (fs.statSync(file.file).isDirectory()) {
+            collectedFiles.push(...listFilesSync(file));
         } else if (includeFiles) {
-            collectedFiles.push(file);
+            collectedFiles.push(file.file);
         }
     }
 
@@ -131,10 +131,9 @@ export const registerMainHandlers = () => {
     })
 
     ipcMain.handle("list-files", (_event,
-                                  folder: string[],
-                                  recursive: boolean,
+                                  folder: SourceFile[],
                                   includeFiles: boolean): Promise<string[]> => {
-        return listFiles(folder, recursive, includeFiles);
+        return listFiles(folder, includeFiles);
     })
 
     ipcMain.handle("open-file-external", (_event, file: string): Promise<void> => {

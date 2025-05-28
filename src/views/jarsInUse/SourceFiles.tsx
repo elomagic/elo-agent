@@ -2,22 +2,23 @@
 
 import {Box, IconButton, Stack, Tooltip} from '@mui/material';
 import { EditNote } from '@mui/icons-material';
-import { FileId, SourceFilesDialog } from '@/views/jarsInUse/SourceFilesDialog';
+import { SourceFilesDialog } from '@/views/jarsInUse/SourceFilesDialog';
 import { useState } from 'react';
+import {SourceFile} from "@/shared/Types";
 
 interface ComponentProps {
-    items: string[];
-    onUpdateSources: (items: string[]) => void;
+    items: SourceFile[];
+    onUpdateSources: (items: SourceFile[]) => void;
 }
 
 export const SourceFiles = ({items, onUpdateSources}: Readonly<ComponentProps>) => {
 
     const [openSources, setOpenSources] = useState<boolean>(false);
 
-    const handleSourcesOkClick = (fileIds: FileId[]) => {
+    const handleSourcesOkClick = (fileIds: SourceFile[]) => {
         setOpenSources(false);
 
-        onUpdateSources(fileIds.map((ids) => ids.file));
+        onUpdateSources(fileIds);
     }
 
     return (
@@ -30,7 +31,7 @@ export const SourceFiles = ({items, onUpdateSources}: Readonly<ComponentProps>) 
                 </IconButton>
             </Tooltip>
 
-            <SourceFilesDialog items={items.map((i) => { return {id: i, file: i}})} open={openSources} onOkClick={handleSourcesOkClick} onCancelClick={() => setOpenSources(false)} />
+            <SourceFilesDialog items={items.map((i) => { return {...i, id: i.file}})} open={openSources} onOkClick={handleSourcesOkClick} onCancelClick={() => setOpenSources(false)} />
         </Stack>
     );
 

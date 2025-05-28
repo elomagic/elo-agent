@@ -7,19 +7,20 @@ import {FileStatus, FileStatusTable} from '@/views/jarsInUse/FileStatusTable';
 import {FileFilters} from '@/views/jarsInUse/FileFilters';
 import {toast, ToastContainer} from 'react-toastify';
 import {SelectProcessDialog} from "@/views/jarsInUse/SelectProcessDialog";
+import {FileType, SourceFile} from "@/shared/Types";
 
 export const JarsInUseView = () => {
 
-    const [sourceFiles, setSourceFiles] = useState<string[]>([]);
+    const [sourceFiles, setSourceFiles] = useState<SourceFile[]>([]);
     const [agentFile, setAgentFile] = useState<string | undefined>(undefined);
     const [fileStatus, setFileStatus] = useState<FileStatus[]>([]);
 
     const [openProcess, setOpenProcess] = useState<boolean>(false);
 
-    const reloadTable = (fileSources: string[], agentFilename: string | undefined) => {
+    const reloadTable = (fileSources: SourceFile[], agentFilename: string | undefined) => {
 
         Promise.all([
-            listFiles(fileSources, false, true),
+            listFiles(fileSources, true),
             readAgentFile(agentFilename)])
             .then(([files, agentLines]) => {
                 console.info("Files found: " + files.length);
@@ -53,7 +54,7 @@ export const JarsInUseView = () => {
 
     };
 
-    const applySourceFiles = (files: string[]) => {
+    const applySourceFiles = (files: SourceFile[]) => {
         // filter duplicates
         const uniqueFolders = Array.from(new Set([...files, ...sourceFiles]));
 
@@ -61,7 +62,7 @@ export const JarsInUseView = () => {
         reloadTable(uniqueFolders, agentFile)
     }
 
-    const handleUpdateSourcesClick = (newFiles: string[]) => {
+    const handleUpdateSourcesClick = (newFiles: SourceFile[]) => {
         setSourceFiles(newFiles);
         reloadTable(newFiles, agentFile);
     }
@@ -88,12 +89,12 @@ export const JarsInUseView = () => {
 
         // TODO Classpath from Manifest in case when argument -jar is set
 
-        applySourceFiles(files);
+        applySourceFiles(files.map((f) => { return { file: f, recursive: false } }));
     }
 
     useEffect(() => {
-        window.ipcRenderer.on('add-folder', (_event, folder: string, _recursive: boolean)=> {
-            applySourceFiles([folder]);
+        window.ipcRenderer.on('add-folder', (_event, folder: string, recursive: boolean)=> {
+            applySourceFiles([{ file: folder, recursive: recursive, type: FileType.Directory }]);
         });
         window.ipcRenderer.on('show-process-dialog', (_event)=> {
             setOpenProcess(true);
