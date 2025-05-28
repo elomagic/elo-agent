@@ -37,7 +37,7 @@ body:
     attributes:
       label: Expected Behavior
       description: >-
-        Describe how you expect jr-agent to behave instead.
+        Describe how you expect Elo Agent to behave instead.
     validations:
       required: true
   - type: textarea
@@ -47,7 +47,7 @@ body:
       description: >-
         Please provide some details about the environment in which you observed the defect.
       value: |-      
-        - jr-agent version :
+        - Elo Agent version :
         - Operating System and version :
     validations:
       required: false
@@ -56,5 +56,5 @@ body:
     attributes:
       label: Checklist
       options:
-        - label: I have checked the [existing issues](https://github.com/elomagic/jr-agent/issues) for whether this defect was already reported
+        - label: I have checked the [existing issues](https://github.com/elomagic/jr-agent-ui/issues) for whether this defect was already reported
           required: true

@@ -8,7 +8,7 @@
 
 ![](/doc/logo.png "Logo")
 
-# elomagic's Java Agent UI Tool !
+# Elo Agent Tool !
 
 A tool for identifying unused libraries like JARs, with a focus on Java applications.
 
@@ -94,7 +94,7 @@ Versioning follows the semantic of [Semantic Versioning 2.0.0](https://semver.or
 
 ## License
 
-The elo-java-agent-ui tool is distributed under [Apache License, Version 2.0][license]
+The Elo Agent tool is distributed under [Apache License, Version 2.0][license]
 
 ## Donations
 
