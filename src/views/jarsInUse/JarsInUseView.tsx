@@ -16,38 +16,41 @@ export const JarsInUseView = () => {
 
     const [openProcess, setOpenProcess] = useState<boolean>(false);
 
-    const reloadTable = (files: string[], agentFilename: string | undefined) => {
-        listFiles(files, false, true).then(files => {
-            console.info("Files found: " + files.length);
+    const reloadTable = (fileSources: string[], agentFilename: string | undefined) => {
 
-            // Normalize paths
-            for (let i = 0; i < files.length; i++) {
-                files[i] = files[i].replace(/\\/g, '/');
-            }
+        Promise.all([
+            listFiles(fileSources, false, true),
+            readAgentFile(agentFilename)])
+            .then(([files, agentLines]) => {
+                console.info("Files found: " + files.length);
 
-            const status: FileStatus[] = [];
+                // Normalize paths
+                for (let i = 0; i < files.length; i++) {
+                    files[i] = files[i].replace(/\\/g, '/');
+                }
 
-            readAgentFile(agentFilename)
-                .then((lines: string[]) => {
-                    const files: string[] = []
-                    for (const line of lines) {
-                        const columns = line.split(";");
-                        if (columns.length > 1) {
-                            files.push(columns[1]);
-                        }
+                const filesByAgent: string[] = []
+                for (const line of agentLines) {
+                    const columns = line.split(";");
+                    if (columns.length > 1) {
+                        filesByAgent.push(columns[1]);
                     }
-                    return files;
-                })
-                .then((usedFiles) => {
-                    for (const file of files) {
-                        status.push({id: file, loaded: usedFiles.indexOf(file) !== -1});
-                    }
+                }
 
+                const bothFiles = Array.from(new Set([...files, ...filesByAgent]));
 
-                    setFileStatus(status);
-                })
-                .then(() => toast.success("View reloaded!"))
-        })
+                const status: FileStatus[] = [];
+
+                for (const file of bothFiles) {
+                    status.push({ id: file, loaded: filesByAgent.includes(file) });
+                }
+
+                setFileStatus(status);
+
+            })
+            .then(() => toast.success("View reloaded!"))
+            .catch((err) => toast.error("Reload failed with error: " + err));
+
     };
 
     const applySourceFiles = (files: string[]) => {
