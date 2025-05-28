@@ -6,9 +6,7 @@
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/elomagic/jr-agent-app/graphs/commit-activity)
 [![Buymeacoffee](https://badgen.net/badge/icon/buymeacoffee?icon=buymeacoffee&label)](https://www.buymeacoffee.com/elomagic)
 
-![](/doc/logo.png "Logo")
-
-# Elo Agent Tool !
+![](/doc/header.png "Logo")
 
 A tool for identifying unused libraries like JARs, with a focus on Java applications.
 
