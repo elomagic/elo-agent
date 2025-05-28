@@ -21,12 +21,16 @@ export const initAppMenu = (win: BrowserWindow) => {
                     toolTip: 'Scans a given directory for JAR files',
                     click() {
                         chooseDirectory(undefined)
-                            .then((folder) => folder && win.webContents.send('add-folders', [folder]));
+                            .then((folder) => folder && win.webContents.send('add-folder', folder, false));
                     }
                 },
                 {
                     label: 'Add directory recursive',
                     toolTip: 'Scans a given directory recursive for JAR files',
+                    click() {
+                        chooseDirectory(undefined)
+                            .then((folder) => folder && win.webContents.send('add-folder', folder, true));
+                    }
                 },
                 {
                     type: 'separator'

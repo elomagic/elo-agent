@@ -4,7 +4,7 @@ import {dialog, ipcMain, shell} from 'electron';
 import {applyRecentAgentFile, applyRecentFolder, getSettings, Settings, writeSettings} from "./appSettings";
 import { spawn } from 'child_process';
 
-export const chooseDirectory = (defaultFolder: string | undefined) => {
+export const chooseDirectory = (defaultFolder: string | undefined): Promise<string | undefined> => {
     return dialog.showOpenDialog({
         title: 'Select a folder',
         defaultPath: defaultFolder ?? getSettings().recentFolder,
@@ -41,29 +41,35 @@ export const getJavaProcesses = (): Promise<string[]> => {
     });
 }
 
-const listFilesSync = (folder: string): string[] => {
+const listFilesSync = (folder: string, recursive: boolean): string[] => {
     if (!fs.statSync(folder).isDirectory()) {
         return [];
     }
 
-    console.info("Scanning folder: " + folder);
+    console.info("Scanning folder: " + folder + " recursively: " + recursive);
 
-    return fs
-        .readdirSync(folder)
-        .filter((filename) => {
-            return (
-                (filename.toLowerCase().endsWith('.jar') ||
-                    filename.toLowerCase().endsWith('.class'))
-            );
-        })
+    const files = fs.readdirSync(folder)
         .map((filename) => {
             return path.join(folder, filename);
         });
+
+    const result = [];
+
+    for (const file of files) {
+        if (fs.statSync(file).isDirectory() && recursive) {
+            result.push(...listFilesSync(file, recursive));
+        } else if (file.toLowerCase().endsWith('.jar') ||
+            file.toLowerCase().endsWith('.class')) {
+            result.push(file)
+        }
+    }
+
+    return result;
 }
 
 const listFiles = (
     files: string[],
-    _recursive: boolean,
+    recursive: boolean,
     includeFiles: boolean,
 ): Promise<string[]> => {
     const collectedFiles: string[] = [];
@@ -74,7 +80,7 @@ const listFiles = (
         }
 
         if (fs.statSync(file).isDirectory()) {
-            collectedFiles.push(...listFilesSync(file));
+            collectedFiles.push(...listFilesSync(file, recursive));
         } else if (includeFiles) {
             collectedFiles.push(file);
         }

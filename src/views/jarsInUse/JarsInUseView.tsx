@@ -55,8 +55,7 @@ export const JarsInUseView = () => {
 
     const applySourceFiles = (files: string[]) => {
         // filter duplicates
-        const uniqueFolders = files.filter((folder) => !sourceFiles.includes(folder));
-        uniqueFolders.push(...sourceFiles.filter((folder) => !files.includes(folder)));
+        const uniqueFolders = Array.from(new Set([...files, ...sourceFiles]));
 
         setSourceFiles(uniqueFolders);
         reloadTable(uniqueFolders, agentFile)
@@ -93,8 +92,8 @@ export const JarsInUseView = () => {
     }
 
     useEffect(() => {
-        window.ipcRenderer.on('add-folders', (_event, folders: string[])=> {
-            applySourceFiles(folders);
+        window.ipcRenderer.on('add-folder', (_event, folder: string, _recursive: boolean)=> {
+            applySourceFiles([folder]);
         });
         window.ipcRenderer.on('show-process-dialog', (_event)=> {
             setOpenProcess(true);
