@@ -1,10 +1,22 @@
-import {Box, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Slide} from "@mui/material";
+import {
+    Box,
+    Button,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle, Divider,
+    ListItemIcon, ListItemText,
+    Menu, MenuItem,
+    Slide
+} from "@mui/material";
 import {DataGrid, GridColDef} from "@mui/x-data-grid";
 import {TransitionProps} from "@mui/material/transitions";
-import {forwardRef} from "react";
+import {forwardRef, useState} from "react";
 import {FileType, SourceFile} from "@/shared/Types";
-import {Description, Folder} from "@mui/icons-material";
+import {Delete, Description, Folder, OpenInBrowser} from "@mui/icons-material";
 import {yellow} from "@mui/material/colors";
+import {openFolder} from "@/IpcServices";
 
 const Transition = forwardRef(function Transition(
     props: TransitionProps & {
@@ -27,6 +39,49 @@ interface ComponentProps {
 }
 
 export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Readonly<ComponentProps>) => {
+
+    const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number; } | null>(null);
+    const [currentStatus, setCurrentStatus] = useState<SourceFileId | undefined>(undefined);
+
+    const handleClose = () => {
+        setContextMenu(null);
+    };
+
+    const handleOpenInExplorer = () => {
+        handleClose();
+        currentStatus?.id && openFolder(currentStatus?.id);
+    };
+
+    const handleRemoveItem = () => {
+        handleClose();
+        // TODO: Implement remove item logic
+    };
+
+    const handleContextMenu = (event: React.MouseEvent) => {
+        event.preventDefault();
+
+        const rowId = (event.currentTarget as HTMLDivElement).getAttribute('data-id');
+
+        const record = items.find((row: SourceFileId) => row.id === rowId);
+
+        setCurrentStatus(record)
+
+        if (!record) {
+            return;
+        }
+
+        setContextMenu(
+            contextMenu === null
+                ? {
+                    mouseX: event.clientX + 2,
+                    mouseY: event.clientY - 6,
+                }
+                : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
+                  // Other native context menus might behave different.
+                  // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
+                null,
+        );
+    };
 
     const columns: GridColDef<(typeof items)[number]>[] = [
         {
@@ -73,6 +128,12 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
                                 },
                             },
                         }}
+                        slotProps={{
+                            row: {
+                                onContextMenu: (e) => handleContextMenu(e),
+                                style: { cursor: 'context-menu' },
+                            },
+                        }}
                     />
                 </Box>
             </DialogContent>
@@ -80,6 +141,33 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
                 <Button onClick={onCancelClick}>Close</Button>
                 <Button onClick={() => items && onOkClick(items)}>OK</Button>
             </DialogActions>
+
+
+            <Menu
+                open={contextMenu !== null}
+                onClose={handleClose}
+                anchorReference="anchorPosition"
+                anchorPosition={
+                    contextMenu !== null
+                        ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+                        : undefined
+                }
+            >
+                <MenuItem onClick={handleOpenInExplorer}>
+                    <ListItemIcon>
+                        <OpenInBrowser fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>Open in Finder/Explorer</ListItemText>
+                </MenuItem>
+                <Divider />
+                <MenuItem onClick={handleRemoveItem}>
+                    <ListItemIcon>
+                        <Delete fontSize="small" />
+                    </ListItemIcon>
+                    <ListItemText>Web Remove</ListItemText>
+                </MenuItem>
+            </Menu>
+
         </Dialog>
     );
 };

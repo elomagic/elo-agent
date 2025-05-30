@@ -1,5 +1,5 @@
-import {CheckCircleOutline, NotInterested} from "@mui/icons-material";
-import { Box, Menu, MenuItem, Stack } from "@mui/material";
+import {CheckCircleOutline, ContentCopy, NotInterested, OpenInBrowser} from "@mui/icons-material";
+import { Box, ListItemIcon, ListItemText, Menu, MenuItem, Stack } from "@mui/material";
 import {DataGrid, GridColDef} from '@mui/x-data-grid';
 import {useState} from "react";
 import {copyTextToClipboard, openFolder} from "@/IpcServices";
@@ -118,9 +118,18 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
                             : undefined
                     }
                 >
-                    <MenuItem onClick={handleCopyPathIntoClipboard}>Copy path</MenuItem>
-                    <MenuItem onClick={handleOpenInExplorer}>Open in Finder/Explorer</MenuItem>
-
+                    <MenuItem onClick={handleCopyPathIntoClipboard}>
+                        <ListItemIcon>
+                            <ContentCopy fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Copy path</ListItemText>
+                    </MenuItem>
+                    <MenuItem onClick={handleOpenInExplorer}>
+                        <ListItemIcon>
+                            <OpenInBrowser fontSize="small" />
+                        </ListItemIcon>
+                        <ListItemText>Open in Finder/Explorer</ListItemText>
+                    </MenuItem>
                 </Menu>
             </Box>
         </Stack>
