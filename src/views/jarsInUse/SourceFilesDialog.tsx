@@ -14,7 +14,7 @@ import {DataGrid, GridColDef} from "@mui/x-data-grid";
 import {TransitionProps} from "@mui/material/transitions";
 import {forwardRef, useEffect, useState} from "react";
 import {FileType, SourceFile} from "@/shared/Types";
-import {Delete, Description, Folder, OpenInBrowser} from "@mui/icons-material";
+import {Delete, Description, Folder, FolderCopy, OpenInBrowser} from "@mui/icons-material";
 import {yellow} from "@mui/material/colors";
 import {openFolder} from "@/IpcServices";
 
@@ -96,10 +96,9 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
             align: 'center',
             headerAlign: 'center',
             hideable: false,
-            renderCell: (params) => params.value === FileType.Directory ? (
-                <Folder sx={{ color: yellow[500] }} />
-            ) : <Description color="secondary" />,
-            // TODO Support recursive icon FolderCopy
+            renderCell: (params) => params.value === FileType.Directory
+                ? ( params.row.recursive ? <FolderCopy sx={{ color: yellow[500] }} /> : <Folder sx={{ color: yellow[500] }} />)
+                : <Description color="secondary" />,
         },
         {
             field: 'id',
