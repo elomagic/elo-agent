@@ -16,23 +16,19 @@ export const chooseDirectory = (defaultFolder: string | undefined): Promise<stri
     });
 }
 
-export const getJavaProcesses = (): Promise<string[]> => {
+export const getJavaProcessesOnWindows: () => Promise<string[]> = () => {
     return new Promise<string[]>((resolve) => {
         // jps or jcmd works only with JDK not with JRE :-/
 
-        // TODO Works only on Windows with Powershell. Mac / Linux support required
         const ps = spawn('powershell.exe', [
             '-Command',
             'Get-CimInstance Win32_Process -Filter "Name = \'java.exe\'" | ForEach-Object { $_.ProcessId.ToString() + \' \' + $_.CommandLine }'
         ]);
 
-        // ps -x -o pid=,command=
-
         let stdout: string = "";
 
         ps.stdout.on('data', data => {
             stdout += data;
-            console.log('OUTPUT:\n' + data.toString());
         });
 
         ps.on('exit', _code => {
@@ -40,6 +36,30 @@ export const getJavaProcesses = (): Promise<string[]> => {
             resolve(lines);
         });
     });
+}
+
+export const getJavaProcessesOnMac: () => Promise<string[]> = () => {
+    // TODO Mac support
+    // ps -x -o pid=,command=
+    return Promise.resolve(["Currently not supported on Mac"]);
+}
+
+export const getJavaProcessesOnLinux: () => Promise<string[]> = () => {
+    // TODO Linux support
+    // ps -x -o pid=,command=
+    return Promise.resolve(["Currently not supported on Mac"]);
+}
+
+export const getJavaProcesses = (): Promise<string[]> => {
+    if (process.platform === 'win32') {
+        return getJavaProcessesOnWindows();
+    } else if (process.platform === 'darwin') {
+        return getJavaProcessesOnMac();
+    } else if (process.platform === 'linux') {
+        return getJavaProcessesOnLinux();
+    } else {
+        return Promise.resolve(["Unsupported platform: " + process.platform]);
+    }
 }
 
 const listFilesSync = (sourceFile: SourceFile): string[] => {
