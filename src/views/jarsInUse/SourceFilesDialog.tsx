@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import {DataGrid, GridColDef} from "@mui/x-data-grid";
 import {TransitionProps} from "@mui/material/transitions";
-import {forwardRef, useState} from "react";
+import {forwardRef, useEffect, useState} from "react";
 import {FileType, SourceFile} from "@/shared/Types";
 import {Delete, Description, Folder, OpenInBrowser} from "@mui/icons-material";
 import {yellow} from "@mui/material/colors";
@@ -41,7 +41,8 @@ interface ComponentProps {
 export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Readonly<ComponentProps>) => {
 
     const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number; } | null>(null);
-    const [currentStatus, setCurrentStatus] = useState<SourceFileId | undefined>(undefined);
+    const [rows, setRows] = useState<SourceFileId[]>([]);
+    const [selected, setSelected] = useState<SourceFileId | undefined>(undefined);
 
     const handleClose = () => {
         setContextMenu(null);
@@ -49,12 +50,12 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
 
     const handleOpenInExplorer = () => {
         handleClose();
-        currentStatus?.id && openFolder(currentStatus?.id);
+        selected?.id && openFolder(selected?.id);
     };
 
     const handleRemoveItem = () => {
         handleClose();
-        // TODO: Implement remove item logic
+        setRows(rows.filter((r) => r.id !== selected?.id));
     };
 
     const handleContextMenu = (event: React.MouseEvent) => {
@@ -64,7 +65,7 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
 
         const record = items.find((row: SourceFileId) => row.id === rowId);
 
-        setCurrentStatus(record)
+        setSelected(record)
 
         if (!record) {
             return;
@@ -83,7 +84,9 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
         );
     };
 
-    const columns: GridColDef<(typeof items)[number]>[] = [
+    useEffect(() => setRows(items), [items]);
+
+    const columns: GridColDef<(typeof rows)[number]>[] = [
         {
             field: 'type',
             headerName: 'Type',
@@ -117,7 +120,7 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
 
                 <Box flexGrow={1} sx={{ width: '100%' }}>
                     <DataGrid
-                        rows={items}
+                        rows={rows}
                         columns={columns}
                         rowHeight={32}
                         columnHeaderHeight={32}
@@ -139,7 +142,7 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
             </DialogContent>
             <DialogActions>
                 <Button onClick={onCancelClick}>Close</Button>
-                <Button onClick={() => items && onOkClick(items)}>OK</Button>
+                <Button onClick={() => onOkClick(rows)}>OK</Button>
             </DialogActions>
 
 
@@ -164,7 +167,7 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
                     <ListItemIcon>
                         <Delete fontSize="small" />
                     </ListItemIcon>
-                    <ListItemText>Web Remove</ListItemText>
+                    <ListItemText>Remove selected</ListItemText>
                 </MenuItem>
             </Menu>
 
