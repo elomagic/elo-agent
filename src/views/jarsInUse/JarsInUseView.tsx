@@ -2,7 +2,7 @@
 
 import {Stack} from '@mui/material';
 import {useEffect, useState} from 'react';
-import {chooseAgentFile, listFiles, readAgentFile} from '@/IpcServices';
+import {chooseAgentFile, listFiles, readAgentFile, resetAgentFile} from '@/IpcServices';
 import {FileStatus, FileStatusTable} from '@/views/jarsInUse/FileStatusTable';
 import {FileFilters} from '@/views/jarsInUse/FileFilters';
 import {toast, ToastContainer} from 'react-toastify';
@@ -79,6 +79,11 @@ export const JarsInUseView = () => {
         reloadTable(sourceFiles, agentFile);
     }
 
+    const handleResetAgentFileClick = () => {
+        agentFile && resetAgentFile(agentFile);
+        reloadTable(sourceFiles, agentFile);
+    }
+
     const handleSelectProcessClick = (a: string) => {
         setOpenProcess(false);
 
@@ -109,6 +114,7 @@ export const JarsInUseView = () => {
                          agentFile={agentFile}
                          onSelectAgentFileClick={handleSelectAgentFileClick}
                          onReloadAgentFileClick={handleReloadAgentFileClick}
+                         onResetAgentFileClick={handleResetAgentFileClick}
             />
             <FileStatusTable items={fileStatus}/>
             <SelectProcessDialog open={openProcess} onSelectClick={handleSelectProcessClick} onCancelClick={() => setOpenProcess(false)}/>

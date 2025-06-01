@@ -11,6 +11,7 @@ interface ComponentProps {
     agentFile: string | undefined;
     onSelectAgentFileClick: () => void;
     onReloadAgentFileClick: () => void;
+    onResetAgentFileClick: () => void;
 }
 
 export const FileFilters = ({
@@ -19,6 +20,7 @@ export const FileFilters = ({
                                 agentFile,
                                 onSelectAgentFileClick,
                                 onReloadAgentFileClick,
+                                onResetAgentFileClick,
                             }: Readonly<ComponentProps>) => {
 
     return (
@@ -28,6 +30,7 @@ export const FileFilters = ({
             <AgentFile agentFile={agentFile}
                        onSelectAgentFileClick={onSelectAgentFileClick}
                        onReloadAgentFileClick={onReloadAgentFileClick}
+                       onResetAgentFileClick={onResetAgentFileClick}
             />
         </Stack>
     );

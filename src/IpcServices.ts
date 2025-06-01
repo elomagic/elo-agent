@@ -35,6 +35,11 @@ export function readAgentFile(file: string | undefined): Promise<string[]> {
     return window.ipcRenderer.invoke('read-agent-file', file);
 }
 
+export function resetAgentFile(file: string): Promise<void> {
+    return window.ipcRenderer.invoke('reset-agent-file', file);
+}
+
+
 export function readFile(file: string): Promise<Buffer> {
     return window.ipcRenderer.invoke('read-file', file);
 }
