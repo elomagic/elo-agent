@@ -1,5 +1,6 @@
 {
     "name": "elo-agent",
+    "productName": "elo Agent",
     "version": "0.0.1",
     "main": "dist-electron/main/index.js",
     "description": "elo Agent for identifying (un-)used JAR libraries",
