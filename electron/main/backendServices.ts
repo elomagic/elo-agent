@@ -1,9 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import {dialog, ipcMain, shell} from 'electron';
-import {applyRecentAgentFile, applyRecentFolder, getSettings, Settings, writeSettings} from "./appSettings";
+import { applyRecentAgentFile, applyRecentFolder, getSettings } from "./appSettings";
 import { spawn } from 'child_process';
-import { BackendResponse, SourceFile } from '@/shared/Types';
+import { BackendResponse, Project, SourceFile } from '@/shared/Types';
+import { createNewProject, deleteProject, updateProject } from './projects';
 
 export const chooseDirectory = (defaultFolder: string | undefined): Promise<string | undefined> => {
     return dialog.showOpenDialog({
@@ -158,6 +159,14 @@ export const registerMainHandlers = () => {
         return Promise.resolve();
     })
 
+    ipcMain.handle("create-new-project", (_event, project: Project): Promise<BackendResponse> => {
+        return createNewProject(project);
+    })
+
+    ipcMain.handle("delete-project", (_event, projectName: string): Promise<BackendResponse> => {
+        return deleteProject(projectName);
+    })
+
     ipcMain.handle("get-java-processes", (_event): Promise<string[]> => {
         return getJavaProcesses();
     })
@@ -189,8 +198,8 @@ export const registerMainHandlers = () => {
         return readFile(file);
     })
 
-    ipcMain.handle("write-settings", (_event): Promise<Settings> => {
-        return writeSettings();
+    ipcMain.handle("update-project", (_event, project: Project): Promise<BackendResponse> => {
+        return updateProject(project);
     })
 
     ipcMain.handle("choose-agent-file", (_event, defaultFolder: string | undefined): Promise<string | undefined> => {

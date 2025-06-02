@@ -14,3 +14,9 @@ export type SourceFile = {
     recursive: boolean;
     type?: FileType
 }
+
+export type Project = {
+    name: string,
+    sourceFiles: SourceFile[],
+    agentFile: string | undefined;
+}
