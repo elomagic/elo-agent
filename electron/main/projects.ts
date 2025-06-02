@@ -6,6 +6,8 @@ import { BackendResponse, Project } from '@/shared/Types';
 import { BrowserWindow, Menu } from 'electron';
 import MenuItem = Electron.MenuItem;
 
+const WINDOWS_TITLE = "elo Agent"
+
 const getProjectsFilename = (): string => {
     return path.join(getUserHomeAppPath(), 'projects.json');
 };
@@ -64,7 +66,7 @@ const updateRecentMenu = () => {
         return;
     }
     const menu = findMenuItem(items);
-    /*
+    /* TODO
     menu.submenu = getProjectNames().map((name) => ({
         label: name,
         click() { loadProject(win, name) }
@@ -91,7 +93,7 @@ export const loadProject = (win: BrowserWindow, projectName: string) => {
         const p = ps[0]
         win.webContents.send('load-project-request', p);
 
-        // TODO win.setTitle(p.name);
+        win.setTitle(`${WINDOWS_TITLE} - Project ${projectName}`);
     }
 }
 
@@ -100,8 +102,8 @@ export const deleteProject = (projectName: string) => {
 
     const p = loadProjects().filter(project => project.name !== projectName);
 
-    // const win = BrowserWindow.getFocusedWindow();
-    // TODO win && win.setTitle("BLABABL")
+    const win = BrowserWindow.getFocusedWindow();
+    win && win.setTitle(`${WINDOWS_TITLE}`);
     updateRecentMenu();
 
     return saveProjects(p);
