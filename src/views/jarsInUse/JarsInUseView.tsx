@@ -125,54 +125,76 @@ export const JarsInUseView = () => {
         createNewProject(p).then((response) => toast(response.responseMessage));
     }
 
-    const initHooks = () => {
-        window.ipcRenderer.on('add-folder', (_event, folder: string, recursive: boolean)=> {
-            applySourceFiles([{ file: folder, recursive: recursive, type: FileType.Directory }]);
-        });
-        window.ipcRenderer.on('show-process-dialog', (_event)=> {
-            setOpenProcess(true);
-        });
-        window.ipcRenderer.on('save-new-project-request', (_event)=> {
+    const addFolderHandler = (_event: any, folder: string, recursive: boolean)=> {
+        applySourceFiles([{ file: folder, recursive: recursive, type: FileType.Directory }]);
+    }
+
+    const showProcessDialogHandler = ()=> {
+        setOpenProcess(true);
+    }
+
+    const saveNewProjectRequestHandler = ()=> {
+        setOpenNewProject(true);
+    }
+
+    const loadProjectRequestHandler = (_event: any, project: Project)=> {
+        setProjectName(project.name)
+        setSourceFiles(project.sourceFiles);
+        setAgentFile(project.agentFile)
+        reloadTable(project.sourceFiles, project.agentFile);
+    }
+
+    const updateProjectRequestHandler = ()=> {
+        if (!projectName) {
             setOpenNewProject(true);
-        });
-        window.ipcRenderer.on('load-project-request', (_event, project: Project)=> {
-            setProjectName(project.name)
-            setSourceFiles(project.sourceFiles);
-            setAgentFile(project.agentFile)
-            reloadTable(project.sourceFiles, project.agentFile);
-        });
-        window.ipcRenderer.on('update-project-request', (_event)=> {
-            if (!projectName) {
-                setOpenNewProject(true);
-                return;
-            }
+            return;
+        }
 
-            const p: Project = {
-                name: projectName,
-                sourceFiles: sourceFiles,
-                agentFile: agentFile,
-            }
+        const p: Project = {
+            name: projectName,
+            sourceFiles: sourceFiles,
+            agentFile: agentFile,
+        }
 
-            updateProject(p).then((response) => toast(response.responseMessage));
-        });
-        window.ipcRenderer.on('delete-project-request', (_event)=> {
-            if (!projectName) {
-                return;
-            }
+        updateProject(p).then((response) => toast(response.responseMessage));
+    }
 
-            deleteProject(projectName).then((response) => {
-                setProjectName(undefined)
-                toast(response.responseMessage)
-            });
+    const deleteProjectRequestHandler = ()=> {
+        if (!projectName) {
+            return;
+        }
+
+        deleteProject(projectName).then((response) => {
+            setProjectName(undefined)
+            toast(response.responseMessage)
         });
+    }
+
+    const initHooks = () => {
+        window.ipcRenderer.on('add-folder', addFolderHandler);
+        window.ipcRenderer.on('show-process-dialog', showProcessDialogHandler);
+        window.ipcRenderer.on('save-new-project-request', saveNewProjectRequestHandler);
+        window.ipcRenderer.on('load-project-request', loadProjectRequestHandler);
+        window.ipcRenderer.on('update-project-request', updateProjectRequestHandler);
+        window.ipcRenderer.on('delete-project-request', deleteProjectRequestHandler);
     }
 
     useEffect(() => {
         if (!initializedRef.current) {
             initializedRef.current = true;
-            // Einmalige Initialisierung
             initHooks();
         }
+
+        return () => {
+            /*
+            window.ipcRenderer.removeListener('add-folder', addFolderHandler);
+            window.ipcRenderer.removeListener('show-process-dialog', showProcessDialogHandler);
+            window.ipcRenderer.removeListener('save-new-project-request', saveNewProjectRequestHandler);
+            window.ipcRenderer.removeListener('load-project-request', loadProjectRequestHandler);
+            window.ipcRenderer.removeListener('update-project-request', updateProjectRequestHandler);
+            window.ipcRenderer.removeListener('delete-project-request', deleteProjectRequestHandler);
+            */
+        };
     }, []);
 
     return (
