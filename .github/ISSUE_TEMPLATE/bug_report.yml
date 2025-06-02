@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thank you for helping us in making jr-agent better!
+        Thank you for helping us in making elo-agent better!
 
         **Please do not ask questions here!**
   - type: textarea
@@ -37,7 +37,7 @@ body:
     attributes:
       label: Expected Behavior
       description: >-
-        Describe how you expect Elo Agent to behave instead.
+        Describe how you expect elo-agent to behave instead.
     validations:
       required: true
   - type: textarea
@@ -47,7 +47,7 @@ body:
       description: >-
         Please provide some details about the environment in which you observed the defect.
       value: |-      
-        - Elo Agent version :
+        - elo-agent version :
         - Operating System and version :
     validations:
       required: false
@@ -56,5 +56,5 @@ body:
     attributes:
       label: Checklist
       options:
-        - label: I have checked the [existing issues](https://github.com/elomagic/jr-agent-ui/issues) for whether this defect was already reported
+        - label: I have checked the [existing issues](https://github.com/elomagic/elo-agent/issues) for whether this defect was already reported
           required: true

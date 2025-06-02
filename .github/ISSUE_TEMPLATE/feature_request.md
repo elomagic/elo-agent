@@ -1,6 +1,6 @@
 ---
 name: Feature request
-about: "You want something added to the Elo Agent \U0001F389"
+about: "You want something added to the elo-agent \U0001F389"
 title: ''
 labels: enhancement
 assignees: ''

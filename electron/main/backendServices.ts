@@ -3,7 +3,7 @@ import path from 'path';
 import {dialog, ipcMain, shell} from 'electron';
 import {applyRecentAgentFile, applyRecentFolder, getSettings, Settings, writeSettings} from "./appSettings";
 import { spawn } from 'child_process';
-import {SourceFile} from "@/shared/Types";
+import { BackendResponse, SourceFile, SuccessfulResponse } from '@/shared/Types';
 
 export const chooseDirectory = (defaultFolder: string | undefined): Promise<string | undefined> => {
     return dialog.showOpenDialog({
@@ -140,16 +140,16 @@ const readAgentFile = (file: string | undefined): Promise<string[]> => {
     return Promise.resolve(lines);
 }
 
-const resetAgentFile = (file: string): Promise<void> => {
+const resetAgentFile = (file: string): Promise<BackendResponse> => {
     if (!fs.existsSync(file)) {
-        return Promise.resolve();
+        return Promise.resolve({ responseMessage: `Agent file '${file}' not found`});
     }
 
     // Append current timestamp to the file name
     const newFilename = file + '.' + new Date().toISOString().replace(/[:.]/g, '-') + '.bak';
     fs.renameSync(file, newFilename);
 
-    return Promise.resolve();
+    return Promise.resolve(SuccessfulResponse);
 }
 
 export const registerMainHandlers = () => {
@@ -169,8 +169,7 @@ export const registerMainHandlers = () => {
     })
 
     ipcMain.handle("open-file-external", (_event, file: string): Promise<void> => {
-        shell.openExternal(file);
-        return Promise.resolve();
+        return shell.openExternal(file);
     })
 
     ipcMain.handle("open-folder", (_event, folder: string): Promise<void> => {
@@ -182,7 +181,7 @@ export const registerMainHandlers = () => {
         return readAgentFile(file);
     })
 
-    ipcMain.handle("reset-agent-file", (_event, file: string): Promise<void> => {
+    ipcMain.handle("reset-agent-file", (_event, file: string): Promise<BackendResponse> => {
         return resetAgentFile(file);
     })
 
