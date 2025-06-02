@@ -1,7 +1,7 @@
 "use client"
 
 import {Stack} from '@mui/material';
-import {useEffect, useState} from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
     chooseAgentFile,
     createNewProject, deleteProject,
@@ -18,6 +18,8 @@ import { FileType, Project, SourceFile } from '@/shared/Types';
 import { EnterNewProjectNameDialog } from '@/views/jarsInUse/EnterNewProjectNameDialog';
 
 export const JarsInUseView = () => {
+
+    const initializedRef = useRef(false);
 
     const [sourceFiles, setSourceFiles] = useState<SourceFile[]>([]);
     const [agentFile, setAgentFile] = useState<string | undefined>(undefined);
@@ -123,7 +125,7 @@ export const JarsInUseView = () => {
         createNewProject(p).then((response) => toast(response.responseMessage));
     }
 
-    useEffect(() => {
+    const initHooks = () => {
         window.ipcRenderer.on('add-folder', (_event, folder: string, recursive: boolean)=> {
             applySourceFiles([{ file: folder, recursive: recursive, type: FileType.Directory }]);
         });
@@ -163,7 +165,14 @@ export const JarsInUseView = () => {
                 toast(response.responseMessage)
             });
         });
+    }
 
+    useEffect(() => {
+        if (!initializedRef.current) {
+            initializedRef.current = true;
+            // Einmalige Initialisierung
+            initHooks();
+        }
     }, []);
 
     return (
