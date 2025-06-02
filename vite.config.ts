@@ -53,7 +53,9 @@ export default defineConfig(({ command }) => {
               minify: isBuild,
               outDir: 'dist-electron/preload',
               rollupOptions: {
-                external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
+                external: [...Object.keys('dependencies' in pkg ? pkg.dependencies : {}), "src/shared"],
+                // external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
+                // external: [...Object.keys('dependencies' in pkg ? pkg.dependencies : {}), "src/shared"],
               },
             },
           },

@@ -80,7 +80,7 @@ export const JarsInUseView = () => {
     }
 
     const handleResetAgentFileClick = () => {
-        agentFile && resetAgentFile(agentFile);
+        agentFile && resetAgentFile(agentFile).then((response) => toast(response.responseMessage));
         reloadTable(sourceFiles, agentFile);
     }
 

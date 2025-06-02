@@ -1,6 +1,6 @@
 'use client';
 
-import {SourceFile} from "@/shared/Types";
+import { BackendResponse, SourceFile } from '@/shared/Types';
 
 export function chooseAgentFile(initFolder: string | undefined): Promise<string | undefined> {
     return window.ipcRenderer.invoke('choose-agent-file', initFolder);
@@ -35,7 +35,7 @@ export function readAgentFile(file: string | undefined): Promise<string[]> {
     return window.ipcRenderer.invoke('read-agent-file', file);
 }
 
-export function resetAgentFile(file: string): Promise<void> {
+export function resetAgentFile(file: string): Promise<BackendResponse> {
     return window.ipcRenderer.invoke('reset-agent-file', file);
 }
 

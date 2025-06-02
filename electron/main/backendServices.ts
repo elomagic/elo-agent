@@ -3,7 +3,7 @@ import path from 'path';
 import {dialog, ipcMain, shell} from 'electron';
 import {applyRecentAgentFile, applyRecentFolder, getSettings, Settings, writeSettings} from "./appSettings";
 import { spawn } from 'child_process';
-import { BackendResponse, SourceFile, SuccessfulResponse } from '@/shared/Types';
+import { BackendResponse, SourceFile } from '@/shared/Types';
 
 export const chooseDirectory = (defaultFolder: string | undefined): Promise<string | undefined> => {
     return dialog.showOpenDialog({
@@ -149,7 +149,7 @@ const resetAgentFile = (file: string): Promise<BackendResponse> => {
     const newFilename = file + '.' + new Date().toISOString().replace(/[:.]/g, '-') + '.bak';
     fs.renameSync(file, newFilename);
 
-    return Promise.resolve(SuccessfulResponse);
+    return Promise.resolve({ responseMessage: 'Agent file successful reset.' });
 }
 
 export const registerMainHandlers = () => {
