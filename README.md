@@ -1,5 +1,5 @@
 [![Apache License, Version 2.0, January 2004](https://img.shields.io/github/license/apache/maven.svg?label=License)][license]
-[![Latest](https://img.shields.io/github/release/elomagic/elo-agent.svg)](https://github.com/elomagic/jelo-agent/releases)
+[![Latest](https://img.shields.io/github/release/elomagic/elo-agent.svg)](https://github.com/elomagic/elo-agent/releases)
 ![GitHub stars](https://img.shields.io/github/stars/elomagic/elo-agent?color=fa6470)
 ![GitHub issues](https://img.shields.io/github/issues/elomagic/elo-agent?color=d8b22d)
 [![Required Node.JS >= 22.12.0 || >=22.99.0](https://img.shields.io/static/v1?label=node&message=22.12.0%20||%20%3E=22.99.0&logo=node.js&color=3f893e)](https://nodejs.org/about/releases)
