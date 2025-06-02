@@ -11,7 +11,23 @@ export const initAppMenu = (win: BrowserWindow) => {
 
     const template: Array<(MenuItemConstructorOptions) | (MenuItem)> = [
         {
-            label: 'File',
+            label: 'elo Agent',
+            submenu: [
+                {
+                    label: 'About',
+                },
+                {
+                    type: 'separator'
+                },
+                {
+                    label: 'Quit',
+                    role: 'quit',
+                    toolTip: 'Quit this application'
+                }
+            ]
+        },
+        {
+            label: 'Sources',
             submenu: [
                 {
                     label: 'Add Java process (Experimental)',
@@ -40,6 +56,18 @@ export const initAppMenu = (win: BrowserWindow) => {
                     type: 'separator'
                 },
                 {
+                    label: 'Reload sources and agent file',
+                    click()  {
+                        win.webContents.send('reload-request');
+                    },
+                    accelerator: 'CmdOrCtrl+R',
+                },
+            ]
+        },
+        {
+            label: 'Projects',
+            submenu: [
+                {
                     id: 'recent-projects',
                     label: 'Recent projects',
                     enabled: getProjectNames().length > 0,
@@ -66,14 +94,6 @@ export const initAppMenu = (win: BrowserWindow) => {
                     click() { win.webContents.send('delete-project-request') },
                     // enabled: getCurrentProjectName() !== undefined
                 },
-                {
-                    type: 'separator'
-                },
-                {
-                    label: 'Quit',
-                    role: 'quit',
-                    toolTip: 'Quit this application'
-                }
             ]
         },
         {
@@ -85,12 +105,6 @@ export const initAppMenu = (win: BrowserWindow) => {
                         shell.openExternal("https://github.com/elomagic/jr-agent-app/issues")
                     }
                 },
-                {
-                    type: 'separator'
-                },
-                {
-                    label: 'About',
-                }
             ]
         }
     ]

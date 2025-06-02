@@ -186,6 +186,7 @@ export const JarsInUseView = () => {
         window.ipcRenderer.on('load-project-request', loadProjectRequestHandler);
         window.ipcRenderer.on('update-project-request', updateProjectRequestHandler);
         window.ipcRenderer.on('delete-project-request', deleteProjectRequestHandler);
+        window.ipcRenderer.on('reload-request', handleReloadAgentFileClick);
     }
 
     useEffect(() => {
