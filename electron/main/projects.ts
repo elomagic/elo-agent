@@ -3,7 +3,7 @@ import { getUserHomeAppPath } from './appSettings';
 import fs from 'fs';
 import logger from 'electron-log/main';
 import { BackendResponse, Project } from '@/shared/Types';
-import { BrowserWindow, Menu } from 'electron';
+import {app, BrowserWindow, Menu } from 'electron';
 import MenuItem = Electron.MenuItem;
 
 const WINDOWS_TITLE = "elo Agent"
@@ -93,7 +93,7 @@ export const loadProject = (win: BrowserWindow, projectName: string) => {
         const p = ps[0]
         win.webContents.send('load-project-request', p);
 
-        win.setTitle(`${WINDOWS_TITLE} - Project ${projectName}`);
+        win.setTitle(`${WINDOWS_TITLE} ${app.getVersion()} - Project ${projectName}`);
     }
 }
 
@@ -103,7 +103,7 @@ export const deleteProject = (projectName: string) => {
     const p = loadProjects().filter(project => project.name !== projectName);
 
     const win = BrowserWindow.getFocusedWindow();
-    win && win.setTitle(`${WINDOWS_TITLE}`);
+    win && win.setTitle(`${WINDOWS_TITLE} ${app.getVersion()}`);
     updateRecentMenu();
 
     return saveProjects(p);
