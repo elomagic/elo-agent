@@ -2,12 +2,20 @@
 
 import {Stack} from '@mui/material';
 import {useEffect, useState} from 'react';
-import {chooseAgentFile, listFiles, readAgentFile, resetAgentFile} from '@/IpcServices';
+import {
+    chooseAgentFile,
+    createNewProject, deleteProject,
+    listFiles,
+    readAgentFile,
+    resetAgentFile,
+    updateProject
+} from '@/IpcServices';
 import {FileStatus, FileStatusTable} from '@/views/jarsInUse/FileStatusTable';
 import {FileFilters} from '@/views/jarsInUse/FileFilters';
 import {toast, ToastContainer} from 'react-toastify';
 import {SelectProcessDialog} from "@/views/jarsInUse/SelectProcessDialog";
-import {FileType, SourceFile} from "@/shared/Types";
+import { FileType, Project, SourceFile } from '@/shared/Types';
+import { EnterNewProjectNameDialog } from '@/views/jarsInUse/EnterNewProjectNameDialog';
 
 export const JarsInUseView = () => {
 
@@ -15,7 +23,11 @@ export const JarsInUseView = () => {
     const [agentFile, setAgentFile] = useState<string | undefined>(undefined);
     const [fileStatus, setFileStatus] = useState<FileStatus[]>([]);
 
+    const [projectName, setProjectName] = useState<string | undefined>(undefined);
+
     const [openProcess, setOpenProcess] = useState<boolean>(false);
+
+    const [openNewProject, setOpenNewProject] = useState<boolean>(false);
 
     const reloadTable = (fileSources: SourceFile[], agentFilename: string | undefined) => {
 
@@ -97,6 +109,20 @@ export const JarsInUseView = () => {
         applySourceFiles(files.map((f) => { return { file: f, recursive: false } }));
     }
 
+    const handleCreateNewProject = (name: string) => {
+        setOpenNewProject(false);
+
+        const p =  {
+            name: name,
+            sourceFiles: sourceFiles,
+            agentFile: agentFile,
+        }
+
+        setProjectName(name);
+
+        createNewProject(p).then((response) => toast(response.responseMessage));
+    }
+
     useEffect(() => {
         window.ipcRenderer.on('add-folder', (_event, folder: string, recursive: boolean)=> {
             applySourceFiles([{ file: folder, recursive: recursive, type: FileType.Directory }]);
@@ -104,6 +130,40 @@ export const JarsInUseView = () => {
         window.ipcRenderer.on('show-process-dialog', (_event)=> {
             setOpenProcess(true);
         });
+        window.ipcRenderer.on('save-new-project-request', (_event)=> {
+            setOpenNewProject(true);
+        });
+        window.ipcRenderer.on('load-project-request', (_event, project: Project)=> {
+            setProjectName(project.name)
+            setSourceFiles(project.sourceFiles);
+            setAgentFile(project.agentFile)
+            reloadTable(project.sourceFiles, project.agentFile);
+        });
+        window.ipcRenderer.on('update-project-request', (_event)=> {
+            if (!projectName) {
+                setOpenNewProject(true);
+                return;
+            }
+
+            const p: Project = {
+                name: projectName,
+                sourceFiles: sourceFiles,
+                agentFile: agentFile,
+            }
+
+            updateProject(p).then((response) => toast(response.responseMessage));
+        });
+        window.ipcRenderer.on('delete-project-request', (_event)=> {
+            if (!projectName) {
+                return;
+            }
+
+            deleteProject(projectName).then((response) => {
+                setProjectName(undefined)
+                toast(response.responseMessage)
+            });
+        });
+
     }, []);
 
     return (
@@ -118,6 +178,7 @@ export const JarsInUseView = () => {
             />
             <FileStatusTable items={fileStatus}/>
             <SelectProcessDialog open={openProcess} onSelectClick={handleSelectProcessClick} onCancelClick={() => setOpenProcess(false)}/>
+            <EnterNewProjectNameDialog open={openNewProject} onCreateClick={handleCreateNewProject} onCancelClick={() => setOpenNewProject(false)} />
         </Stack>
     );
 
