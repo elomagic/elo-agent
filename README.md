@@ -8,7 +8,7 @@
 
 ![](/doc/header.png "Logo")
 
-A tool for identifying unused libraries like JARs, with a focus on Java applications.
+The frontend tool for identifying (un-)used JAR libraries. 
 
 ---
 
