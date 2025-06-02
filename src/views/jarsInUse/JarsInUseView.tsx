@@ -25,7 +25,7 @@ export const JarsInUseView = () => {
     const [agentFile, setAgentFile] = useState<string | undefined>(undefined);
     const [fileStatus, setFileStatus] = useState<FileStatus[]>([]);
 
-    const [projectName, setProjectName] = useState<string | undefined>(undefined);
+    const [, setProjectName] = useState<string | undefined>(undefined);
 
     const [openProcess, setOpenProcess] = useState<boolean>(false);
 
@@ -145,29 +145,38 @@ export const JarsInUseView = () => {
     }
 
     const updateProjectRequestHandler = ()=> {
-        if (!projectName) {
-            setOpenNewProject(true);
-            return;
-        }
+        setProjectName(prev => {
+            if (!prev) {
+                setOpenNewProject(true);
+                return;
+            }
 
-        const p: Project = {
-            name: projectName,
-            sourceFiles: sourceFiles,
-            agentFile: agentFile,
-        }
+            const p: Project = {
+                name: prev,
+                sourceFiles: sourceFiles,
+                agentFile: agentFile,
+            }
 
-        updateProject(p).then((response) => toast(response.responseMessage));
+            updateProject(p).then((response) => toast(response.responseMessage));
+
+            return prev;
+        });
     }
 
     const deleteProjectRequestHandler = ()=> {
-        if (!projectName) {
-            return;
-        }
+        // TODO Add yes no dialog
+        setProjectName(prev => {
+            if (!prev) {
+                return;
+            }
 
-        deleteProject(projectName).then((response) => {
-            setProjectName(undefined)
-            toast(response.responseMessage)
-        });
+            deleteProject(prev).then((response) => {
+                setProjectName(undefined)
+                toast(response.responseMessage)
+            });
+            return prev;
+        })
+
     }
 
     const initHooks = () => {
