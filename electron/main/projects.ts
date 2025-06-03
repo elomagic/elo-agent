@@ -5,6 +5,7 @@ import logger from 'electron-log/main';
 import { BackendResponse, Project } from '@/shared/Types';
 import {app, BrowserWindow, Menu } from 'electron';
 import MenuItem = Electron.MenuItem;
+import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions;
 
 const WINDOWS_TITLE = "elo Agent"
 
@@ -23,10 +24,51 @@ const loadProjects = (): Project[] => {
     return [];
 }
 
+const findMenuItem = (items: MenuItem[]): MenuItem | undefined => {
+    for (let item of items) {
+        if (item.id === 'recent-projects') {
+            return item;
+        } else if (item.submenu) {
+            const result = findMenuItem(item.submenu.items)
+            if (result) {
+                return result
+            }
+        }
+    }
+
+    return undefined;
+}
+
+const updateRecentMenu = (projects: Project[]) => {
+    const items = Menu.getApplicationMenu()?.items;
+    if (items === undefined) {
+        return
+    }
+
+    const win = BrowserWindow.getFocusedWindow();
+    if (!win) {
+        return;
+    }
+    const menu: MenuItem | undefined = findMenuItem(items);
+
+    if (menu === undefined) {
+        return;
+    }
+
+    const newMenuItems: MenuItemConstructorOptions[] = projects.map((p) => ({
+        label: p.name,
+        click() { loadProject(win, p.name) }
+    }));
+
+    menu.submenu = Menu.buildFromTemplate(newMenuItems);
+}
+
 const saveProjects = (projects: Project[]): Promise<BackendResponse> => {
     const fn = getProjectsFilename();
     logger.info('Writing projects file: ', fn);
     const json = JSON.stringify(projects, null, 2);
+
+    updateRecentMenu(projects);
 
     return new Promise<BackendResponse>((resolve) => {
         if (!fs.existsSync(getUserHomeAppPath())) {
@@ -42,40 +84,6 @@ const saveProjects = (projects: Project[]): Promise<BackendResponse> => {
 export const getProjectNames = (): string[] => {
     return loadProjects().map((project) => project.name);
 }
-
-const findMenuItem = (items: MenuItem[]) => {
-    for (let item of items) {
-        if (item.id === 'recent-projects') {
-            return item;
-        } else if (item.submenu !== undefined) {
-            return findMenuItem(item.submenu.items)
-        }
-    }
-
-    return undefined;
-}
-
-const updateRecentMenu = () => {
-    const items = Menu.getApplicationMenu()?.items;
-    if (items === undefined) {
-        return
-    }
-
-    const win = BrowserWindow.getFocusedWindow();
-    if (!win) {
-        return;
-    }
-    const menu = findMenuItem(items);
-    /* TODO
-    menu.submenu = getProjectNames().map((name) => ({
-        label: name,
-        click() { loadProject(win, name) }
-    }))
-
-     */
-    console.log(menu);
-}
-
 
 export const createNewProject = (project: Project) => {
     const p = loadProjects().filter(item => item.name !== project.name).concat(project);
@@ -104,7 +112,6 @@ export const deleteProject = (projectName: string) => {
 
     const win = BrowserWindow.getFocusedWindow();
     win && win.setTitle(`${WINDOWS_TITLE} ${app.getVersion()}`);
-    updateRecentMenu();
 
     return saveProjects(p);
 }
