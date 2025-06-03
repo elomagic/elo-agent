@@ -209,7 +209,7 @@ export const JarsInUseView = () => {
 
     return (
         <Stack direction='column' width="100%" height="100vh">
-            <ToastContainer position='top-center' theme='colored'/>
+            <ToastContainer position='top-center' theme='colored' autoClose={2000} />
             <FileFilters items={sourceFiles}
                          onUpdateSources={handleUpdateSourcesClick}
                          agentFile={agentFile}
