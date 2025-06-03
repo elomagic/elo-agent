@@ -27,7 +27,7 @@ export default defineConfig(({ command }) => {
           entry: 'electron/main/index.ts',
           onstart(args) {
             if (process.env.VSCODE_DEBUG) {
-              console.log(/* For `.vscode/.debug.script.mjs` */'[startup] Electron App')
+              console.log(/* For `.vscode/.debug.script.mjs` */'[startup] Elo Agent')
             } else {
               args.startup()
             }
@@ -53,7 +53,9 @@ export default defineConfig(({ command }) => {
               minify: isBuild,
               outDir: 'dist-electron/preload',
               rollupOptions: {
-                external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
+                external: [...Object.keys('dependencies' in pkg ? pkg.dependencies : {}), "src/shared"],
+                // external: Object.keys('dependencies' in pkg ? pkg.dependencies : {}),
+                // external: [...Object.keys('dependencies' in pkg ? pkg.dependencies : {}), "src/shared"],
               },
             },
           },

@@ -1,8 +1,9 @@
 {
-    "name": "elo-java-agent-ui",
+    "name": "elo-agent",
+    "productName": "elo Agent",
     "version": "0.0.1",
     "main": "dist-electron/main/index.js",
-    "description": "elo Java Agent UI",
+    "description": "elo Agent for identifying (un-)used JAR libraries",
     "author": "Carsten Rambow",
     "license": "Apache-2.0",
     "funding": {

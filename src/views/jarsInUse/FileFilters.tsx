@@ -1,39 +1,38 @@
 "use client"
 
-import {Grid} from '@mui/material';
+import { Stack } from '@mui/material';
 import {SourceFiles} from '@/views/jarsInUse/SourceFiles';
 import {AgentFile} from './AgentFile';
+import {SourceFile} from "@/shared/Types";
 
 interface ComponentProps {
-    items: string[];
-    onAddSourceClick: () => void;
-    onDeleteSourceClick: (itemId: string) => void;
+    items: SourceFile[];
+    onUpdateSources: (files: SourceFile[]) => void;
     agentFile: string | undefined;
     onSelectAgentFileClick: () => void;
     onReloadAgentFileClick: () => void;
+    onResetAgentFileClick: () => void;
 }
 
 export const FileFilters = ({
                                 items,
-                                onAddSourceClick,
-                                onDeleteSourceClick,
+                                onUpdateSources,
                                 agentFile,
                                 onSelectAgentFileClick,
                                 onReloadAgentFileClick,
+                                onResetAgentFileClick,
                             }: Readonly<ComponentProps>) => {
 
     return (
-        <Grid container>
-            <Grid size={6}>
-                <SourceFiles items={items} onAddClick={onAddSourceClick} onDeleteClick={onDeleteSourceClick} />
-            </Grid>
-            <Grid size={6}>
-                <AgentFile agentFile={agentFile}
-                           onSelectAgentFileClick={onSelectAgentFileClick}
-                           onReloadAgentFileClick={onReloadAgentFileClick}
-                />
-            </Grid>
-        </Grid>
+        <Stack direction="row">
+            <SourceFiles items={items} onUpdateSources={onUpdateSources} />
+
+            <AgentFile agentFile={agentFile}
+                       onSelectAgentFileClick={onSelectAgentFileClick}
+                       onReloadAgentFileClick={onReloadAgentFileClick}
+                       onResetAgentFileClick={onResetAgentFileClick}
+            />
+        </Stack>
     );
 
 }

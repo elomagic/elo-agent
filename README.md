@@ -1,33 +1,27 @@
-# elo JR Agent APP
+[![Apache License, Version 2.0, January 2004](https://img.shields.io/github/license/apache/maven.svg?label=License)][license]
+[![Latest](https://img.shields.io/github/release/elomagic/elo-agent.svg)](https://github.com/elomagic/elo-agent/releases)
+![GitHub stars](https://img.shields.io/github/stars/elomagic/elo-agent?color=fa6470)
+[![GitHub issues](https://img.shields.io/github/issues/elomagic/elo-agent?color=d8b22d)](https://github.com/elomagic/elo-agent/issues)
+[![Required Node.JS >= 22.12.0 || >=22.99.0](https://img.shields.io/static/v1?label=node&message=22.12.0%20||%20%3E=22.99.0&logo=node.js&color=3f893e)](https://nodejs.org/about/releases)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/elomagic/elo-agent/graphs/commit-activity)
+[![Buymeacoffee](https://badgen.net/badge/icon/buymeacoffee?icon=buymeacoffee&label)](https://www.buymeacoffee.com/elomagic)
 
-A tool that ...
+![](/doc/header.png "Logo")
+
+The frontend tool for identifying (un-)used JAR libraries. 
 
 ---
 
-[![Apache License, Version 2.0, January 2004](https://img.shields.io/github/license/apache/maven.svg?label=License)][license]
-![GitHub stars](https://img.shields.io/github/stars/elomagic/jr-agent-app?color=fa6470)
-![GitHub issues](https://img.shields.io/github/issues/elomagic/jr-agent-app?color=d8b22d)
-[![Required Node.JS >= 22.12.0 || >=22.99.0](https://img.shields.io/static/v1?label=node&message=22.12.0%20||%20%3E=22.99.0&logo=node.js&color=3f893e)](https://nodejs.org/about/releases)
-[![Buymeacoffee](https://badgen.net/badge/icon/buymeacoffee?icon=buymeacoffee&label)](https://www.buymeacoffee.com/elomagic)
-
 ## 👀 Overview
-
-📦 Ready out of the box  
-🎯 Based on the official [template-react-ts](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts), project structure will be familiar to you  
-🌱 Easily extendable and customizable  
-💪 Supports Node.js API in the renderer process  
-🔩 Supports C/C++ native addons  
-🐞 Debugger configuration included  
-🖥 Easy to implement multiple windows  
 
 ## 🛫 Quick Setup
 
 ```sh
 # clone the project
-git clone https://github.com/elomagic/jr-agent-app.git
+git clone https://github.com/elomagic/elo-agent.git
 
 # enter the project directory
-cd jr-agent-app
+cd elo-agent
 
 # install dependency
 npm install
@@ -35,10 +29,6 @@ npm install
 # develop
 npm run dev
 ```
-
-## 🐞 Debug
-
-![electron-vite-react-debug.gif](/electron-vite-react-debug.gif)
 
 ## 📂 Directory structure
 
@@ -91,5 +81,25 @@ export default {
 
 - [C/C++ addons, Node.js modules - Pre-Bundling](https://github.com/electron-vite/vite-plugin-electron-renderer#dependency-pre-bundling)
 - [dependencies vs devDependencies](https://github.com/electron-vite/vite-plugin-electron-renderer#dependencies-vs-devdependencies)
+
+## Contributing
+
+Pull requests and stars are always welcome. For bugs and feature requests, [please create an issue](../../issues/new).
+
+### Versioning
+
+Versioning follows the semantic of [Semantic Versioning 2.0.0](https://semver.org/)
+
+## License
+
+The Elo Agent tool is distributed under [Apache License, Version 2.0][license]
+
+## Donations
+
+Donations will ensure the following:
+
+* 🔨 Long term maintenance of the project
+* 🛣 Progress on the roadmap
+* 🐛 Quick responses to bug reports and help requests
 
 [license]: https://www.apache.org/licenses/LICENSE-2.0

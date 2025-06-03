@@ -1,85 +1,225 @@
 "use client"
 
 import {Stack} from '@mui/material';
-import {useState} from 'react';
-import {chooseAgentFile, chooseFolder, listFiles, readAgentFile} from '@/IpcServices';
+import { useEffect, useRef, useState } from 'react';
+import {
+    chooseAgentFile,
+    createNewProject, deleteProject,
+    listFiles,
+    readAgentFile,
+    resetAgentFile,
+    updateProject
+} from '@/IpcServices';
 import {FileStatus, FileStatusTable} from '@/views/jarsInUse/FileStatusTable';
 import {FileFilters} from '@/views/jarsInUse/FileFilters';
 import {toast, ToastContainer} from 'react-toastify';
+import {SelectProcessDialog} from "@/views/jarsInUse/SelectProcessDialog";
+import { FileType, Project, SourceFile } from '@/shared/Types';
+import { EnterNewProjectNameDialog } from '@/views/jarsInUse/EnterNewProjectNameDialog';
 
 export const JarsInUseView = () => {
 
-    const [sourceFolders, setSourceFolders] = useState<string[]>([]);
+    const initializedRef = useRef(false);
+
+    const [sourceFiles, setSourceFiles] = useState<SourceFile[]>([]);
     const [agentFile, setAgentFile] = useState<string | undefined>(undefined);
     const [fileStatus, setFileStatus] = useState<FileStatus[]>([]);
 
-    const reloadTable = (folders: string[], agentFilename: string | undefined) => {
-        listFiles(folders).then(files => {
-            console.info("Files found: " + files.length);
+    const [, setProjectName] = useState<string | undefined>(undefined);
 
-            const status: FileStatus[] = [];
+    const [openProcess, setOpenProcess] = useState<boolean>(false);
 
-            readAgentFile(agentFilename)
-                .then((lines: string[]) => {
-                    const files: string[] = []
-                    for (const line of lines) {
-                        const columns = line.split(";");
-                        if (columns.length > 1) {
-                            files.push(columns[1]);
-                        }
+    const [openNewProject, setOpenNewProject] = useState<boolean>(false);
+
+    const reloadTable = (fileSources: SourceFile[], agentFilename: string | undefined) => {
+
+        Promise.all([
+            listFiles(fileSources, true),
+            readAgentFile(agentFilename)])
+            .then(([files, agentLines]) => {
+                console.info("Files found: " + files.length);
+
+                // Normalize paths
+                for (let i = 0; i < files.length; i++) {
+                    files[i] = files[i].replace(/\\/g, '/');
+                }
+
+                const filesByAgent: string[] = []
+                for (const line of agentLines) {
+                    const columns = line.split(";");
+                    if (columns.length > 1) {
+                        filesByAgent.push(columns[1]);
                     }
-                    return files;
-                })
-                .then((usedFiles) => {
-                    for (const file of files) {
-                        status.push({id: file, loaded: usedFiles.indexOf(file) !== -1});
-                    }
+                }
 
-                    setFileStatus(status);
-                })
-                .then(() => toast.success("View reloaded!"))
-        })
+                const bothFiles = Array.from(new Set([...files, ...filesByAgent]));
+
+                const status: FileStatus[] = [];
+
+                for (const file of bothFiles) {
+                    status.push({ id: file, loaded: filesByAgent.includes(file) });
+                }
+
+                setFileStatus(status);
+
+            })
+            .then(() => toast.success("View reloaded!"))
+            .catch((err) => toast.error("Reload failed with error: " + err));
+
     };
 
-    const handleAddSourceClick = () => {
-        chooseFolder(undefined)
-            .then((folder: string | undefined) => {
-                folder && sourceFolders.indexOf(folder) === -1 && setSourceFolders([folder, ...sourceFolders]);
-                return folder && [folder, ...sourceFolders]
-            })
-            .then((folders) => {
-                folders && reloadTable(folders, agentFile)
-            });
+    const applySourceFiles = (files: SourceFile[]) => {
+        // filter duplicates
+        const uniqueFolders = Array.from(new Set([...files, ...sourceFiles]));
+
+        setSourceFiles(uniqueFolders);
+        reloadTable(uniqueFolders, agentFile)
     }
 
-    const handleDeleteSourceClick = (item: string) => {
-        const folders = sourceFolders.filter(i => item !== i);
-        setSourceFolders(folders);
-        reloadTable(folders, agentFile);
+    const handleUpdateSourcesClick = (newFiles: SourceFile[]) => {
+        setSourceFiles(newFiles);
+        reloadTable(newFiles, agentFile);
     }
 
     const handleSelectAgentFileClick = () => {
         chooseAgentFile(undefined)
             .then((file: string | undefined) => {
-                file && setAgentFile(file) && reloadTable(sourceFolders, file);
+                file && setAgentFile(file)
+                file && reloadTable(sourceFiles, file);
             })
     }
 
     const handleReloadAgentFileClick = () => {
-        reloadTable(sourceFolders, agentFile);
+        reloadTable(sourceFiles, agentFile);
     }
+
+    const handleResetAgentFileClick = () => {
+        agentFile && resetAgentFile(agentFile).then((response) => toast(response.responseMessage));
+        reloadTable(sourceFiles, agentFile);
+    }
+
+    const handleSelectProcessClick = (a: string) => {
+        setOpenProcess(false);
+
+        const args = a.split(" ");
+        const cpIndex = args.indexOf("-classpath");
+        const cp = args[cpIndex + 1];
+        const files = cp.split(";");
+
+        // TODO Classpath from Manifest in case when argument -jar is set
+
+        applySourceFiles(files.map((f) => { return { file: f, recursive: false } }));
+    }
+
+    const handleCreateNewProject = (name: string) => {
+        setOpenNewProject(false);
+
+        const p =  {
+            name: name,
+            sourceFiles: sourceFiles,
+            agentFile: agentFile,
+        }
+
+        setProjectName(name);
+
+        createNewProject(p).then((response) => toast(response.responseMessage));
+    }
+
+    const addFolderHandler = (_event: any, folder: string, recursive: boolean)=> {
+        applySourceFiles([{ file: folder, recursive: recursive, type: FileType.Directory }]);
+    }
+
+    const showProcessDialogHandler = ()=> {
+        setOpenProcess(true);
+    }
+
+    const saveNewProjectRequestHandler = ()=> {
+        setOpenNewProject(true);
+    }
+
+    const loadProjectRequestHandler = (_event: any, project: Project)=> {
+        setProjectName(project.name)
+        setSourceFiles(project.sourceFiles);
+        setAgentFile(project.agentFile)
+        reloadTable(project.sourceFiles, project.agentFile);
+    }
+
+    const updateProjectRequestHandler = ()=> {
+        setProjectName(prev => {
+            if (!prev) {
+                setOpenNewProject(true);
+                return;
+            }
+
+            const p: Project = {
+                name: prev,
+                sourceFiles: sourceFiles,
+                agentFile: agentFile,
+            }
+
+            updateProject(p).then((response) => toast(response.responseMessage));
+
+            return prev;
+        });
+    }
+
+    const deleteProjectRequestHandler = ()=> {
+        // TODO Add yes no dialog
+        setProjectName(prev => {
+            if (!prev) {
+                return;
+            }
+
+            deleteProject(prev).then((response) => {
+                setProjectName(undefined)
+                toast(response.responseMessage)
+            });
+            return prev;
+        })
+
+    }
+
+    const initHooks = () => {
+        window.ipcRenderer.on('add-folder', addFolderHandler);
+        window.ipcRenderer.on('show-process-dialog', showProcessDialogHandler);
+        window.ipcRenderer.on('save-new-project-request', saveNewProjectRequestHandler);
+        window.ipcRenderer.on('load-project-request', loadProjectRequestHandler);
+        window.ipcRenderer.on('update-project-request', updateProjectRequestHandler);
+        window.ipcRenderer.on('delete-project-request', deleteProjectRequestHandler);
+        window.ipcRenderer.on('reload-request', handleReloadAgentFileClick);
+    }
+
+    useEffect(() => {
+        if (!initializedRef.current) {
+            initializedRef.current = true;
+            initHooks();
+        }
+
+        return () => {
+            /*
+            window.ipcRenderer.removeListener('add-folder', addFolderHandler);
+            window.ipcRenderer.removeListener('show-process-dialog', showProcessDialogHandler);
+            window.ipcRenderer.removeListener('save-new-project-request', saveNewProjectRequestHandler);
+            window.ipcRenderer.removeListener('load-project-request', loadProjectRequestHandler);
+            window.ipcRenderer.removeListener('update-project-request', updateProjectRequestHandler);
+            window.ipcRenderer.removeListener('delete-project-request', deleteProjectRequestHandler);
+            */
+        };
+    }, []);
 
     return (
         <Stack direction='column' width="100%" height="100vh">
-            <ToastContainer position='top-center' theme='colored' />
-            <FileFilters items={sourceFolders}
-                         onAddSourceClick={handleAddSourceClick}
-                         onDeleteSourceClick={handleDeleteSourceClick}
+            <ToastContainer position='top-center' theme='colored' autoClose={2000} />
+            <FileFilters items={sourceFiles}
+                         onUpdateSources={handleUpdateSourcesClick}
                          agentFile={agentFile}
                          onSelectAgentFileClick={handleSelectAgentFileClick}
                          onReloadAgentFileClick={handleReloadAgentFileClick}
+                         onResetAgentFileClick={handleResetAgentFileClick}
             />
             <FileStatusTable items={fileStatus}/>
+            <SelectProcessDialog open={openProcess} onSelectClick={handleSelectProcessClick} onCancelClick={() => setOpenProcess(false)}/>
+            <EnterNewProjectNameDialog open={openNewProject} onCreateClick={handleCreateNewProject} onCancelClick={() => setOpenNewProject(false)} />
         </Stack>
     );
 
