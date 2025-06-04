@@ -12,7 +12,9 @@ import {
     Stack, Tooltip
 } from '@mui/material';
 import { Cached, CheckCircle } from '@mui/icons-material';
-import {Project} from "@/shared/Types";
+import {Project, SourceFile} from "@/shared/Types";
+import {AgentFile} from "@/views/jarsInUse/AgentFile";
+import {SourceFiles} from "@/views/jarsInUse/SourceFiles";
 
 interface ComponentProps {
     project: Project | undefined;
@@ -21,6 +23,11 @@ interface ComponentProps {
     onDeleteProject: () => void;
     onProjectNameChange: (name: string) => void;
     onReloadFiles: () => void;
+    agentFile: string | undefined;
+    onSelectAgentFileClick: () => void;
+    onResetAgentFileClick: () => void;
+    sourceFiles: SourceFile[];
+    onUpdateSources: (files: SourceFile[]) => void;
 }
 
 export const TopPanel = ({
@@ -30,6 +37,11 @@ export const TopPanel = ({
                              onDeleteProject,
                              onProjectNameChange,
                              onReloadFiles,
+                             agentFile,
+                             onSelectAgentFileClick,
+                             onResetAgentFileClick,
+                             sourceFiles,
+                             onUpdateSources
                          }: Readonly<ComponentProps>) => {
 
     const renderMenuItem = (name: string | undefined) => {
@@ -39,10 +51,10 @@ export const TopPanel = ({
                     ? (
                         <>
                             <ListItemIcon><CheckCircle /></ListItemIcon>
-                            <ListItemText>{name}</ListItemText>
+                            <ListItemText primary={name} secondary={project?.agentFile} />
                         </>
                     )
-                    : (<ListItemText inset>{name}</ListItemText>)
+                    : (<ListItemText inset primary={name} secondary={project?.agentFile} />)
                 }
             </MenuItem>
         );
@@ -55,37 +67,57 @@ export const TopPanel = ({
 
     return (
         <Stack direction="row">
-            <FormControl sx={{ minWidth: 160 }} size="small" variant="outlined">
-                <Select
-                    labelId="project-label"
-                    id="project-selector"
-                    value={project?.name}
-                    displayEmpty
-                    variant="outlined"
-                    label=""
-                    renderValue={(value) => {
-                        return value ?? (<Box sx={{ color: "text.secondary" }}><em>No project loaded</em></Box> );
-                    }}
-                    onChange={handleProjectNameChangeClick}
-                >
-                    <MenuItem onClick={onNewProject}>
-                        <ListItemText>New project...</ListItemText>
-                    </MenuItem>
-                    <MenuItem onClick={onDeleteProject}>
-                        <ListItemText>Delete current project...</ListItemText>
-                    </MenuItem>
+            <Stack direction="row"
+                   alignItems="center"
+                   margin={"2px"}
+                   sx={{
+                       borderColor: "secondary.main",
+                       borderRadius: "20px",
+                       borderStyle: "solid",
+                       borderWidth: "1px",
+                       paddingLeft: 1,
+                   }}
+            >
+                <FormControl sx={{ minWidth: 160 }} size="small" variant="outlined">
+                    <Select
+                        labelId="project-label"
+                        id="project-selector"
+                        value={project?.name}
+                        displayEmpty
+                        variant="outlined"
+                        label=""
+                        sx={{ borderStyle: 'none' }}
+                        renderValue={(value) => {
+                            return value ?? (<Box><em>No project loaded</em></Box> );
+                        }}
+                        onChange={handleProjectNameChangeClick}
+                    >
+                        <MenuItem onClick={onNewProject}>
+                            <ListItemText>New project...</ListItemText>
+                        </MenuItem>
+                        <MenuItem onClick={onDeleteProject}>
+                            <ListItemText>Delete current project...</ListItemText>
+                        </MenuItem>
 
-                    <Divider />
+                        <Divider />
 
-                    { projects.map((p) => renderMenuItem(p.name)) }
-                </Select>
-            </FormControl>
+                        { projects.map((p) => renderMenuItem(p.name)) }
+                    </Select>
+                </FormControl>
 
-            <Tooltip title="Reload files">
-                <IconButton aria-label="reload" onClick={onReloadFiles}>
-                    <Cached />
-                </IconButton>
-            </Tooltip>
+                <Tooltip title="Reload files">
+                    <IconButton aria-label="reload" onClick={onReloadFiles}>
+                        <Cached />
+                    </IconButton>
+                </Tooltip>
+            </Stack>
+
+            <AgentFile agentFile={agentFile}
+                       onSelectAgentFileClick={onSelectAgentFileClick}
+                       onResetAgentFileClick={onResetAgentFileClick}
+            />
+
+            <SourceFiles items={sourceFiles} onUpdateSources={onUpdateSources} />
         </Stack>
     );
 

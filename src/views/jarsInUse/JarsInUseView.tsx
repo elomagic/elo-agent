@@ -11,7 +11,6 @@ import {
     updateProject
 } from '@/IpcServices';
 import {FileStatus, FileStatusTable} from '@/views/jarsInUse/FileStatusTable';
-import {FileFilters} from '@/views/jarsInUse/FileFilters';
 import {toast, ToastContainer} from 'react-toastify';
 import {SelectProcessDialog} from "@/views/jarsInUse/SelectProcessDialog";
 import { FileType, Project, SourceFile } from '@/shared/Types';
@@ -78,6 +77,13 @@ export const JarsInUseView = () => {
         reloadTable(uniqueFolders, agentFile)
     }
 
+    const loadProject = (project: Project)=> {
+        setProject(project)
+        setSourceFiles(project.sourceFiles);
+        setAgentFile(project.agentFile)
+        reloadTable(project.sourceFiles, project.agentFile);
+    }
+
     const handleUpdateSourcesClick = (newFiles: SourceFile[]) => {
         setSourceFiles(newFiles);
         reloadTable(newFiles, agentFile);
@@ -131,7 +137,7 @@ export const JarsInUseView = () => {
         listProjects()
             .then(p => {
                 const ps = p.filter((f) => f.name === name)
-                ps.length > 0 && loadProjectRequestHandler(null, ps[0]);
+                ps.length > 0 && loadProject(ps[0]);
             });
     }
 
@@ -147,12 +153,6 @@ export const JarsInUseView = () => {
         setOpenNewProject(true);
     }
 
-    const loadProjectRequestHandler = (_event: any, project: Project)=> {
-        setProject(project)
-        setSourceFiles(project.sourceFiles);
-        setAgentFile(project.agentFile)
-        reloadTable(project.sourceFiles, project.agentFile);
-    }
 
     const updateProjectRequestHandler = ()=> {
         setProject(prev => {
@@ -196,7 +196,6 @@ export const JarsInUseView = () => {
         window.ipcRenderer.on('add-folder', addFolderHandler);
         window.ipcRenderer.on('show-process-dialog', showProcessDialogHandler);
         window.ipcRenderer.on('save-new-project-request', saveNewProjectRequestHandler);
-        window.ipcRenderer.on('load-project-request', loadProjectRequestHandler);
         window.ipcRenderer.on('update-project-request', updateProjectRequestHandler);
         window.ipcRenderer.on('delete-project-request', deleteProjectRequestHandler);
         window.ipcRenderer.on('reload-request', handleReloadFilesClick);
@@ -215,7 +214,6 @@ export const JarsInUseView = () => {
             window.ipcRenderer.removeListener('add-folder', addFolderHandler);
             window.ipcRenderer.removeListener('show-process-dialog', showProcessDialogHandler);
             window.ipcRenderer.removeListener('save-new-project-request', saveNewProjectRequestHandler);
-            window.ipcRenderer.removeListener('load-project-request', loadProjectRequestHandler);
             window.ipcRenderer.removeListener('update-project-request', updateProjectRequestHandler);
             window.ipcRenderer.removeListener('delete-project-request', deleteProjectRequestHandler);
             */
@@ -224,19 +222,18 @@ export const JarsInUseView = () => {
 
     return (
         <Stack direction='column' width="100%" height="100vh">
-            <ToastContainer position='top-center' theme='colored' autoClose={2000} />
+            <ToastContainer position='bottom-center' theme='colored' autoClose={2000} />
             <TopPanel project={project}
                       projects={projects}
                       onNewProject={saveNewProjectRequestHandler}
                       onDeleteProject={deleteProjectRequestHandler}
                       onProjectNameChange={(name) => handleProjectNameChanged(name)}
                       onReloadFiles={handleReloadFilesClick}
-            />
-            <FileFilters items={sourceFiles}
-                         onUpdateSources={handleUpdateSourcesClick}
-                         agentFile={agentFile}
-                         onSelectAgentFileClick={handleSelectAgentFileClick}
-                         onResetAgentFileClick={handleResetAgentFileClick}
+                      agentFile={agentFile}
+                      onSelectAgentFileClick={handleSelectAgentFileClick}
+                      onResetAgentFileClick={handleResetAgentFileClick}
+                      sourceFiles={project?.sourceFiles ?? []}
+                      onUpdateSources={handleUpdateSourcesClick}
             />
             <FileStatusTable items={fileStatus}/>
             <SelectProcessDialog open={openProcess} onSelectClick={handleSelectProcessClick} onCancelClick={() => setOpenProcess(false)}/>
