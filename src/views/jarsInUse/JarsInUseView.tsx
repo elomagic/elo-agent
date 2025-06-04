@@ -128,9 +128,13 @@ export const JarsInUseView = () => {
             agentFile: agentFile,
         }
 
-        setProject(p);
-
-        createNewProject(p).then((response) => toast(response.responseMessage));
+        createNewProject(p)
+            .then(() => { return listProjects() })
+            .then((items) => {
+                setProjects(items);
+                setProject(p);
+                toast("response.responseMessage")
+            });
     }
 
     const handleProjectNameChanged = (name: string) => {
