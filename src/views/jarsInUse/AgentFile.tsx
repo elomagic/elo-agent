@@ -1,17 +1,16 @@
 "use client"
 
 import {Box, IconButton, Stack, TextField, Tooltip} from '@mui/material';
-import {InsertDriveFileOutlined, OpenInNew, ReplayOutlined, RestartAlt} from '@mui/icons-material';
+import {InsertDriveFileOutlined, OpenInNew, RestartAlt} from '@mui/icons-material';
 import { openFileExternal } from '@/IpcServices';
 
 interface ComponentProps {
     onSelectAgentFileClick: () => void;
-    onReloadAgentFileClick: () => void;
     onResetAgentFileClick: () => void;
     agentFile: string | undefined;
 }
 
-export const AgentFile = ({onSelectAgentFileClick, onReloadAgentFileClick, onResetAgentFileClick, agentFile}: Readonly<ComponentProps>) => {
+export const AgentFile = ({onSelectAgentFileClick, onResetAgentFileClick, agentFile}: Readonly<ComponentProps>) => {
 
     return (
         <Stack direction="row"
@@ -36,12 +35,6 @@ export const AgentFile = ({onSelectAgentFileClick, onReloadAgentFileClick, onRes
             <Tooltip title="Load agent file">
                 <IconButton aria-label="add" onClick={onSelectAgentFileClick}>
                     <InsertDriveFileOutlined/>
-                </IconButton>
-            </Tooltip>
-
-            <Tooltip title="Reload agent file">
-                <IconButton aria-label="reload" onClick={onReloadAgentFileClick}>
-                    <ReplayOutlined/>
                 </IconButton>
             </Tooltip>
 

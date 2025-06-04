@@ -36,7 +36,7 @@ export const EnterNewProjectNameDialog = ({ open, onCreateClick, onCancelClick }
             <DialogContent>
                 <DialogContentText sx={{ mt: 2 }}>Please enter a new project name.</DialogContentText>
 
-                <TextField focused fullWidth onChange={(evt) => setName(evt.target.value)} />
+                <TextField autoFocus fullWidth onChange={(evt) => setName(evt.target.value)} />
             </DialogContent>
             <DialogActions>
                 <Button onClick={onCancelClick}>Cancel</Button>

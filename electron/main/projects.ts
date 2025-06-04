@@ -13,7 +13,7 @@ const getProjectsFilename = (): string => {
     return path.join(getUserHomeAppPath(), 'projects.json');
 };
 
-const loadProjects = (): Project[] => {
+export const loadProjects = (): Project[] => {
     const fn = getProjectsFilename();
     if (fs.existsSync(fn)) {
         logger.info('Reading projects file: ', fn);
@@ -79,6 +79,10 @@ const saveProjects = (projects: Project[]): Promise<BackendResponse> => {
             resolve({ responseMessage: 'Project successful saved'});
         });
     });
+}
+
+export const getProjects = (): Project[] => {
+    return loadProjects();
 }
 
 export const getProjectNames = (): string[] => {

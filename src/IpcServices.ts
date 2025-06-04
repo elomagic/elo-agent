@@ -22,8 +22,8 @@ export function deleteProject(projectName: string): Promise<BackendResponse> {
     return window.ipcRenderer.invoke('delete-project', projectName);
 }
 
-export function listProject(): Promise<Project[]> {
-    return window.ipcRenderer.invoke('list-project', projectName);
+export function listProjects(): Promise<Project[]> {
+    return window.ipcRenderer.invoke('list-projects');
 }
 
 export function getJavaProcesses(): Promise<string[]> {

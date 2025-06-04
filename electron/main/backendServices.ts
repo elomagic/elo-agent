@@ -4,7 +4,7 @@ import {dialog, ipcMain, shell} from 'electron';
 import { applyRecentAgentFile, applyRecentFolder, getSettings } from "./appSettings";
 import { spawn } from 'child_process';
 import { BackendResponse, Project, SourceFile } from '@/shared/Types';
-import { createNewProject, deleteProject, updateProject } from './projects';
+import { createNewProject, deleteProject, loadProjects, updateProject } from './projects';
 
 export const chooseDirectory = (defaultFolder: string | undefined): Promise<string | undefined> => {
     return dialog.showOpenDialog({
@@ -175,6 +175,10 @@ export const registerMainHandlers = () => {
                                   folder: SourceFile[],
                                   includeFiles: boolean): Promise<string[]> => {
         return listFiles(folder, includeFiles);
+    })
+
+    ipcMain.handle("list-projects", (_event): Promise<Project[]> => {
+        return new Promise((resolve) => resolve(loadProjects()));
     })
 
     ipcMain.handle("open-file-external", (_event, file: string): Promise<void> => {

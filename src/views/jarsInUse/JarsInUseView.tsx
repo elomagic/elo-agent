@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
     chooseAgentFile,
     createNewProject, deleteProject,
-    listFiles,
+    listFiles, listProjects,
     readAgentFile,
     resetAgentFile,
     updateProject
@@ -16,6 +16,7 @@ import {toast, ToastContainer} from 'react-toastify';
 import {SelectProcessDialog} from "@/views/jarsInUse/SelectProcessDialog";
 import { FileType, Project, SourceFile } from '@/shared/Types';
 import { EnterNewProjectNameDialog } from '@/views/jarsInUse/EnterNewProjectNameDialog';
+import { TopPanel } from '@/views/jarsInUse/TopPanel';
 
 export const JarsInUseView = () => {
 
@@ -25,7 +26,7 @@ export const JarsInUseView = () => {
     const [agentFile, setAgentFile] = useState<string | undefined>(undefined);
     const [fileStatus, setFileStatus] = useState<FileStatus[]>([]);
 
-    const [, setProjectName] = useState<string | undefined>(undefined);
+    const [project, setProject] = useState<Project | undefined>(undefined);
 
     const [openProcess, setOpenProcess] = useState<boolean>(false);
 
@@ -89,7 +90,7 @@ export const JarsInUseView = () => {
             })
     }
 
-    const handleReloadAgentFileClick = () => {
+    const handleReloadFilesClick = () => {
         reloadTable(sourceFiles, agentFile);
     }
 
@@ -120,9 +121,17 @@ export const JarsInUseView = () => {
             agentFile: agentFile,
         }
 
-        setProjectName(name);
+        setProject(p);
 
         createNewProject(p).then((response) => toast(response.responseMessage));
+    }
+
+    const handleProjectNameChanged = (name: string) => {
+        listProjects()
+            .then(p => {
+               const ps = p.filter((f) => f.name === name)
+                ps.length > 0 && loadProjectRequestHandler(null, ps[0]);
+            });
     }
 
     const addFolderHandler = (_event: any, folder: string, recursive: boolean)=> {
@@ -138,21 +147,21 @@ export const JarsInUseView = () => {
     }
 
     const loadProjectRequestHandler = (_event: any, project: Project)=> {
-        setProjectName(project.name)
+        setProject(project)
         setSourceFiles(project.sourceFiles);
         setAgentFile(project.agentFile)
         reloadTable(project.sourceFiles, project.agentFile);
     }
 
     const updateProjectRequestHandler = ()=> {
-        setProjectName(prev => {
+        setProject(prev => {
             if (!prev) {
                 setOpenNewProject(true);
                 return;
             }
 
             const p: Project = {
-                name: prev,
+                name: prev.name,
                 sourceFiles: sourceFiles,
                 agentFile: agentFile,
             }
@@ -165,13 +174,13 @@ export const JarsInUseView = () => {
 
     const deleteProjectRequestHandler = ()=> {
         // TODO Add yes no dialog
-        setProjectName(prev => {
+        setProject(prev => {
             if (!prev) {
                 return;
             }
 
-            deleteProject(prev).then((response) => {
-                setProjectName(undefined)
+            deleteProject(prev.name).then((response) => {
+                setProject(undefined)
                 toast(response.responseMessage)
             });
             return prev;
@@ -186,7 +195,7 @@ export const JarsInUseView = () => {
         window.ipcRenderer.on('load-project-request', loadProjectRequestHandler);
         window.ipcRenderer.on('update-project-request', updateProjectRequestHandler);
         window.ipcRenderer.on('delete-project-request', deleteProjectRequestHandler);
-        window.ipcRenderer.on('reload-request', handleReloadAgentFileClick);
+        window.ipcRenderer.on('reload-request', handleReloadFilesClick);
     }
 
     useEffect(() => {
@@ -210,11 +219,16 @@ export const JarsInUseView = () => {
     return (
         <Stack direction='column' width="100%" height="100vh">
             <ToastContainer position='top-center' theme='colored' autoClose={2000} />
+            <TopPanel projectName={project?.name}
+                      onNewProject={saveNewProjectRequestHandler}
+                      onDeleteProject={deleteProjectRequestHandler}
+                      onProjectNameChange={(name) => handleProjectNameChanged(name)}
+                      onReloadFiles={handleReloadFilesClick}
+            />
             <FileFilters items={sourceFiles}
                          onUpdateSources={handleUpdateSourcesClick}
                          agentFile={agentFile}
                          onSelectAgentFileClick={handleSelectAgentFileClick}
-                         onReloadAgentFileClick={handleReloadAgentFileClick}
                          onResetAgentFileClick={handleResetAgentFileClick}
             />
             <FileStatusTable items={fileStatus}/>
