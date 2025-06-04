@@ -3,9 +3,8 @@ import { getUserHomeAppPath } from './appSettings';
 import fs from 'fs';
 import logger from 'electron-log/main';
 import { BackendResponse, Project } from '@/shared/Types';
-import {app, BrowserWindow, Menu } from 'electron';
+import {app, BrowserWindow } from 'electron';
 import MenuItem = Electron.MenuItem;
-import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions;
 
 const WINDOWS_TITLE = "elo Agent"
 
@@ -39,36 +38,10 @@ const findMenuItem = (items: MenuItem[]): MenuItem | undefined => {
     return undefined;
 }
 
-const updateRecentMenu = (projects: Project[]) => {
-    const items = Menu.getApplicationMenu()?.items;
-    if (items === undefined) {
-        return
-    }
-
-    const win = BrowserWindow.getFocusedWindow();
-    if (!win) {
-        return;
-    }
-    const menu: MenuItem | undefined = findMenuItem(items);
-
-    if (menu === undefined) {
-        return;
-    }
-
-    const newMenuItems: MenuItemConstructorOptions[] = projects.map((p) => ({
-        label: p.name,
-        click() { loadProject(win, p.name) }
-    }));
-
-    menu.submenu = Menu.buildFromTemplate(newMenuItems);
-}
-
 const saveProjects = (projects: Project[]): Promise<BackendResponse> => {
     const fn = getProjectsFilename();
     logger.info('Writing projects file: ', fn);
     const json = JSON.stringify(projects, null, 2);
-
-    updateRecentMenu(projects);
 
     return new Promise<BackendResponse>((resolve) => {
         if (!fs.existsSync(getUserHomeAppPath())) {
@@ -79,10 +52,6 @@ const saveProjects = (projects: Project[]): Promise<BackendResponse> => {
             resolve({ responseMessage: 'Project successful saved'});
         });
     });
-}
-
-export const getProjects = (): Project[] => {
-    return loadProjects();
 }
 
 export const getProjectNames = (): string[] => {
@@ -110,7 +79,7 @@ export const loadProject = (win: BrowserWindow, projectName: string) => {
 }
 
 export const deleteProject = (projectName: string) => {
-    console.info("Deleting project " + projectName);
+    console.info(`Deleting project '${projectName}'`);
 
     const p = loadProjects().filter(project => project.name !== projectName);
 

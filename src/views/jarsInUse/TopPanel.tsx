@@ -11,12 +11,12 @@ import {
     SelectChangeEvent,
     Stack, Tooltip
 } from '@mui/material';
-import { useEffect, useState } from 'react';
-import { listProjects } from "@/IpcServices";
 import { Cached, CheckCircle } from '@mui/icons-material';
+import {Project} from "@/shared/Types";
 
 interface ComponentProps {
-    projectName: string | undefined;
+    project: Project | undefined;
+    projects: Project[];
     onNewProject: () => void;
     onDeleteProject: () => void;
     onProjectNameChange: (name: string) => void;
@@ -24,23 +24,18 @@ interface ComponentProps {
 }
 
 export const TopPanel = ({
-                             projectName,
+                             project,
+                             projects,
                              onNewProject,
                              onDeleteProject,
                              onProjectNameChange,
                              onReloadFiles,
                          }: Readonly<ComponentProps>) => {
 
-    const [projects, setProjects] = useState<string[]>([]);
-
-    useEffect(() => {
-        listProjects().then((items) => setProjects(items.map(i => i.name)));
-    }, []);
-
     const renderMenuItem = (name: string | undefined) => {
         return (
             <MenuItem key={name} value={name}>
-                { name === projectName
+                { name === project?.name
                     ? (
                         <>
                             <ListItemIcon><CheckCircle /></ListItemIcon>
@@ -64,7 +59,7 @@ export const TopPanel = ({
                 <Select
                     labelId="project-label"
                     id="project-selector"
-                    value={projectName}
+                    value={project?.name}
                     displayEmpty
                     variant="outlined"
                     label=""
@@ -82,7 +77,7 @@ export const TopPanel = ({
 
                     <Divider />
 
-                    { projects.map((name) => renderMenuItem(name)) }
+                    { projects.map((p) => renderMenuItem(p.name)) }
                 </Select>
             </FormControl>
 

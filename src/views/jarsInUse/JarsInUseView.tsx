@@ -27,6 +27,7 @@ export const JarsInUseView = () => {
     const [fileStatus, setFileStatus] = useState<FileStatus[]>([]);
 
     const [project, setProject] = useState<Project | undefined>(undefined);
+    const [projects, setProjects] = useState<Project[]>([]);
 
     const [openProcess, setOpenProcess] = useState<boolean>(false);
 
@@ -129,7 +130,7 @@ export const JarsInUseView = () => {
     const handleProjectNameChanged = (name: string) => {
         listProjects()
             .then(p => {
-               const ps = p.filter((f) => f.name === name)
+                const ps = p.filter((f) => f.name === name)
                 ps.length > 0 && loadProjectRequestHandler(null, ps[0]);
             });
     }
@@ -179,9 +180,12 @@ export const JarsInUseView = () => {
                 return;
             }
 
-            deleteProject(prev.name).then((response) => {
+            deleteProject(prev.name).then(() => {
                 setProject(undefined)
-                toast(response.responseMessage)
+                return listProjects();
+            }).then((p) => {
+                setProjects(p);
+                toast("response.responseMessage")
             });
             return prev;
         })
@@ -204,6 +208,8 @@ export const JarsInUseView = () => {
             initHooks();
         }
 
+        listProjects().then((itmes) =>  setProjects(itmes));
+
         return () => {
             /*
             window.ipcRenderer.removeListener('add-folder', addFolderHandler);
@@ -219,7 +225,8 @@ export const JarsInUseView = () => {
     return (
         <Stack direction='column' width="100%" height="100vh">
             <ToastContainer position='top-center' theme='colored' autoClose={2000} />
-            <TopPanel projectName={project?.name}
+            <TopPanel project={project}
+                      projects={projects}
                       onNewProject={saveNewProjectRequestHandler}
                       onDeleteProject={deleteProjectRequestHandler}
                       onProjectNameChange={(name) => handleProjectNameChanged(name)}
