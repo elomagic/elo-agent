@@ -80,8 +80,7 @@ const listFilesSync = (sourceFile: SourceFile): string[] => {
     for (const file of files) {
         if (fs.statSync(file).isDirectory() && sourceFile.recursive) {
             result.push(...listFilesSync({ file: file + path.sep, recursive: sourceFile.recursive }));
-        } else if (file.toLowerCase().endsWith('.jar') ||
-            file.toLowerCase().endsWith('.class')) {
+        } else if (file.toLowerCase().endsWith('.jar')) {
             result.push(file)
         }
     }
