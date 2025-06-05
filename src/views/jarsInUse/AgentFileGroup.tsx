@@ -11,7 +11,7 @@ interface ComponentProps {
     agentFile: string | undefined;
 }
 
-export const AgentFile = ({onSelectAgentFileClick, onResetAgentFileClick, agentFile}: Readonly<ComponentProps>) => {
+export const AgentFileGroup = ({onSelectAgentFileClick, onResetAgentFileClick, agentFile}: Readonly<ComponentProps>) => {
 
     return (
         <Stack direction="row"

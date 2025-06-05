@@ -12,7 +12,7 @@ interface ComponentProps {
     onUpdateSources: (items: SourceFile[]) => void;
 }
 
-export const SourceFiles = ({items, onUpdateSources}: Readonly<ComponentProps>) => {
+export const SourceFilesGroup = ({items, onUpdateSources}: Readonly<ComponentProps>) => {
 
     const [openSources, setOpenSources] = useState<boolean>(false);
 
