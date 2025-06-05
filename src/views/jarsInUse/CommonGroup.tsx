@@ -3,8 +3,12 @@
 import { IconButton, Stack, Tooltip } from '@mui/material';
 import { BugReport, Info } from '@mui/icons-material';
 import { openFileExternal } from '@/IpcServices';
+import { AboutDialog } from '@/AboutDialog';
+import { useState } from 'react';
 
 export const CommonGroup = () => {
+
+    const [openAbout, setOpenAbout] = useState<boolean>(false);
 
     return (
         <Stack direction="row"
@@ -18,7 +22,7 @@ export const CommonGroup = () => {
                }}
         >
             <Tooltip title="Show information about the application">
-                <IconButton aria-label="about">
+                <IconButton aria-label="about" onClick={() => setOpenAbout(true)}>
                     <Info />
                 </IconButton>
             </Tooltip>
@@ -28,6 +32,8 @@ export const CommonGroup = () => {
                     <BugReport />
                 </IconButton>
             </Tooltip>
+
+            <AboutDialog open={openAbout} onCloseClick={() => setOpenAbout(false)} />
         </Stack>
     );
 
