@@ -16,7 +16,7 @@ import {
 import { Cached, CheckCircle } from '@mui/icons-material';
 import { Project } from '@/shared/Types';
 import { CreateProjectDialog } from '@/views/jarsInUse/CreateProjectDialog';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface ComponentProps {
     project: Project | undefined;
@@ -51,6 +51,19 @@ export const ProjectGroup = ({project, projects, onNewProject, onDeleteProject, 
         const name = event.target.value;
         name && onSelectProjectName(name);
     }
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'n') {
+            e.preventDefault(); // Browser-Speichern verhindern
+            setOpenNewProject(true);
+        }
+    };
+
+    useEffect(() => {
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
     return (
         <Stack direction="row"
                alignItems="center"
