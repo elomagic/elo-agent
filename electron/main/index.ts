@@ -80,7 +80,7 @@ async function createWindow() {
     return { action: 'deny' }
   })
 
-  initAppMenu(win);
+  initAppMenu();
 
   // Auto update
   update(win)

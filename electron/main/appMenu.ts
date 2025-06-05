@@ -1,8 +1,8 @@
-import {BrowserWindow, Menu, shell} from 'electron';
+import {Menu, shell} from 'electron';
 import MenuItemConstructorOptions = Electron.MenuItemConstructorOptions;
 import MenuItem = Electron.MenuItem;
 
-export const initAppMenu = (win: BrowserWindow) => {
+export const initAppMenu = () => {
 
     const template: Array<(MenuItemConstructorOptions) | (MenuItem)> = [
         {
@@ -19,18 +19,6 @@ export const initAppMenu = (win: BrowserWindow) => {
                     role: 'quit',
                     toolTip: 'Quit this application'
                 }
-            ]
-        },
-        {
-            label: 'Projects',
-            submenu: [
-                {
-                    id: 'save-current-project',
-                    label: 'Update current project',
-                    click() { win.webContents.send('update-project-request') },
-                    // enabled: getCurrentProjectName() !== undefined,
-                    accelerator: 'CmdOrCtrl+S',
-                },
             ]
         },
         {

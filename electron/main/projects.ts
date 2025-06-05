@@ -38,11 +38,6 @@ const saveProjects = (projects: Project[]): Promise<BackendResponse> => {
     });
 }
 
-export const createNewProject = (project: Project) => {
-    const p = loadProjects().filter(item => item.name !== project.name).concat(project);
-    return saveProjects(p);
-}
-
 export const updateProject = (project: Project) => {
     const p: Project[] = loadProjects().filter(item => item.name !== project.name).concat(project);
     return saveProjects(p);

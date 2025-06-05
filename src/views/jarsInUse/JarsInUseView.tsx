@@ -1,10 +1,10 @@
 "use client"
 
 import {Stack} from '@mui/material';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     chooseAgentFile,
-    createNewProject, deleteProject,
+    deleteProject,
     listFiles, listProjects,
     readAgentFile,
     resetAgentFile,
@@ -17,8 +17,6 @@ import { CreateProjectDialog } from '@/views/jarsInUse/CreateProjectDialog';
 import { TopPanel } from '@/views/jarsInUse/TopPanel';
 
 export const JarsInUseView = () => {
-
-    const initializedRef = useRef(false);
 
     const [sourceFiles, setSourceFiles] = useState<SourceFile[]>([]);
     const [agentFile, setAgentFile] = useState<string | undefined>(undefined);
@@ -73,9 +71,29 @@ export const JarsInUseView = () => {
         reloadTable(project.sourceFiles, project.agentFile);
     }
 
+    const saveProject = (name: string | undefined) => {
+        if (!name || name.length === 0) {
+            return Promise.resolve();
+        }
+
+        const p: Project = {
+            name: name,
+            sourceFiles: sourceFiles,
+            agentFile: agentFile,
+        }
+
+        return updateProject(p)
+            .then(() => { return listProjects()})
+            .then((items) => {
+            setProjects(items);
+            setProject(p);
+        });
+    }
+
     const handleUpdateSourcesClick = (newFiles: SourceFile[]) => {
         setSourceFiles(newFiles);
         reloadTable(newFiles, agentFile);
+        saveProject(project?.name);
     }
 
     const handleSelectAgentFileClick = () => {
@@ -84,6 +102,7 @@ export const JarsInUseView = () => {
                 file && setAgentFile(file)
                 file && reloadTable(sourceFiles, file);
             })
+            .then(() => saveProject(project?.name))
     }
 
     const handleResetAgentFileClick = () => {
@@ -93,20 +112,7 @@ export const JarsInUseView = () => {
 
     const handleCreateNewProject = (name: string) => {
         setOpenNewProject(false);
-
-        const p =  {
-            name: name,
-            sourceFiles: sourceFiles,
-            agentFile: agentFile,
-        }
-
-        createNewProject(p)
-            .then(() => { return listProjects() })
-            .then((items) => {
-                setProjects(items);
-                setProject(p);
-                toast("response.responseMessage")
-            });
+        saveProject(name).then(() => { toast("response.responseMessage") });
     }
 
     const handleProjectNameChanged = (name: string) => {
@@ -117,61 +123,26 @@ export const JarsInUseView = () => {
             });
     }
 
-    const updateProjectRequestHandler = ()=> {
-        setProject(prev => {
-            if (!prev) {
-                setOpenNewProject(true);
-                return;
-            }
-
-            const p: Project = {
-                name: prev.name,
-                sourceFiles: sourceFiles,
-                agentFile: agentFile,
-            }
-
-            updateProject(p).then((response) => toast(response.responseMessage));
-
-            return prev;
-        });
-    }
-
     const handleDeleteProjectClick = ()=> {
         // TODO Add yes no dialog
-        setProject(prev => {
-            if (!prev) {
-                return;
-            }
 
-            deleteProject(prev.name).then(() => {
-                setProject(undefined)
-                return listProjects();
-            }).then((p) => {
-                setProjects(p);
-                toast("response.responseMessage")
-            });
-            return prev;
-        })
+        if (!project) {
+            toast.error("No project selected for deletion");
+            return;
+        }
 
-    }
+        deleteProject(project.name).then(() => {
+            setProject(undefined)
+            return listProjects();
+        }).then((p) => {
+            setProjects(p);
+            toast("response.responseMessage")
+        });
 
-    const initHooks = () => {
-        window.ipcRenderer.on('update-project-request', updateProjectRequestHandler);
     }
 
     useEffect(() => {
-        if (!initializedRef.current) {
-            initializedRef.current = true;
-            initHooks();
-        }
-
         listProjects().then((itmes) =>  setProjects(itmes));
-
-        return () => {
-            /*
-            window.ipcRenderer.removeListener('update-project-request', updateProjectRequestHandler);
-            */
-        };
     }, []);
 
     return (
@@ -186,7 +157,7 @@ export const JarsInUseView = () => {
                       agentFile={agentFile}
                       onSelectAgentFileClick={handleSelectAgentFileClick}
                       onResetAgentFileClick={handleResetAgentFileClick}
-                      sourceFiles={project?.sourceFiles ?? []}
+                      sourceFiles={sourceFiles}
                       onUpdateSources={handleUpdateSourcesClick}
             />
             <FileStatusTable items={fileStatus}/>

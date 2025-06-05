@@ -4,7 +4,7 @@ import {dialog, ipcMain, shell} from 'electron';
 import { applyRecentAgentFile, applyRecentFolder, getSettings } from "./appSettings";
 import { spawn } from 'child_process';
 import { BackendResponse, Project, SourceFile } from '@/shared/Types';
-import { createNewProject, deleteProject, loadProjects, updateProject } from './projects';
+import { deleteProject, loadProjects, updateProject } from './projects';
 
 export const chooseDirectory = (defaultFolder: string | undefined): Promise<string | undefined> => {
     return dialog.showOpenDialog({
@@ -156,10 +156,6 @@ export const registerMainHandlers = () => {
     ipcMain.handle("copy-txt-to-clipboard", (_event, _text: string): Promise<void> => {
         // todo clipboard.writeText(text);
         return Promise.resolve();
-    })
-
-    ipcMain.handle("create-new-project", (_event, project: Project): Promise<BackendResponse> => {
-        return createNewProject(project);
     })
 
     ipcMain.handle("delete-project", (_event, projectName: string): Promise<BackendResponse> => {
