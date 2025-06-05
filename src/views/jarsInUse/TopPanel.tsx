@@ -10,7 +10,7 @@ import { ProjectGroup } from '@/views/jarsInUse/ProjectGroup';
 interface ComponentProps {
     project: Project | undefined;
     projects: Project[];
-    onNewProject: () => void;
+    onNewProject: (name: string) => void;
     onDeleteProject: () => void;
     onProjectNameChange: (name: string) => void;
     onReloadFiles: () => void;

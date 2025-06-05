@@ -1,6 +1,6 @@
 "use client"
 
-import { IconButton, Stack, Tooltip } from '@mui/material';
+import { Box, IconButton, Stack, Tooltip } from '@mui/material';
 import { InsertDriveFileOutlined, OpenInNew, RestartAlt } from '@mui/icons-material';
 import { openFileExternal } from '@/IpcServices';
 import {FaRedhat} from "react-icons/fa";
@@ -15,7 +15,7 @@ export const AgentFileGroup = ({onSelectAgentFileClick, onResetAgentFileClick, a
 
     return (
         <Stack direction="row"
-               alignItems="center"
+               alignItems="baseline"
                margin={"2px"}
                sx={{
                    borderColor: "primary.main",
@@ -25,12 +25,16 @@ export const AgentFileGroup = ({onSelectAgentFileClick, onResetAgentFileClick, a
                    paddingLeft: 1,
                }}
         >
-            <FaRedhat size="20px"
-                      style={{
-                          marginRight: "8px",
-                          color: "rgb(144, 202, 249)",
-                      }}
-            />
+            <Tooltip title={agentFile}>
+                <Box>
+                    <FaRedhat size="20px"
+                              style={{
+                                  marginRight: "8px",
+                                  color: "rgb(144, 202, 249)",
+                              }}
+                    />
+                </Box>
+            </Tooltip>
 
             <Tooltip title="Load agent file">
                 <IconButton aria-label="add" onClick={onSelectAgentFileClick}>

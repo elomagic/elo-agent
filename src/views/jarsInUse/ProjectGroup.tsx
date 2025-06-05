@@ -15,17 +15,21 @@ import {
 } from '@mui/material';
 import { Cached, CheckCircle } from '@mui/icons-material';
 import { Project } from '@/shared/Types';
+import { CreateProjectDialog } from '@/views/jarsInUse/CreateProjectDialog';
+import { useState } from 'react';
 
 interface ComponentProps {
     project: Project | undefined;
     projects: Project[];
-    onNewProject: () => void;
+    onNewProject: (name: string) => void;
     onDeleteProject: () => void;
     onSelectProjectName: (name: string) => void;
     onReloadFiles: () => void;
 }
 
 export const ProjectGroup = ({project, projects, onNewProject, onDeleteProject, onSelectProjectName, onReloadFiles}: Readonly<ComponentProps>) => {
+
+    const [openNewProject, setOpenNewProject] = useState<boolean>(false);
 
     const renderMenuItem = (name: string | undefined) => {
         return (
@@ -73,7 +77,7 @@ export const ProjectGroup = ({project, projects, onNewProject, onDeleteProject, 
                     }}
                     onChange={handleProjectNameChangeClick}
                 >
-                    <MenuItem onClick={onNewProject}>
+                    <MenuItem onClick={() => setOpenNewProject(true)}>
                         <ListItemText>New project...</ListItemText>
                     </MenuItem>
                     <MenuItem onClick={onDeleteProject}>
@@ -91,6 +95,10 @@ export const ProjectGroup = ({project, projects, onNewProject, onDeleteProject, 
                     <Cached />
                 </IconButton>
             </Tooltip>
+
+            <CreateProjectDialog open={openNewProject}
+                                 onCreateClick={onNewProject}
+                                 onCancelClick={() => setOpenNewProject(false)} />
         </Stack>
     );
 
