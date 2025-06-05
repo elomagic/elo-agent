@@ -5,6 +5,7 @@ import { applyRecentAgentFile, applyRecentFolder, getSettings } from "./appSetti
 import { spawn } from 'child_process';
 import { BackendResponse, Project, SourceFile } from '@/shared/Types';
 import { deleteProject, loadProjects, updateProject } from './projects';
+import JSZip from 'jszip';
 
 export const chooseDirectory = (defaultFolder: string | undefined): Promise<string | undefined> => {
     return dialog.showOpenDialog({
@@ -49,6 +50,66 @@ export const getJavaProcessesOnLinux: () => Promise<string[]> = () => {
     // TODO Linux support
     // ps -x -o pid=,command=
     return Promise.resolve(["Currently not supported on Mac"]);
+}
+
+export const getPurlsOfFile = (file: string): Promise<string[]|undefined> => {
+    // Get all pom.properties files which is placed in a subfolder of the in the META-INF of a zipped jar file.
+    // The content of the pom.properties file is used to create a purl.
+    // As method will return an array of purls or undefined if no pom.properties file is found.
+    if (!file || !fs.existsSync(file)) {
+        return Promise.resolve(undefined);
+    }
+
+    if (!file.toLowerCase().endsWith('.jar')) {
+        return Promise.resolve(undefined);
+    }
+
+    // Read the jar file
+    const jarFile = fs.readFileSync(file);
+
+    // Check if the jar file contains a META-INF folder
+    const jar = new JSZip();
+
+    return jar.loadAsync(jarFile)
+        .then(zip => {
+            const pomFiles = Object.keys(zip.files).filter(filename => filename.toLowerCase().endsWith('pom.properties') && filename.startsWith('META-INF/'));
+            if (pomFiles.length === 0) {
+                return undefined;
+            }
+
+            // Read the pom.properties file
+            const purls: string[] = [];
+            for (const pomFile of pomFiles) {
+                return zip.file(pomFile)?.async("string").then(content => {
+                    if (content) {
+                        const lines = content.split('\n');
+                        const groupId = lines.find(line => line.startsWith('groupId='));
+                        const artifactId = lines.find(line => line.startsWith('artifactId='));
+                        const version = lines.find(line => line.startsWith('version='));
+
+                        if (groupId && artifactId && version) {
+                            purls.push(`pkg:maven/${groupId.split('=')[1]}/${artifactId.split('=')[1]}@${version.split('=')[1]}`);
+                        }
+                    }
+                    return purls;
+                });
+            }
+        })
+        .catch(err => {
+            console.error("Error reading jar file: ", err);
+            return undefined;
+        });
+
+    //
+    // META-INF\maven\org.glassfish.grizzly\grizzly-http2\pom.properties
+    // META-INF\maven\org.apache.shiro\shiro-cache\pom.properties
+    /*
+        Created by Apache Maven 3.5.4
+        version=2.4.4
+        groupId=org.glassfish.grizzly
+        artifactId=grizzly-http2
+     */
+    // pkg:maven/org.glassfish.grizzly/grizzly-http2@2.4.4
 }
 
 export const getJavaProcesses = (): Promise<string[]> => {
@@ -164,6 +225,10 @@ export const registerMainHandlers = () => {
 
     ipcMain.handle("get-java-processes", (_event): Promise<string[]> => {
         return getJavaProcesses();
+    })
+
+    ipcMain.handle("get-purl-of-file", (_event, file: string): Promise<string[]|undefined> => {
+        return getPurlsOfFile(file)
     })
 
     ipcMain.handle("list-files", (_event,

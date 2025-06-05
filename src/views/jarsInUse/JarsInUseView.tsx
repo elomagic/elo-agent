@@ -50,8 +50,10 @@ export const JarsInUseView = () => {
                 const status: FileStatus[] = [];
 
                 for (const file of bothFiles) {
-                    status.push({ id: file, loaded: filesByAgent.includes(file) });
+                    status.push({ id: file, loaded: filesByAgent.includes(file), overloaded: false });
                 }
+
+                // TODO Implement overloaded logic
 
                 setFileStatus(status);
 
