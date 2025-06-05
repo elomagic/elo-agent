@@ -1,9 +1,11 @@
 "use client"
 
 import { Box, IconButton, Stack, Tooltip } from '@mui/material';
-import { InsertDriveFileOutlined, OpenInNew, RestartAlt } from '@mui/icons-material';
+import { Engineering, InsertDriveFileOutlined, OpenInNew, RestartAlt } from '@mui/icons-material';
 import { openFileExternal } from '@/IpcServices';
 import {FaRedhat} from "react-icons/fa";
+import { IntegrateAgentDialog } from '@/views/jarsInUse/IntegrateAgentDialog';
+import { useState } from 'react';
 
 interface ComponentProps {
     onSelectAgentFileClick: () => void;
@@ -12,6 +14,8 @@ interface ComponentProps {
 }
 
 export const AgentFileGroup = ({onSelectAgentFileClick, onResetAgentFileClick, agentFile}: Readonly<ComponentProps>) => {
+
+    const [openIntegration, setOpenIntegration] = useState<boolean>(false);
 
     return (
         <Stack direction="row"
@@ -42,7 +46,7 @@ export const AgentFileGroup = ({onSelectAgentFileClick, onResetAgentFileClick, a
                 </IconButton>
             </Tooltip>
 
-            <Tooltip title="Backup aand reset agent file">
+            <Tooltip title="Backup and reset agent file">
                 <IconButton aria-label="reload" onClick={onResetAgentFileClick}>
                     <RestartAlt />
                 </IconButton>
@@ -53,6 +57,14 @@ export const AgentFileGroup = ({onSelectAgentFileClick, onResetAgentFileClick, a
                     <OpenInNew/>
                 </IconButton>
             </Tooltip>
+
+            <Tooltip title="Integrate the java agent into you application">
+                <IconButton aria-label="open-agent-file" onClick={() => setOpenIntegration(true)}>
+                    <Engineering/>
+                </IconButton>
+            </Tooltip>
+
+            <IntegrateAgentDialog open={openIntegration} onCloseClick={() => setOpenIntegration(false)} />
         </Stack>
     );
 
