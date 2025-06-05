@@ -38,18 +38,21 @@ export const JarsInUseView = () => {
                 }
 
                 // Identify doubles by purls w/o version
-                const allArtifacts = new Map<string, FileStatus[]>();
+                const allArtifacts2FileStatus = new Map<string, FileStatus[]>();
                 for (const file of fileMetadatas) {
                     for (const purl of file.purls) {
                         const part = purl.split('@')[0];
-                        if (allArtifacts.has(part)) {
-                            allArtifacts.get(part)?.push({ id: file.file, loaded: false, overloaded: false });
-                            allArtifacts.get(part)?.forEach((file) => { file.overloaded = true; });
+                        if (allArtifacts2FileStatus.has(part)) {
+                            allArtifacts2FileStatus.get(part)?.push({ id: file.file, loaded: false, overloaded: false });
+                            allArtifacts2FileStatus.get(part)?.forEach((file) => { file.overloaded = true; });
                         } else {
-                            allArtifacts.set(part, [{ id: file.file, loaded: false, overloaded: false }]);
+                            allArtifacts2FileStatus.set(part, [{ id: file.file, loaded: false, overloaded: false }]);
                         }
                     }
                 }
+
+                //const files2FileStatus = new Map<string, FileStatus[]>();
+
 
                 // Getting the jar files from the agent file
                 const filesByAgent: string[] = [];
