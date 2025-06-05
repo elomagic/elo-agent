@@ -12,9 +12,8 @@ import {
 } from '@/IpcServices';
 import {FileStatus, FileStatusTable} from '@/views/jarsInUse/FileStatusTable';
 import {toast, ToastContainer} from 'react-toastify';
-import {SelectProcessDialog} from "@/views/jarsInUse/SelectProcessDialog";
-import { FileType, Project, SourceFile } from '@/shared/Types';
-import { EnterNewProjectNameDialog } from '@/views/jarsInUse/EnterNewProjectNameDialog';
+import { Project, SourceFile } from '@/shared/Types';
+import { CreateProjectDialog } from '@/views/jarsInUse/CreateProjectDialog';
 import { TopPanel } from '@/views/jarsInUse/TopPanel';
 
 export const JarsInUseView = () => {
@@ -27,8 +26,6 @@ export const JarsInUseView = () => {
 
     const [project, setProject] = useState<Project | undefined>(undefined);
     const [projects, setProjects] = useState<Project[]>([]);
-
-    const [openProcess, setOpenProcess] = useState<boolean>(false);
 
     const [openNewProject, setOpenNewProject] = useState<boolean>(false);
 
@@ -69,14 +66,6 @@ export const JarsInUseView = () => {
 
     };
 
-    const applySourceFiles = (files: SourceFile[]) => {
-        // filter duplicates
-        const uniqueFolders = Array.from(new Set([...files, ...sourceFiles]));
-
-        setSourceFiles(uniqueFolders);
-        reloadTable(uniqueFolders, agentFile)
-    }
-
     const loadProject = (project: Project)=> {
         setProject(project)
         setSourceFiles(project.sourceFiles);
@@ -106,19 +95,6 @@ export const JarsInUseView = () => {
         reloadTable(sourceFiles, agentFile);
     }
 
-    const handleSelectProcessClick = (a: string) => {
-        setOpenProcess(false);
-
-        const args = a.split(" ");
-        const cpIndex = args.indexOf("-classpath");
-        const cp = args[cpIndex + 1];
-        const files = cp.split(";");
-
-        // TODO Classpath from Manifest in case when argument -jar is set
-
-        applySourceFiles(files.map((f) => { return { file: f, recursive: false } }));
-    }
-
     const handleCreateNewProject = (name: string) => {
         setOpenNewProject(false);
 
@@ -145,18 +121,9 @@ export const JarsInUseView = () => {
             });
     }
 
-    const addFolderHandler = (_event: any, folder: string, recursive: boolean)=> {
-        applySourceFiles([{ file: folder, recursive: recursive, type: FileType.Directory }]);
-    }
-
-    const showProcessDialogHandler = ()=> {
-        setOpenProcess(true);
-    }
-
     const saveNewProjectRequestHandler = ()=> {
         setOpenNewProject(true);
     }
-
 
     const updateProjectRequestHandler = ()=> {
         setProject(prev => {
@@ -197,12 +164,7 @@ export const JarsInUseView = () => {
     }
 
     const initHooks = () => {
-        window.ipcRenderer.on('add-folder', addFolderHandler);
-        window.ipcRenderer.on('show-process-dialog', showProcessDialogHandler);
-        window.ipcRenderer.on('save-new-project-request', saveNewProjectRequestHandler);
         window.ipcRenderer.on('update-project-request', updateProjectRequestHandler);
-        window.ipcRenderer.on('delete-project-request', deleteProjectRequestHandler);
-        window.ipcRenderer.on('reload-request', handleReloadFilesClick);
     }
 
     useEffect(() => {
@@ -215,11 +177,7 @@ export const JarsInUseView = () => {
 
         return () => {
             /*
-            window.ipcRenderer.removeListener('add-folder', addFolderHandler);
-            window.ipcRenderer.removeListener('show-process-dialog', showProcessDialogHandler);
-            window.ipcRenderer.removeListener('save-new-project-request', saveNewProjectRequestHandler);
             window.ipcRenderer.removeListener('update-project-request', updateProjectRequestHandler);
-            window.ipcRenderer.removeListener('delete-project-request', deleteProjectRequestHandler);
             */
         };
     }, []);
@@ -240,8 +198,8 @@ export const JarsInUseView = () => {
                       onUpdateSources={handleUpdateSourcesClick}
             />
             <FileStatusTable items={fileStatus}/>
-            <SelectProcessDialog open={openProcess} onSelectClick={handleSelectProcessClick} onCancelClick={() => setOpenProcess(false)}/>
-            <EnterNewProjectNameDialog open={openNewProject} onCreateClick={handleCreateNewProject} onCancelClick={() => setOpenNewProject(false)} />
+
+            <CreateProjectDialog open={openNewProject} onCreateClick={handleCreateNewProject} onCancelClick={() => setOpenNewProject(false)} />
         </Stack>
     );
 

@@ -8,7 +8,7 @@ import {
     DialogTitle, Divider,
     ListItemIcon, ListItemText,
     Menu, MenuItem,
-    Slide
+    Slide, Stack
 } from "@mui/material";
 import {DataGrid, GridColDef} from "@mui/x-data-grid";
 import {TransitionProps} from "@mui/material/transitions";
@@ -16,7 +16,9 @@ import {forwardRef, useEffect, useState} from "react";
 import {FileType, SourceFile} from "@/shared/Types";
 import {Delete, Description, Folder, FolderCopy, OpenInBrowser} from "@mui/icons-material";
 import {yellow} from "@mui/material/colors";
-import {openFolder} from "@/IpcServices";
+import {chooseFolder, openFolder} from "@/IpcServices";
+import {FaJava} from "react-icons/fa";
+import {SelectProcessDialog} from "@/views/jarsInUse/SelectProcessDialog";
 
 const Transition = forwardRef(function Transition(
     props: TransitionProps & {
@@ -43,6 +45,15 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
     const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number; } | null>(null);
     const [rows, setRows] = useState<SourceFileId[]>([]);
     const [selected, setSelected] = useState<SourceFileId | undefined>(undefined);
+
+    const [openProcess, setOpenProcess] = useState<boolean>(false);
+
+    const applySourceFiles = (files: SourceFile[]) => {
+        // filter duplicates
+        const uniqueFolders = Array.from(new Set([...files.map((i) => { return {...i, id: i.file}}), ...rows]));
+
+        setRows(uniqueFolders);
+    }
 
     const handleClose = () => {
         setContextMenu(null);
@@ -84,6 +95,29 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
         );
     };
 
+    const handleAddFolderClick = () => {
+        chooseFolder(undefined)
+            .then((folder) => folder && applySourceFiles([{ file: folder, recursive: false, type: FileType.Directory }]))
+    }
+
+    const handleAddFolderRecursiveClick = () => {
+        chooseFolder(undefined)
+            .then((folder) => folder && applySourceFiles([{ file: folder, recursive: true, type: FileType.Directory }]))
+    }
+
+    const handleSelectProcessClick = (a: string) => {
+        setOpenProcess(false);
+
+        const args = a.split(" ");
+        const cpIndex = args.indexOf("-classpath");
+        const cp = args[cpIndex + 1];
+        const files = cp.split(";");
+
+        // TODO Classpath from Manifest in case when argument -jar is set
+
+        applySourceFiles(files.map((f) => { return { file: f, recursive: false } }));
+    }
+
     useEffect(() => setRows(items), [items]);
 
     const columns: GridColDef<(typeof rows)[number]>[] = [
@@ -114,8 +148,23 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
     return (
         <Dialog fullScreen open={open} onClose={onCancelClick} TransitionComponent={Transition}>
             <DialogTitle>Data sources</DialogTitle>
+
             <DialogContent sx={{ display: "flex", flexDirection: "column" }}>
                 <DialogContentText>Identified folder and files</DialogContentText>
+
+                <Stack direction="row" spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
+                    <Button startIcon={<Folder />} onClick={handleAddFolderClick}>
+                        Add Folder
+                    </Button>
+
+                    <Button startIcon={<Folder />} onClick={handleAddFolderRecursiveClick}>
+                        Add Folder Recursive
+                    </Button>
+
+                    <Button startIcon={<FaJava />} onClick={() => setOpenProcess(true)}>
+                        Add Java Process (Experimental)
+                    </Button>
+                </Stack>
 
                 <Box flexGrow={1} sx={{ width: '100%' }}>
                     <DataGrid
@@ -144,7 +193,6 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
                 <Button onClick={() => onOkClick(rows)}>OK</Button>
             </DialogActions>
 
-
             <Menu
                 open={contextMenu !== null}
                 onClose={handleClose}
@@ -169,6 +217,8 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
                     <ListItemText>Remove selected</ListItemText>
                 </MenuItem>
             </Menu>
+
+            <SelectProcessDialog open={openProcess} onSelectClick={handleSelectProcessClick} onCancelClick={() => setOpenProcess(false)}/>
 
         </Dialog>
     );
