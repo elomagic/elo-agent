@@ -29,14 +29,29 @@ export const JarsInUseView = () => {
         return Promise.all([
             listFiles(fileSources, true),
             readAgentFile(agentFilename)])
-            .then(([files, agentLines]) => {
-                console.info('Files found: ' + files.length);
+            .then(([fileMetadatas, agentLines]) => {
+                console.info('Files found: ' + fileMetadatas.length);
 
                 // Normalize paths
-                for (let i = 0; i < files.length; i++) {
-                    files[i] = files[i].replace(/\\/g, '/');
+                for (const element of fileMetadatas) {
+                    element.file = element.file.replace(/\\/g, '/');
                 }
 
+                // Identify doubles by purls w/o version
+                const allArtifacts = new Map<string, FileStatus[]>();
+                for (const file of fileMetadatas) {
+                    for (const purl of file.purls) {
+                        const part = purl.split('@')[0];
+                        if (allArtifacts.has(part)) {
+                            allArtifacts.get(part)?.push({ id: file.file, loaded: false, overloaded: false });
+                            allArtifacts.get(part)?.forEach((file) => { file.overloaded = true; });
+                        } else {
+                            allArtifacts.set(part, [{ id: file.file, loaded: false, overloaded: false }]);
+                        }
+                    }
+                }
+
+                // Getting the jar files from the agent file
                 const filesByAgent: string[] = [];
                 for (const line of agentLines) {
                     const columns = line.split(';');
@@ -45,13 +60,15 @@ export const JarsInUseView = () => {
                     }
                 }
 
-                const bothFiles = Array.from(new Set([...files, ...filesByAgent]));
+                // const bothFiles = Array.from(new Set([...Array.from(allArtifacts.values()).flat(), ...filesByAgent]));
 
                 const status: FileStatus[] = [];
 
+                /*
                 for (const file of bothFiles) {
                     status.push({ id: file, loaded: filesByAgent.includes(file), overloaded: false });
                 }
+                */
 
                 // TODO Implement overloaded logic
 

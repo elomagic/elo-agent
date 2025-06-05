@@ -38,7 +38,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
             editable: false,
             type: 'boolean',
             hideable: false,
-            renderCell: (params) => params.value ? (<Warning color="success" />) : "",
+            renderCell: (params) => params.value ? (<Warning color="error" />) : "",
         },
         {
             field: 'id',
