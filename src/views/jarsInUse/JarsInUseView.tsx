@@ -86,10 +86,6 @@ export const JarsInUseView = () => {
             })
     }
 
-    const handleReloadFilesClick = () => {
-        reloadTable(sourceFiles, agentFile);
-    }
-
     const handleResetAgentFileClick = () => {
         agentFile && resetAgentFile(agentFile).then((response) => toast(response.responseMessage));
         reloadTable(sourceFiles, agentFile);
@@ -121,10 +117,6 @@ export const JarsInUseView = () => {
             });
     }
 
-    const saveNewProjectRequestHandler = ()=> {
-        setOpenNewProject(true);
-    }
-
     const updateProjectRequestHandler = ()=> {
         setProject(prev => {
             if (!prev) {
@@ -144,7 +136,7 @@ export const JarsInUseView = () => {
         });
     }
 
-    const deleteProjectRequestHandler = ()=> {
+    const handleDeleteProjectClick = ()=> {
         // TODO Add yes no dialog
         setProject(prev => {
             if (!prev) {
@@ -187,10 +179,10 @@ export const JarsInUseView = () => {
             <ToastContainer position='bottom-center' theme='colored' autoClose={2000} />
             <TopPanel project={project}
                       projects={projects}
-                      onNewProject={saveNewProjectRequestHandler}
-                      onDeleteProject={deleteProjectRequestHandler}
-                      onProjectNameChange={(name) => handleProjectNameChanged(name)}
-                      onReloadFiles={handleReloadFilesClick}
+                      onNewProject={() => setOpenNewProject(true)}
+                      onDeleteProject={handleDeleteProjectClick}
+                      onProjectNameChange={handleProjectNameChanged}
+                      onReloadFiles={() => reloadTable(sourceFiles, agentFile)}
                       agentFile={agentFile}
                       onSelectAgentFileClick={handleSelectAgentFileClick}
                       onResetAgentFileClick={handleResetAgentFileClick}
