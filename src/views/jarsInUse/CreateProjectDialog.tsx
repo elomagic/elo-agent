@@ -26,17 +26,17 @@ interface ComponentProps {
     onCancelClick: () => void;
 }
 
-export const EnterNewProjectNameDialog = ({ open, onCreateClick, onCancelClick }: Readonly<ComponentProps>) => {
+export const CreateProjectDialog = ({ open, onCreateClick, onCancelClick }: Readonly<ComponentProps>) => {
 
     const [name, setName] = useState<string | undefined>(undefined);
 
     return (
         <Dialog open={open} onClose={onCancelClick} TransitionComponent={Transition} fullWidth>
-            <DialogTitle>Project name</DialogTitle>
+            <DialogTitle>Create Project</DialogTitle>
             <DialogContent>
                 <DialogContentText sx={{ mt: 2 }}>Please enter a new project name.</DialogContentText>
 
-                <TextField focused fullWidth onChange={(evt) => setName(evt.target.value)} />
+                <TextField autoFocus focused fullWidth onChange={(evt) => setName(evt.target.value)} />
             </DialogContent>
             <DialogActions>
                 <Button onClick={onCancelClick}>Cancel</Button>

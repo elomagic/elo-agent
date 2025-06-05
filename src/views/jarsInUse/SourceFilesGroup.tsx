@@ -5,13 +5,14 @@ import { EditNote } from '@mui/icons-material';
 import { SourceFilesDialog } from '@/views/jarsInUse/SourceFilesDialog';
 import { useState } from 'react';
 import {SourceFile} from "@/shared/Types";
+import {GrResources} from "react-icons/gr";
 
 interface ComponentProps {
     items: SourceFile[];
     onUpdateSources: (items: SourceFile[]) => void;
 }
 
-export const SourceFiles = ({items, onUpdateSources}: Readonly<ComponentProps>) => {
+export const SourceFilesGroup = ({items, onUpdateSources}: Readonly<ComponentProps>) => {
 
     const [openSources, setOpenSources] = useState<boolean>(false);
 
@@ -22,7 +23,24 @@ export const SourceFiles = ({items, onUpdateSources}: Readonly<ComponentProps>) 
     }
 
     return (
-        <Stack direction="row" alignItems="center" marginLeft={1} spacing={1} borderRight={1} borderColor={"gray"}>
+        <Stack direction="row"
+               alignItems="center"
+               margin={"2px"}
+               sx={{
+                   borderColor: "warning.main",
+                   borderRadius: "20px",
+                   borderStyle: "solid",
+                   borderWidth: "1px",
+                   paddingLeft: 1,
+               }}>
+
+            <GrResources size="20px"
+                      style={{
+                          marginRight: "8px",
+                          color: "#ffa726",
+                      }}
+            />
+
             <Box>Sources ({items.length} files)</Box>
 
             <Tooltip title="Show / edit class file sources">

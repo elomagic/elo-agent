@@ -14,12 +14,12 @@ export function copyTextToClipboard(text: string) {
     window.ipcRenderer.invoke('copy-txt-to-clipboard', text);
 }
 
-export function createNewProject(project: Project): Promise<BackendResponse> {
-    return window.ipcRenderer.invoke('create-new-project', project);
-}
-
 export function deleteProject(projectName: string): Promise<BackendResponse> {
     return window.ipcRenderer.invoke('delete-project', projectName);
+}
+
+export function listProjects(): Promise<Project[]> {
+    return window.ipcRenderer.invoke('list-projects');
 }
 
 export function getJavaProcesses(): Promise<string[]> {

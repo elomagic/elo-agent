@@ -4,7 +4,7 @@ import {dialog, ipcMain, shell} from 'electron';
 import { applyRecentAgentFile, applyRecentFolder, getSettings } from "./appSettings";
 import { spawn } from 'child_process';
 import { BackendResponse, Project, SourceFile } from '@/shared/Types';
-import { createNewProject, deleteProject, updateProject } from './projects';
+import { deleteProject, loadProjects, updateProject } from './projects';
 
 export const chooseDirectory = (defaultFolder: string | undefined): Promise<string | undefined> => {
     return dialog.showOpenDialog({
@@ -80,8 +80,7 @@ const listFilesSync = (sourceFile: SourceFile): string[] => {
     for (const file of files) {
         if (fs.statSync(file).isDirectory() && sourceFile.recursive) {
             result.push(...listFilesSync({ file: file + path.sep, recursive: sourceFile.recursive }));
-        } else if (file.toLowerCase().endsWith('.jar') ||
-            file.toLowerCase().endsWith('.class')) {
+        } else if (file.toLowerCase().endsWith('.jar')) {
             result.push(file)
         }
     }
@@ -159,10 +158,6 @@ export const registerMainHandlers = () => {
         return Promise.resolve();
     })
 
-    ipcMain.handle("create-new-project", (_event, project: Project): Promise<BackendResponse> => {
-        return createNewProject(project);
-    })
-
     ipcMain.handle("delete-project", (_event, projectName: string): Promise<BackendResponse> => {
         return deleteProject(projectName);
     })
@@ -175,6 +170,10 @@ export const registerMainHandlers = () => {
                                   folder: SourceFile[],
                                   includeFiles: boolean): Promise<string[]> => {
         return listFiles(folder, includeFiles);
+    })
+
+    ipcMain.handle("list-projects", (_event): Promise<Project[]> => {
+        return new Promise((resolve) => resolve(loadProjects()));
     })
 
     ipcMain.handle("open-file-external", (_event, file: string): Promise<void> => {
