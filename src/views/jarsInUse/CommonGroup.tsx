@@ -2,6 +2,7 @@
 
 import { IconButton, Stack, Tooltip } from '@mui/material';
 import { BugReport, Info } from '@mui/icons-material';
+import { openFileExternal } from '@/IpcServices';
 
 export const CommonGroup = () => {
 
@@ -23,7 +24,7 @@ export const CommonGroup = () => {
             </Tooltip>
 
             <Tooltip title="Show known issues of the application">
-                <IconButton aria-label="reload">
+                <IconButton aria-label="reload" onClick={() => openFileExternal("https://github.com/elomagic/elo-agent/issues")}>
                     <BugReport />
                 </IconButton>
             </Tooltip>
