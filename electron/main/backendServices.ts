@@ -72,13 +72,14 @@ const getPurlsOfFile = (file: string): Promise<string[]> => {
 
     return jar.loadAsync(jarFile).then(zip => {
         const purls: string[] = [];
+        const promises: Promise<void>[] = [];
 
         // Iterate over all files in the jar
         Object.keys(zip.files).forEach((filename) => {
             // TODO Check that file like "META-INF/maven/*/*/pom.properties" is a pom.properties file
             if (filename.toLowerCase().endsWith('pom.properties')) {
                 // Read the content of the pom.properties file
-                zip.file(filename)?.async('string').then(content => {
+                const promise = zip.file(filename)?.async('string').then(content => {
                     // Parse the content to create a purl
                     const lines = content.split('\n');
                     const groupId = lines.find(line => line.startsWith('groupId='));
@@ -90,24 +91,14 @@ const getPurlsOfFile = (file: string): Promise<string[]> => {
                         purls.push(purl);
                     }
                 });
+                if (promise) {
+                    promises.push(promise);
+                }
             }
         });
 
-        return purls;
+        return Promise.all(promises).then(() => purls);
     });
-
-
-
-    //
-    // META-INF\maven\org.glassfish.grizzly\grizzly-http2\pom.properties
-    // META-INF\maven\org.apache.shiro\shiro-cache\pom.properties
-    /*
-        Created by Apache Maven 3.5.4
-        version=2.4.4
-        groupId=org.glassfish.grizzly
-        artifactId=grizzly-http2
-     */
-    // pkg:maven/org.glassfish.grizzly/grizzly-http2@2.4.4
 }
 
 const getJavaProcesses = (): Promise<string[]> => {
@@ -169,10 +160,10 @@ const listFiles = (
     console.debug("Identifying purls...");
 
     // Get purls for each file
-    return Promise.all(collectedFiles.map((file) => {
-        return getPurlsOfFile(file.file).then(purls => {
-            file.purls = purls;
-            return file;
+    return Promise.all(collectedFiles.map((f) => {
+        return getPurlsOfFile(f.file).then(purls => {
+            f.purls = purls;
+            return f;
         });
     }));
 }
