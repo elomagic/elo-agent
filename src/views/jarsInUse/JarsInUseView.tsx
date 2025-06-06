@@ -12,8 +12,9 @@ import {
 } from '@/IpcServices';
 import { FileStatus, FileStatusTable } from '@/views/jarsInUse/FileStatusTable';
 import { toast, ToastContainer } from 'react-toastify';
-import { Project, SourceFile } from '@/shared/Types';
+import { FileMetadata, Project, SourceFile } from '@/shared/Types';
 import { TopPanel } from '@/views/jarsInUse/TopPanel';
+import { ProgressDialog } from '@/views/jarsInUse/ProgressDialog';
 
 export const JarsInUseView = () => {
 
@@ -24,7 +25,11 @@ export const JarsInUseView = () => {
     const [project, setProject] = useState<Project | undefined>(undefined);
     const [projects, setProjects] = useState<Project[]>([]);
 
+    const [progressOpen, setProgressOpen] = useState<boolean>(false);
+
     const reloadTable = (fileSources: SourceFile[], agentFilename: string | undefined) => {
+
+        setProgressOpen(true);
 
         return Promise.all([
             listFiles(fileSources, true),
@@ -37,24 +42,18 @@ export const JarsInUseView = () => {
                     element.file = element.file.replace(/\\/g, '/');
                 }
 
-                // Identify doubles by purls w/o version
-                const allArtifacts2FileStatus = new Map<string, FileStatus[]>();
-                for (const file of fileMetadatas) {
-                    for (const purl of file.purls) {
-                        const part = purl.split('@')[0];
-                        if (allArtifacts2FileStatus.has(part)) {
-                            allArtifacts2FileStatus.get(part)?.push({ id: file.file, loaded: false, overloaded: false });
-                            allArtifacts2FileStatus.get(part)?.forEach((file) => { file.overloaded = true; });
-                        } else {
-                            allArtifacts2FileStatus.set(part, [{ id: file.file, loaded: false, overloaded: false }]);
+
+                const groupIdArtifactId2fileMetadata = new Map<string, FileMetadata[]>();
+                fileMetadatas.forEach((meta) => {
+                    meta.purls.forEach((purl) => {
+                        const groupIdArtifactId = purl.split(':').slice(0, 2).join(':'); // e.g. "com.example:my-artifact"
+                        if (!groupIdArtifactId2fileMetadata.has(groupIdArtifactId)) {
+                            groupIdArtifactId2fileMetadata.set(groupIdArtifactId, []);
                         }
-                    }
-                }
+                        groupIdArtifactId2fileMetadata.get(groupIdArtifactId)?.push(meta);
+                    });
+                })
 
-                //const files2FileStatus = new Map<string, FileStatus[]>();
-
-
-                // Getting the jar files from the agent file
                 const filesByAgent: string[] = [];
                 for (const line of agentLines) {
                     const columns = line.split(';');
@@ -63,25 +62,31 @@ export const JarsInUseView = () => {
                     }
                 }
 
-                // const bothFiles = Array.from(new Set([...Array.from(allArtifacts.values()).flat(), ...filesByAgent]));
+                const bothFiles = Array.from(new Set([...fileMetadatas.map((m) => m.file), ...filesByAgent]));
 
-                const status: FileStatus[] = [];
+                // Create base table of file statuses
+                const file2fs = new Map<string, FileStatus>();
+                bothFiles.forEach((file) => {
+                    file2fs.set(file, { id: file, loaded: filesByAgent.includes(file), overloaded: false });
+                })
 
-                /*
-                for (const file of bothFiles) {
-                    status.push({ id: file, loaded: filesByAgent.includes(file), overloaded: false });
-                }
-                */
+                groupIdArtifactId2fileMetadata.values().forEach((metas) => {
+                    if (metas.length > 1) {
+                        metas.forEach((meta) => {
+                            const fs = file2fs.get(meta.file);
+                            if (fs) {
+                                fs.overloaded = true;
+                            }
+                        });
+                    }
+                })
 
-                // TODO Implement overloaded logic
-
-                setFileStatus(status);
-
+                setFileStatus(Array.from(file2fs.values()));
             })
             .then(() => toast.success('View reloaded!'))
+            .finally(() => setProgressOpen(false))
             .catch((err) => toast.error('Reload failed with error: ' + err));
-
-    };
+    }
 
     const loadProject = (project: Project) => {
         setProject(project);
@@ -192,6 +197,8 @@ export const JarsInUseView = () => {
                       onUpdateSources={handleUpdateSourcesClick}
             />
             <FileStatusTable items={fileStatus} />
+
+            <ProgressDialog open={progressOpen} text={"Importing files..."} />
         </Stack>
     );
 
