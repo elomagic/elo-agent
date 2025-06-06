@@ -1,4 +1,4 @@
-import {CheckCircleOutline, ContentCopy, NotInterested, OpenInBrowser} from "@mui/icons-material";
+import { CheckCircleOutline, ContentCopy, NotInterested, OpenInBrowser, Warning } from '@mui/icons-material';
 import { Box, ListItemIcon, ListItemText, Menu, MenuItem, Stack } from "@mui/material";
 import {DataGrid, GridColDef} from '@mui/x-data-grid';
 import {useState} from "react";
@@ -7,6 +7,7 @@ import {copyTextToClipboard, openFolder} from "@/IpcServices";
 export type FileStatus = {
     id: string;
     loaded: boolean;
+    overloaded: boolean;
 }
 
 interface ComponentProps {
@@ -21,7 +22,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
     const columns: GridColDef<(typeof items)[number]>[] = [
         {
             field: 'loaded',
-            headerName: 'Is loaded',
+            headerName: 'In use',
             width: 80,
             editable: false,
             type: 'boolean',
@@ -29,6 +30,15 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
             renderCell: (params) => params.value ? (
                 <CheckCircleOutline color="success" />
             ) : <NotInterested color="disabled" />,
+        },
+        {
+            field: 'overloaded',
+            headerName: 'Overloaded',
+            width: 80,
+            editable: false,
+            type: 'boolean',
+            hideable: false,
+            renderCell: (params) => params.value ? (<Warning color="error" />) : "",
         },
         {
             field: 'id',

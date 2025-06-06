@@ -3,10 +3,11 @@ import path from 'path';
 import {dialog, ipcMain, shell} from 'electron';
 import { applyRecentAgentFile, applyRecentFolder, getSettings } from "./appSettings";
 import { spawn } from 'child_process';
-import { BackendResponse, Project, SourceFile } from '@/shared/Types';
+import { BackendResponse, FileMetadata, Project, SourceFile } from '@/shared/Types';
 import { deleteProject, loadProjects, updateProject } from './projects';
+import JSZip from 'jszip';
 
-export const chooseDirectory = (defaultFolder: string | undefined): Promise<string | undefined> => {
+const chooseDirectory = (defaultFolder: string | undefined): Promise<string | undefined> => {
     return dialog.showOpenDialog({
         title: 'Select a folder',
         defaultPath: defaultFolder ?? getSettings().recentFolder,
@@ -17,7 +18,7 @@ export const chooseDirectory = (defaultFolder: string | undefined): Promise<stri
     });
 }
 
-export const getJavaProcessesOnWindows: () => Promise<string[]> = () => {
+const getJavaProcessesOnWindows: () => Promise<string[]> = () => {
     return new Promise<string[]>((resolve) => {
         // jps or jcmd works only with JDK not with JRE :-/
 
@@ -39,19 +40,68 @@ export const getJavaProcessesOnWindows: () => Promise<string[]> = () => {
     });
 }
 
-export const getJavaProcessesOnMac: () => Promise<string[]> = () => {
+const getJavaProcessesOnMac: () => Promise<string[]> = () => {
     // TODO Mac support
     // ps -x -o pid=,command=
     return Promise.resolve(["Currently not supported on Mac"]);
 }
 
-export const getJavaProcessesOnLinux: () => Promise<string[]> = () => {
+const getJavaProcessesOnLinux: () => Promise<string[]> = () => {
     // TODO Linux support
     // ps -x -o pid=,command=
     return Promise.resolve(["Currently not supported on Mac"]);
 }
 
-export const getJavaProcesses = (): Promise<string[]> => {
+const getPurlsOfFile = (file: string): Promise<string[]> => {
+    // Get all pom.properties files which is placed in a subfolder of the in the META-INF of a zipped jar file.
+    // The content of the pom.properties file is used to create a purl.
+    // As method will return an array of purls or undefined if no pom.properties file is found.
+    if (!file || !fs.existsSync(file)) {
+        return Promise.resolve([]);
+    }
+
+    if (!file.toLowerCase().endsWith('.jar')) {
+        return Promise.resolve([]);
+    }
+
+    // Read the jar file
+    const jarFile = fs.readFileSync(file);
+
+    // Check if the jar file contains a META-INF folder
+    const jar = new JSZip();
+
+    return jar.loadAsync(jarFile).then(zip => {
+        const purls: string[] = [];
+        const promises: Promise<void>[] = [];
+
+        // Iterate over all files in the jar
+        Object.keys(zip.files).forEach((filename) => {
+            // TODO Check that file like "META-INF/maven/*/*/pom.properties" is a pom.properties file
+            if (filename.toLowerCase().endsWith('pom.properties')) {
+                // Read the content of the pom.properties file
+                const promise = zip.file(filename)?.async('string').then(content => {
+                    // Parse the content to create a purl
+                    const lines = content.split('\n');
+                    const groupId = lines.find(line => line.startsWith('groupId='));
+                    const artifactId = lines.find(line => line.startsWith('artifactId='));
+                    const version = lines.find(line => line.startsWith('version='));
+
+                    if (groupId && artifactId && version) {
+                        const purl = `pkg:maven/${groupId.split('=')[1]}/${artifactId.split('=')[1]}@${version.split('=')[1]}`;
+                        purls.push(purl);
+                    }
+                });
+                if (promise) {
+                    promises.push(promise);
+                }
+            }
+        });
+
+        return Promise.all(promises).then(() => purls);
+    });
+}
+
+const getJavaProcesses = (): Promise<string[]> => {
     if (process.platform === 'win32') {
         return getJavaProcessesOnWindows();
     } else if (process.platform === 'darwin') {
@@ -63,7 +113,7 @@ export const getJavaProcesses = (): Promise<string[]> => {
     }
 }
 
-const listFilesSync = (sourceFile: SourceFile): string[] => {
+const listFilesSync = (sourceFile: SourceFile): FileMetadata[] => {
     if (!fs.statSync(sourceFile.file).isDirectory()) {
         return [];
     }
@@ -75,13 +125,13 @@ const listFilesSync = (sourceFile: SourceFile): string[] => {
             return path.join(sourceFile.file, filename);
         });
 
-    const result = [];
+    const result: FileMetadata[] = [];
 
     for (const file of files) {
         if (fs.statSync(file).isDirectory() && sourceFile.recursive) {
             result.push(...listFilesSync({ file: file + path.sep, recursive: sourceFile.recursive }));
         } else if (file.toLowerCase().endsWith('.jar')) {
-            result.push(file)
+            result.push({ file, purls: []} )
         }
     }
 
@@ -91,8 +141,8 @@ const listFilesSync = (sourceFile: SourceFile): string[] => {
 const listFiles = (
     files: SourceFile[],
     includeFiles: boolean,
-): Promise<string[]> => {
-    const collectedFiles: string[] = [];
+): Promise<FileMetadata[]> => {
+    const collectedFiles: FileMetadata[] = [];
 
     for (const file of files) {
         if (file === undefined) {
@@ -102,13 +152,20 @@ const listFiles = (
         if (fs.statSync(file.file).isDirectory()) {
             collectedFiles.push(...listFilesSync(file));
         } else if (includeFiles) {
-            collectedFiles.push(file.file);
+            collectedFiles.push({ file: file.file, purls: [] });
         }
     }
 
     console.info("Count of files found: " + collectedFiles.length);
+    console.debug("Identifying purls...");
 
-    return Promise.resolve(collectedFiles);
+    // Get purls for each file
+    return Promise.all(collectedFiles.map((f) => {
+        return getPurlsOfFile(f.file).then(purls => {
+            f.purls = purls;
+            return f;
+        });
+    }));
 }
 
 const readFile = (file: string,): Promise<Buffer> => {
@@ -168,12 +225,12 @@ export const registerMainHandlers = () => {
 
     ipcMain.handle("list-files", (_event,
                                   folder: SourceFile[],
-                                  includeFiles: boolean): Promise<string[]> => {
+                                  includeFiles: boolean): Promise<FileMetadata[]> => {
         return listFiles(folder, includeFiles);
     })
 
     ipcMain.handle("list-projects", (_event): Promise<Project[]> => {
-        return new Promise((resolve) => resolve(loadProjects()));
+        return Promise.resolve(loadProjects());
     })
 
     ipcMain.handle("open-file-external", (_event, file: string): Promise<void> => {
