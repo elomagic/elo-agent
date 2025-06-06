@@ -79,7 +79,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
         {
             id: 'loaded',
             label: 'In use',
-            width: 60,
+            width: 80,
             align: 'center',
             format: () => 'boolean',
             renderCell: (fs) => fs.loaded ? (
@@ -89,7 +89,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
         {
             id: 'overloaded',
             label: 'Overloaded',
-            width: 60,
+            width: 100,
             align: 'center',
             format: () => 'boolean',
             renderCell: (fs) => fs.overloaded ? (<HtmlTooltip title={renderTooltip(fs.overloadedFiles)}><Warning color="error" sx={{ verticalAlign: 'bottom' }} /></HtmlTooltip>) : "",
