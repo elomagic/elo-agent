@@ -76,6 +76,7 @@ export const JarsInUseView = () => {
                             const fs = file2fs.get(meta.file);
                             if (fs) {
                                 fs.overloaded = true;
+                                fs.overloadedFiles = metas.map((m) => m.file);
                             }
                         });
                     }
