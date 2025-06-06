@@ -41,7 +41,7 @@ export const SourceFilesGroup = ({items, onUpdateSources}: Readonly<ComponentPro
                       }}
             />
 
-            <Box>Sources ({items.length} files)</Box>
+            <Box color={"#ffa726"}>Sources ({items.length} files)</Box>
 
             <Tooltip title="Show / edit class file sources">
                 <IconButton onClick={() => setOpenSources(true)}>
