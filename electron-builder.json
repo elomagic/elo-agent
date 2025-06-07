@@ -11,7 +11,7 @@
         "dist"
     ],
     "mac": {
-        "artifactName": "${productName}_${version}.${ext}",
+        "artifactName": "${productName} ${version} Setup.${ext}",
         "target": [
             "dmg",
             "zip"
@@ -28,7 +28,7 @@
             }
         ],
         "icon": "public/favicon.ico",
-        "artifactName": "${productName}_${version}.${ext}"
+        "artifactName": "${productName} ${version} Setup.${ext}"
     },
     "nsis": {
         "oneClick": false,
@@ -40,6 +40,6 @@
     "publish": {
         "provider": "generic",
         "channel": "latest",
-        "url": "https://github.com/electron-vite/electron-vite-react/releases/download/v0.9.9/"
+        "url": "https://github.com/elomagic/elo-agent/releases/download/v1.0.0/"
     }
 }
