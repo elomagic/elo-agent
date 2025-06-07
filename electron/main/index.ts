@@ -4,7 +4,7 @@ import path from 'node:path';
 import os from 'node:os';
 import { update } from './update';
 import { registerMainHandlers } from './backendServices';
-import { initAppMenu } from './appMenu';
+import { createAppMenu } from './appMenu';
 
 //const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -81,7 +81,7 @@ async function createWindow() {
     });
 
     if (process.platform === 'darwin') {
-        initAppMenu();
+        Menu.setApplicationMenu(createAppMenu());
     } else {
         Menu.setApplicationMenu(null);
     }
