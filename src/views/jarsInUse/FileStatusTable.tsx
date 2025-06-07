@@ -32,7 +32,7 @@ export type FileStatus = {
 interface Column {
     id: 'id' | 'loaded' | 'overloaded' | 'elapsedTime';
     label: string;
-    width?: number;
+    width?: number | string;
     flex?: number;
     align?: 'right' | 'left' | 'center';
     format?: string;
@@ -80,7 +80,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
         {
             id: 'loaded',
             label: 'In use',
-            width: 60,
+            width: "80px",
             align: 'center',
             format: 'boolean',
             renderCell: (fs) => fs.loaded ? (
@@ -90,14 +90,14 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
         {
             id: 'overloaded',
             label: 'Overloaded',
-            width: 60,
+            width: "90px",
             align: 'center',
             format: 'boolean',
             renderCell: (fs) => fs.overloaded ? (<HtmlTooltip title={renderTooltip(fs.overloadedFiles)}><Warning color="error" sx={{ verticalAlign: 'bottom' }} /></HtmlTooltip>) : "",
         }, {
             id: 'elapsedTime',
             label: 'Elapsed Time',
-            width: 120,
+            width: "100px",
             align: 'right',
             format: 'number',
         },
@@ -174,7 +174,13 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
                             <TableCell
                                 onClick={() => handleSortingClick(column.id)}
                                 key={column.id}
-                                style={{ width: column.width, padding: '4px', cursor: 'pointer', textAlign: column.align}}
+                                style={{
+                                    width: column.width,
+                                    minWidth: column.width,
+                                    padding: '4px',
+                                    cursor: 'pointer',
+                                    textAlign: column.align
+                                }}
                             >
                                 {column.label}
                                 {sortColumn === column.id && sortOrder === 'asc' && (<ArrowDropDown sx={{ verticalAlign: 'bottom' }}/>)}
