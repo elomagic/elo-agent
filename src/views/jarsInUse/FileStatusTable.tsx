@@ -26,15 +26,16 @@ export type FileStatus = {
     loaded: boolean;
     overloaded: boolean;
     overloadedFiles?: string[];
+    elapsedTime: string | undefined; // in milliseconds
 }
 
 interface Column {
-    id: 'id' | 'loaded' | 'overloaded';
+    id: 'id' | 'loaded' | 'overloaded' | 'elapsedTime';
     label: string;
     width?: number;
     flex?: number;
     align?: 'right' | 'left' | 'center';
-    format?: (value: number) => string;
+    format?: string;
     renderCell?: (row: FileStatus) => ReactNode;
 }
 
@@ -69,8 +70,8 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
         }
 
         return (<Typography color="inherit">
-            {files.map((file, index) => (
-                <div key={index}>{file}</div>
+            {files.map((file) => (
+                <div key={file}>{file}</div>
             ))}
         </Typography>);
     }
@@ -79,9 +80,9 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
         {
             id: 'loaded',
             label: 'In use',
-            width: 80,
+            width: 60,
             align: 'center',
-            format: () => 'boolean',
+            format: 'boolean',
             renderCell: (fs) => fs.loaded ? (
                 <CheckCircleOutline color="success" sx={{ verticalAlign: 'bottom' }} />
             ) : <NotInterested color="disabled" sx={{ verticalAlign: 'bottom' }} />,
@@ -89,16 +90,22 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
         {
             id: 'overloaded',
             label: 'Overloaded',
-            width: 100,
+            width: 60,
             align: 'center',
-            format: () => 'boolean',
+            format: 'boolean',
             renderCell: (fs) => fs.overloaded ? (<HtmlTooltip title={renderTooltip(fs.overloadedFiles)}><Warning color="error" sx={{ verticalAlign: 'bottom' }} /></HtmlTooltip>) : "",
+        }, {
+            id: 'elapsedTime',
+            label: 'Elapsed Time',
+            width: 120,
+            align: 'right',
+            format: 'number',
         },
         {
             id: 'id',
             label: 'Filename',
             width: 800,
-            format: () => 'string',
+            format: 'string',
             flex: 1,
         },
     ];
@@ -197,11 +204,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
                                                 return (
                                                     <TableCell key={column.id} align={column.align} sx={{ padding: '4px' }}>
                                                         { column.renderCell && column.renderCell(row) }
-                                                        { !column.renderCell &&
-                                                                column.format && typeof value === 'number'
-                                                                ? column.format(value)
-                                                                : value
-                                                        }
+                                                        { !column.renderCell && value === undefined ? "unknown" : value }
                                                     </TableCell>
                                                 );
                                             })}
