@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import {dialog, ipcMain, shell} from 'electron';
+import {app, dialog, ipcMain, shell} from 'electron';
 import { applyRecentAgentFile, applyRecentFolder, getSettings } from "./appSettings";
 import { spawn } from 'child_process';
 import { BackendResponse, FileMetadata, Project, SourceFile } from '@/shared/Types';
@@ -221,6 +221,10 @@ export const registerMainHandlers = () => {
 
     ipcMain.handle("get-java-processes", (_event): Promise<string[]> => {
         return getJavaProcesses();
+    })
+
+    ipcMain.handle("get-application-version", (_event): Promise<string | undefined> => {
+        return Promise.resolve(app.getVersion());
     })
 
     ipcMain.handle("list-files", (_event,
