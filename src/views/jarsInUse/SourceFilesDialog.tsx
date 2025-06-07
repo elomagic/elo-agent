@@ -131,7 +131,7 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
             headerAlign: 'center',
             hideable: false,
             renderCell: (params) => params.value === FileType.Directory
-                ? ( params.row.recursive ? <FolderCopy sx={{ color: yellow[500] }} /> : <Folder sx={{ color: yellow[500] }} />)
+                ? ( params.row.recursive ? <FolderCopy sx={{ color: yellow[500], verticalAlign: 'middle' }} /> : <Folder sx={{ color: yellow[500], verticalAlign: 'middle' }} />)
                 : <Description color="secondary" />,
         },
         {
