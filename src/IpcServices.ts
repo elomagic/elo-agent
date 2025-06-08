@@ -26,6 +26,10 @@ export function getJavaProcesses(): Promise<string[]> {
     return window.ipcRenderer.invoke('get-java-processes');
 }
 
+export function getApplicationVersion(): Promise<string | undefined> {
+    return window.ipcRenderer.invoke("get-application-version");
+}
+
 export function listFiles(folders: SourceFile[], includeFiles: boolean = false): Promise<FileMetadata[]> {
     return window.ipcRenderer.invoke('list-files', folders, includeFiles);
 }
