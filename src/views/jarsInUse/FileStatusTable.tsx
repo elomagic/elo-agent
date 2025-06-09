@@ -170,23 +170,25 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
                 <TableContainer sx={{ maxHeight: "100%" }}>
                     <Table stickyHeader>
                         <TableHead>
-                        { columns.map((column) => (
-                            <TableCell
-                                onClick={() => handleSortingClick(column.id)}
-                                key={column.id}
-                                style={{
-                                    width: column.width,
-                                    minWidth: column.width,
-                                    padding: '4px',
-                                    cursor: 'pointer',
-                                    textAlign: column.align
-                                }}
-                            >
-                                {column.label}
-                                {sortColumn === column.id && sortOrder === 'asc' && (<ArrowDropDown sx={{ verticalAlign: 'bottom' }}/>)}
-                                {sortColumn === column.id && sortOrder === 'desc' && (<ArrowDropUp sx={{ verticalAlign: 'bottom' }}/>)}
-                            </TableCell>
-                        ))}
+                            <TableRow>
+                                { columns.map((column) => (
+                                    <TableCell
+                                        onClick={() => handleSortingClick(column.id)}
+                                        key={column.id}
+                                        style={{
+                                            width: column.width,
+                                            minWidth: column.width,
+                                            padding: '4px',
+                                            cursor: 'pointer',
+                                            textAlign: column.align
+                                        }}
+                                    >
+                                        {column.label}
+                                        {sortColumn === column.id && sortOrder === 'asc' && (<ArrowDropDown sx={{ verticalAlign: 'bottom' }}/>)}
+                                        {sortColumn === column.id && sortOrder === 'desc' && (<ArrowDropUp sx={{ verticalAlign: 'bottom' }}/>)}
+                                    </TableCell>
+                                ))}
+                            </TableRow>
                         </TableHead>
 
                         <TableBody>
