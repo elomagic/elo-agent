@@ -192,7 +192,7 @@ const readAgentFile = (file: string | undefined): Promise<string[]> => {
     const text = fs.readFileSync(file, 'utf-8');
 
     // Separe lines  (Supported  \n and \r\n)
-    const lines: string[] = text.split(/\r?\n/);
+    const lines: string[] = text.split(/\r?\n/).filter(l => l.trim() !== '');
 
     return Promise.resolve(lines);
 }
