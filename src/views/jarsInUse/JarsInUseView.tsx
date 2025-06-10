@@ -32,7 +32,7 @@ export const JarsInUseView = () => {
         setProgressOpen(true);
 
         return Promise.all([
-            listFiles(fileSources, true),
+            listFiles(fileSources),
             readAgentFile(agentFilename)])
             .then(([fileMetadatas, agentLines]) => {
                 console.info('Files found: ' + fileMetadatas.length);

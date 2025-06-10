@@ -1,10 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import {app, dialog, ipcMain, shell} from 'electron';
-import { applyRecentAgentFile, applyRecentFolder, getSettings } from "./appSettings";
-import { spawn } from 'child_process';
-import { BackendResponse, FileMetadata, Project, SourceFile } from '@/shared/Types';
-import { deleteProject, loadProjects, updateProject } from './projects';
+import {applyRecentAgentFile, applyRecentFolder, getSettings} from "./appSettings";
+import {spawn} from 'child_process';
+import {BackendResponse, FileMetadata, FolderFilter, Project, SourceFile} from "../../src/shared/Types";
+import {deleteProject, loadProjects, updateProject} from './projects';
 import JSZip from 'jszip';
 
 const chooseDirectory = (defaultFolder: string | undefined): Promise<string | undefined> => {
@@ -138,22 +138,28 @@ const listFilesSync = (sourceFile: SourceFile): FileMetadata[] => {
     return result;
 }
 
-const listFiles = (
-    files: SourceFile[],
-    includeFiles: boolean,
-): Promise<FileMetadata[]> => {
-    const collectedFiles: FileMetadata[] = [];
+const listFiles = (files: SourceFile[]): Promise<FileMetadata[]> => {
+    let collectedFiles: FileMetadata[] = [];
 
     for (const file of files) {
-        if (file === undefined) {
+        if (file === undefined || file.filter === FolderFilter.ExcludeFolderRecursive) {
             continue;
         }
 
         if (fs.statSync(file.file).isDirectory()) {
             collectedFiles.push(...listFilesSync(file));
-        } else if (includeFiles) {
+        } else {
             collectedFiles.push({ file: file.file, purls: [] });
         }
+    }
+
+    // Exclude filter
+    for (const file of files) {
+        if (file === undefined || file.filter !== FolderFilter.ExcludeFolderRecursive) {
+            continue;
+        }
+
+        collectedFiles = collectedFiles.filter(f => f.file.startsWith(file.file));
     }
 
     console.info("Count of files found: " + collectedFiles.length);
@@ -227,10 +233,8 @@ export const registerMainHandlers = () => {
         return Promise.resolve(app.getVersion());
     })
 
-    ipcMain.handle("list-files", (_event,
-                                  folder: SourceFile[],
-                                  includeFiles: boolean): Promise<FileMetadata[]> => {
-        return listFiles(folder, includeFiles);
+    ipcMain.handle("list-files", (_event, folder: SourceFile[]): Promise<FileMetadata[]> => {
+        return listFiles(folder);
     })
 
     ipcMain.handle("list-projects", (_event): Promise<Project[]> => {
