@@ -4,9 +4,10 @@ export type BackendResponse = {
     responseMessage: string;
 }
 
-export enum FileType {
-    ClassFile,
-    Directory,
+export enum FolderFilter {
+    IncludeFolder,
+    IncludeFolderRecursive,
+    ExcludeFolderRecursive,
 }
 
 export type FileMetadata = {
@@ -18,7 +19,7 @@ export type FileMetadata = {
 export type SourceFile = {
     file: string;
     recursive: boolean;
-    type?: FileType
+    filter?: FolderFilter
 }
 
 export type Project = {

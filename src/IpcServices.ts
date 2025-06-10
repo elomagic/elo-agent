@@ -30,8 +30,8 @@ export function getApplicationVersion(): Promise<string | undefined> {
     return window.ipcRenderer.invoke("get-application-version");
 }
 
-export function listFiles(folders: SourceFile[], includeFiles: boolean = false): Promise<FileMetadata[]> {
-    return window.ipcRenderer.invoke('list-files', folders, includeFiles);
+export function listFiles(folders: SourceFile[]): Promise<FileMetadata[]> {
+    return window.ipcRenderer.invoke('list-files', folders);
 }
 
 export function updateProject(project: Project): Promise<BackendResponse> {
