@@ -14,7 +14,7 @@ import {
     MenuItem,
     Stack, styled,
     Table, TableBody, TableCell,
-    TableContainer,
+    TableContainer, TableFooter,
     TableHead, TableRow, TextField,
     Tooltip, tooltipClasses, TooltipProps, Typography
 } from '@mui/material';
@@ -74,6 +74,19 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
                 <div key={file}>{file}</div>
             ))}
         </Typography>);
+    }
+
+    const renderFooterColumn = (column: Column, rows: FileStatus[]): string => {
+        switch (column.id) {
+            case "id":
+                return `${rows.length} items`;
+            case "loaded":
+                return `${rows.filter(row => row.loaded).length} loaded`;
+            case "overloaded":
+                return `${rows.filter(row => row.overloaded).length} overloaded`;
+            default:
+                return "";
+        }
     }
 
     const columns: readonly Column[] = [
@@ -191,7 +204,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
                             </TableRow>
                         </TableHead>
 
-                        <TableBody>
+                        <TableBody sx={{ bottom: "20px" }}>
                             {items
                                 .filter(row => filter?.length == 0 || row.id.toLowerCase().includes(filter))
                                 .sort((a, b) => {
@@ -220,6 +233,23 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
                                     );
                                 })}
                         </TableBody>
+                        <TableFooter>
+                            <TableRow sx={{ bottom: 0, position: 'sticky', backgroundColor: 'black' }}>
+                                { columns.map((column) => (
+                                    <TableCell
+                                        key={column.id}
+                                        style={{
+                                            width: column.width,
+                                            minWidth: column.width,
+                                            padding: '4px',
+                                            textAlign: column.align
+                                        }}
+                                    >
+                                        {  renderFooterColumn(column, items.filter(row => filter?.length == 0 || row.id.toLowerCase().includes(filter))) }
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        </TableFooter>
                     </Table>
                 </TableContainer>
 
