@@ -36,7 +36,7 @@ export const IntegrateAgentDialog = ({ open, onCloseClick }: Readonly<ComponentP
 
                 <p>When using YAJSW, configuration in your service wrapper:</p>
                 <Paper component={'pre'} sx={{ padding: 1, overflow: 'auto' }}>
-                    wrapper.java.additional.1=-javaagent:C:/full/path/to/elo-agent-java-[VERSION]-jar-with-dependencies.jar
+                    wrapper.java.additional.[n]=-javaagent:C:/full/path/to/elo-agent-java-[VERSION]-jar-with-dependencies.jar
                 </Paper>
             </DialogContent>
             <DialogActions>
