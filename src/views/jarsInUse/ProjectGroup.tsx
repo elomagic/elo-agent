@@ -52,6 +52,11 @@ export const ProjectGroup = ({project, projects, onNewProject, onDeleteProject, 
         name && onSelectProjectName(name);
     }
 
+    const handleCreateProject = (name: string) => {
+        setOpenNewProject(false);
+        onNewProject(name);
+    }
+
     const handleKeyDown = (e: KeyboardEvent) => {
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'n') {
             e.preventDefault(); // Browser-Speichern verhindern
@@ -110,7 +115,7 @@ export const ProjectGroup = ({project, projects, onNewProject, onDeleteProject, 
             </Tooltip>
 
             <CreateProjectDialog open={openNewProject}
-                                 onCreateClick={onNewProject}
+                                 onCreateClick={handleCreateProject}
                                  onCancelClick={() => setOpenNewProject(false)} />
         </Stack>
     );
