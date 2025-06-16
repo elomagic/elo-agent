@@ -11,14 +11,14 @@ import {
 } from "@mui/material";
 import {DataGrid, GridColDef} from "@mui/x-data-grid";
 import {TransitionProps} from "@mui/material/transitions";
-import {forwardRef, useEffect, useState} from "react";
+import { forwardRef, ReactElement, Ref, useEffect, useState } from 'react';
 import {getJavaProcesses} from "@/IpcServices";
 
 const Transition = forwardRef(function Transition(
     props: TransitionProps & {
-        children: React.ReactElement<unknown>;
+        children: ReactElement<unknown>;
     },
-    ref: React.Ref<unknown>,
+    ref: Ref<unknown>,
 ) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
@@ -63,9 +63,16 @@ export const SelectProcessDialog = ({ open, onSelectClick, onCancelClick }: Read
         getJavaProcesses().then(processes => {
             const pids: ProcessId[] = processes.map((line) => {
                 const spaceIndex = line.indexOf(' ');
+                const id = line.substring(0, spaceIndex);
+                let args = line.substring(spaceIndex + 1).trim();
+
+                if (args.length === 0) {
+                    args = "No arguments provided. You may need admin permissions to access the Java arguments.";
+                }
+
                 return {
-                    id: line.substring(0, spaceIndex),
-                    args: line.substring(spaceIndex + 1),
+                    id,
+                    args
                 }
             });
 
