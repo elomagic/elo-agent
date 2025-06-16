@@ -13,16 +13,16 @@ import {
     MenuItem,
     Slide,
     Stack
-} from "@mui/material";
-import {DataGrid, GridCellParams, GridColDef} from "@mui/x-data-grid";
-import {TransitionProps} from "@mui/material/transitions";
-import {forwardRef, useEffect, useState} from "react";
-import {FolderFilter, SourceFile} from "@/shared/Types";
-import {Delete, OpenInBrowser} from "@mui/icons-material";
-import {chooseFolder, openFolder} from "@/IpcServices";
-import {FaFolderMinus, FaJava} from "react-icons/fa";
-import {SelectProcessDialog} from "@/views/jarsInUse/SelectProcessDialog";
-import {MdFolder, MdFolderCopy} from "react-icons/md";
+} from '@mui/material';
+import { DataGrid, GridCellParams, GridColDef } from '@mui/x-data-grid';
+import { TransitionProps } from '@mui/material/transitions';
+import { forwardRef, useEffect, useState } from 'react';
+import { FolderFilter, SourceFile } from '@/shared/Types';
+import { Delete, OpenInBrowser } from '@mui/icons-material';
+import { chooseFolder, openFolder } from '@/IpcServices';
+import { FaFolderMinus, FaJava } from 'react-icons/fa';
+import { SelectProcessDialog } from '@/views/jarsInUse/SelectProcessDialog';
+import { MdFolder, MdFolderCopy } from 'react-icons/md';
 
 const Transition = forwardRef(function Transition(
     props: TransitionProps & {
@@ -129,13 +129,21 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
         setOpenProcess(false);
 
         const args = a.split(" ");
-        const cpIndex = args.indexOf("-classpath");
+        const cpIndex = Math.max(args.indexOf("-classpath"), args.indexOf("-cp"), args.indexOf("--class-path"));
+        console.debug(`cpIndex=${cpIndex}`);
+
+        if (cpIndex === -1) {
+            console.info("No classpath argument found in the process arguments.");
+            return;
+        }
+
         const cp = args[cpIndex + 1];
         const files = cp.split(";");
+        console.debug(`cpFiles=${files}`);
 
         // TODO Classpath from Manifest in case when argument -jar is set
 
-        applySourceFiles(files.map((f) => { return { file: f, recursive: false } }));
+        applySourceFiles(files.map((f) => { return { file: f, recursive: false, filter: FolderFilter.IncludeFolder } }));
     }
 
     useEffect(() => setRows(items), [items]);
