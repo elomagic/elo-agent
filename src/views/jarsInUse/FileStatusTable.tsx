@@ -1,7 +1,7 @@
 import {
     ArrowDropDown, ArrowDropUp,
     CheckCircleOutline,
-    ContentCopy,
+    ContentCopy, Error,
     NotInterested,
     OpenInBrowser,
     Warning
@@ -21,12 +21,19 @@ import {
 import { ChangeEvent, ReactNode, useState } from 'react';
 import {copyTextToClipboard, openFolder} from "@/IpcServices";
 
+export enum FileOverloadStatus {
+    NONE = "none",
+    SAME_VERSION = "same_version",
+    DIFFERENT_VERSION = "different_version",
+}
+
 export type FileStatus = {
     id: string;
     loaded: boolean;
     overloaded: boolean;
     overloadedFiles?: string[];
-    elapsedTime: string | undefined; // in milliseconds
+    overloadStatus?: FileOverloadStatus;
+    elapsedTime: number | undefined; // in milliseconds
 }
 
 interface Column {
@@ -89,6 +96,38 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
         }
     }
 
+    const renderOverloadedFiles = (fs: FileStatus): ReactNode => {
+        if (!fs.overloaded || !fs.overloadedFiles || fs.overloadedFiles.length === 0) {
+            return "";
+        }
+
+        if (!fs.overloadStatus) {
+            fs.overloadStatus = FileOverloadStatus.NONE;
+
+            // TODO Check overloads on different versions in filename
+        }
+
+        return (
+            <HtmlTooltip title={renderTooltip(fs.overloadedFiles)}>
+                <>
+                    {fs.overloadStatus === FileOverloadStatus.SAME_VERSION && <Warning color="warning" sx={{ verticalAlign: 'bottom' }} />}
+                    {fs.overloadStatus === FileOverloadStatus.DIFFERENT_VERSION && <Error color="error" sx={{ verticalAlign: 'bottom' }} />}
+                </>
+            </HtmlTooltip>
+        );
+    }
+
+    const compareValue = (a: FileStatus, b: FileStatus): number => {
+        if (sortColumn === null) return 0;
+        const aValue = a[sortColumn as keyof FileStatus];
+        const bValue = b[sortColumn as keyof FileStatus];
+        if (aValue === undefined) return 1;
+        if (bValue === undefined) return -1;
+        if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
+        if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
+        return 0;
+    }
+
     const columns: readonly Column[] = [
         {
             id: 'loaded',
@@ -106,7 +145,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
             width: "90px",
             align: 'center',
             format: 'boolean',
-            renderCell: (fs) => fs.overloaded ? (<HtmlTooltip title={renderTooltip(fs.overloadedFiles)}><Warning color="error" sx={{ verticalAlign: 'bottom' }} /></HtmlTooltip>) : "",
+            renderCell: (fs) => renderOverloadedFiles(fs),
         }, {
             id: 'elapsedTime',
             label: 'Elapsed Time',
@@ -207,16 +246,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
                         <TableBody sx={{ bottom: "20px" }}>
                             {items
                                 .filter(row => filter?.length == 0 || row.id.toLowerCase().includes(filter))
-                                .sort((a, b) => {
-                                    if (sortColumn === null) return 0;
-                                    const aValue = a[sortColumn as keyof FileStatus];
-                                    const bValue = b[sortColumn as keyof FileStatus];
-                                    if (aValue === undefined) return 1;
-                                    if (bValue === undefined) return -1;
-                                    if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
-                                    if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
-                                    return 0;
-                                })
+                                .sort(compareValue)
                                 .map((row) => {
                                     return (
                                         <TableRow hover tabIndex={-1} key={row.id} sx={{ height: '32px'}} onContextMenu={handleContextMenu} data-id={row.id}>
@@ -225,7 +255,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
                                                 return (
                                                     <TableCell key={column.id} align={column.align} sx={{ padding: '4px' }}>
                                                         { column.renderCell && column.renderCell(row) }
-                                                        { !column.renderCell && value === undefined ? "unknown" : value }
+                                                        { !column.renderCell && value === undefined ? "" : value }
                                                     </TableCell>
                                                 );
                                             })}

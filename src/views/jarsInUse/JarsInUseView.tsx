@@ -53,7 +53,7 @@ export const JarsInUseView = () => {
                     });
                 })
 
-                const agentFile2ElapsedTime = new Map<string, string | undefined>();
+                const agentFile2ElapsedTime = new Map<string, number | undefined>();
                 let columnsCount = undefined;
                 for (const line of agentLines) {
                     const columns = line.split(';');
@@ -62,7 +62,7 @@ export const JarsInUseView = () => {
                         agentFile2ElapsedTime.set(columns[1], undefined)
                     } else if (columns.length > 2) {
                         columnsCount = columns.length;
-                        agentFile2ElapsedTime.set(columns[1], columns[2])
+                        agentFile2ElapsedTime.set(columns[1], Number(columns[2]))
                     }
                 }
 
