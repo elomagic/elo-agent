@@ -1,6 +1,6 @@
 'use client';
 
-import { BackendResponse, FileMetadata, Project, SourceFile } from '@/shared/Types';
+import { AgentFileMetadata, BackendResponse, FileMetadata, Project, SourceFile } from '@/shared/Types';
 
 export function chooseAgentFile(initFolder: string | undefined): Promise<string | undefined> {
     return window.ipcRenderer.invoke('choose-agent-file', initFolder);
@@ -46,7 +46,7 @@ export function openFolder(folder: string): Promise<void> {
     return window.ipcRenderer.invoke('open-folder', folder);
 }
 
-export function readAgentFile(file: string | undefined): Promise<string[]> {
+export function readAgentFile(file: string | undefined): Promise<AgentFileMetadata[]> {
     return window.ipcRenderer.invoke('read-agent-file', file);
 }
 

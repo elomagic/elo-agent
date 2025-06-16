@@ -3,7 +3,14 @@ import path from 'path';
 import {app, dialog, ipcMain, shell} from 'electron';
 import {applyRecentAgentFile, applyRecentFolder, getSettings} from "./appSettings";
 import {spawn} from 'child_process';
-import {BackendResponse, FileMetadata, FolderFilter, Project, SourceFile} from "../../src/shared/Types";
+import {
+    AgentFileMetadata,
+    BackendResponse,
+    FileMetadata,
+    FolderFilter,
+    Project,
+    SourceFile
+} from '../../src/shared/Types';
 import {deleteProject, loadProjects, updateProject} from './projects';
 import JSZip from 'jszip';
 
@@ -185,7 +192,7 @@ const readFile = (file: string,): Promise<Buffer> => {
     });
 }
 
-const readAgentFile = (file: string | undefined): Promise<string[]> => {
+const readAgentFile = (file: string | undefined): Promise<AgentFileMetadata[]> => {
     if (!file) {
         return Promise.resolve([]);
     }
@@ -200,7 +207,23 @@ const readAgentFile = (file: string | undefined): Promise<string[]> => {
     // Separe lines  (Supported  \n and \r\n)
     const lines: string[] = text.split(/\r?\n/).filter(l => l.trim() !== '');
 
-    return Promise.resolve(lines);
+    const meta: AgentFileMetadata[] = lines.map(line => {
+        const columns = line.split(";")
+        return {
+            timeInMs: Number(columns[0]),
+            file: columns[1],
+            elapsedTime: columns.length > 2 ? Number(columns[2]) : undefined,
+            purls: []
+        }
+    });
+
+    // Get purls for each file
+    return Promise.all(meta.map((m) => {
+        return getPurlsOfFile(m.file).then(purls => {
+            m.purls = purls;
+            return m;
+        });
+    }));
 }
 
 const resetAgentFile = (file: string): Promise<BackendResponse> => {
@@ -250,7 +273,7 @@ export const registerMainHandlers = () => {
         return Promise.resolve();
     })
 
-    ipcMain.handle("read-agent-file", (_event, file: string | undefined): Promise<string[]> => {
+    ipcMain.handle("read-agent-file", (_event, file: string | undefined): Promise<AgentFileMetadata[]> => {
         return readAgentFile(file);
     })
 

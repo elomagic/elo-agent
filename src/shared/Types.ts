@@ -16,6 +16,11 @@ export type FileMetadata = {
     purls: string[];
 }
 
+export type AgentFileMetadata = FileMetadata & {
+    elapsedTime: number | undefined;
+    timeInMs: number;
+}
+
 export type SourceFile = {
     file: string;
     recursive: boolean;
