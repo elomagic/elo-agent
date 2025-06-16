@@ -5,20 +5,24 @@ import {
     DialogActions,
     DialogContent,
     DialogContentText,
-    DialogTitle, Divider,
-    ListItemIcon, ListItemText,
-    Menu, MenuItem,
-    Slide, Stack
+    DialogTitle,
+    Divider,
+    ListItemIcon,
+    ListItemText,
+    Menu,
+    MenuItem,
+    Slide,
+    Stack
 } from "@mui/material";
-import {DataGrid, GridColDef} from "@mui/x-data-grid";
+import {DataGrid, GridCellParams, GridColDef} from "@mui/x-data-grid";
 import {TransitionProps} from "@mui/material/transitions";
 import {forwardRef, useEffect, useState} from "react";
-import {FileType, SourceFile} from "@/shared/Types";
-import {Delete, Description, Folder, FolderCopy, OpenInBrowser} from "@mui/icons-material";
-import {yellow} from "@mui/material/colors";
+import {FolderFilter, SourceFile} from "@/shared/Types";
+import {Delete, OpenInBrowser} from "@mui/icons-material";
 import {chooseFolder, openFolder} from "@/IpcServices";
-import {FaJava} from "react-icons/fa";
+import {FaFolderMinus, FaJava} from "react-icons/fa";
 import {SelectProcessDialog} from "@/views/jarsInUse/SelectProcessDialog";
+import {MdFolder, MdFolderCopy} from "react-icons/md";
 
 const Transition = forwardRef(function Transition(
     props: TransitionProps & {
@@ -53,6 +57,17 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
         const uniqueFolders = Array.from(new Set([...files.map((i) => { return {...i, id: i.file}}), ...rows]));
 
         setRows(uniqueFolders);
+    }
+
+    const renderFolder = (params: GridCellParams) => {
+        switch (params.value) {
+            case FolderFilter.IncludeFolder:
+                return <MdFolder style={{ color: "#4caf50", verticalAlign: 'middle', fontSize: 'x-large' }} />;
+            case FolderFilter.IncludeFolderRecursive:
+                return <MdFolderCopy style={{ color: "#4caf50", verticalAlign: 'middle', fontSize: 'x-large' }} />;
+            case FolderFilter.ExcludeFolderRecursive:
+                return <FaFolderMinus style={{ color: "#ff9800", verticalAlign: 'middle', fontSize: 'x-large' }} />;
+        }
     }
 
     const handleClose = () => {
@@ -95,14 +110,19 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
         );
     };
 
-    const handleAddFolderClick = () => {
+    const handleIncludeFolderClick = () => {
         chooseFolder(undefined)
-            .then((folder) => folder && applySourceFiles([{ file: folder, recursive: false, type: FileType.Directory }]))
+            .then((folder) => folder && applySourceFiles([{ file: folder, recursive: false, filter: FolderFilter.IncludeFolder }]))
     }
 
-    const handleAddFolderRecursiveClick = () => {
+    const handleIncludeFolderRecursiveClick = () => {
         chooseFolder(undefined)
-            .then((folder) => folder && applySourceFiles([{ file: folder, recursive: true, type: FileType.Directory }]))
+            .then((folder) => folder && applySourceFiles([{ file: folder, recursive: true, filter: FolderFilter.IncludeFolderRecursive }]))
+    }
+
+    const handleExcludeFolderRecursiveClick = () => {
+        chooseFolder(undefined)
+            .then((folder) => folder && applySourceFiles([{ file: folder, recursive: true, filter: FolderFilter.ExcludeFolderRecursive }]))
     }
 
     const handleSelectProcessClick = (a: string) => {
@@ -122,17 +142,15 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
 
     const columns: GridColDef<(typeof rows)[number]>[] = [
         {
-            field: 'type',
-            headerName: 'Type',
+            field: 'filter',
+            headerName: 'Filter',
             width: 90,
             editable: false,
             type: 'string',
             align: 'center',
             headerAlign: 'center',
             hideable: false,
-            renderCell: (params) => params.value === FileType.Directory
-                ? ( params.row.recursive ? <FolderCopy sx={{ color: yellow[500], verticalAlign: 'middle' }} /> : <Folder sx={{ color: yellow[500], verticalAlign: 'middle' }} />)
-                : <Description color="secondary" />,
+            renderCell: (params) =>  renderFolder(params),
         },
         {
             field: 'id',
@@ -153,12 +171,16 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
                 <DialogContentText>Identified folder and files</DialogContentText>
 
                 <Stack direction="row" spacing={2} sx={{ marginTop: 1, marginBottom: 1 }}>
-                    <Button startIcon={<Folder />} onClick={handleAddFolderClick}>
-                        Add Folder
+                    <Button startIcon={<MdFolder />} onClick={handleIncludeFolderClick}>
+                        Include Folder
                     </Button>
 
-                    <Button startIcon={<Folder />} onClick={handleAddFolderRecursiveClick}>
-                        Add Folder Recursive
+                    <Button startIcon={<MdFolderCopy />} onClick={handleIncludeFolderRecursiveClick}>
+                        Include Folder Recursive
+                    </Button>
+
+                    <Button startIcon={<FaFolderMinus />} onClick={handleExcludeFolderRecursiveClick}>
+                        Exclude Folder Recursive
                     </Button>
 
                     <Button startIcon={<FaJava />} onClick={() => setOpenProcess(true)}>
