@@ -27,7 +27,7 @@ export const IntegrateAgentDialog = ({ open, onCloseClick }: Readonly<ComponentP
 
     return (
         <Dialog open={open} onClose={onCloseClick} TransitionComponent={Transition} fullWidth>
-            <DialogTitle>About</DialogTitle>
+            <DialogTitle>Java Agent Integration Examples</DialogTitle>
             <DialogContent>
                 <p>Java command line arguments to integrate the agent into your application:</p>
                 <Paper component={'pre'} sx={{ padding: 1, overflow: 'auto' }}>
