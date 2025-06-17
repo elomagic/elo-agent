@@ -176,7 +176,7 @@ const listFiles = (files: SourceFile[], webContents: WebContents): Promise<FileM
             continue;
         }
 
-        collectedFiles = collectedFiles.filter(f => f.file.startsWith(file.file));
+        collectedFiles = collectedFiles.filter(f => !f.file.replaceAll("\\", "/").startsWith(file.file.replaceAll("\\", "/")));
     }
 
     console.info("Count of files found: " + collectedFiles.length);
