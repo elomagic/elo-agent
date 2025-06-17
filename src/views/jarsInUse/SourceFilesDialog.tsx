@@ -62,11 +62,11 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
     const renderFolder = (params: GridCellParams) => {
         switch (params.value) {
             case FolderFilter.IncludeFolder:
-                return <MdFolder style={{ color: "#4caf50", verticalAlign: 'middle', fontSize: 'x-large' }} />;
+                return <MdFolder style={{ color: "#fde793", verticalAlign: 'middle', fontSize: 'large' }} />;
             case FolderFilter.IncludeFolderRecursive:
-                return <MdFolderCopy style={{ color: "#4caf50", verticalAlign: 'middle', fontSize: 'x-large' }} />;
+                return <MdFolderCopy style={{ color: "#4caf50", verticalAlign: 'middle', fontSize: 'large' }} />;
             case FolderFilter.ExcludeFolderRecursive:
-                return <FaFolderMinus style={{ color: "#ff9800", verticalAlign: 'middle', fontSize: 'x-large' }} />;
+                return <FaFolderMinus style={{ color: "#ff6565", verticalAlign: 'middle', fontSize: 'large' }} />;
         }
     }
 
