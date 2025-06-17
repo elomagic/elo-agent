@@ -16,6 +16,7 @@ import {
 import { deleteProject, loadProjects, updateProject } from './projects';
 import JSZip from 'jszip';
 import WebContents = Electron.WebContents;
+import { parse } from 'dot-properties';
 
 const sendProgress = (webContents: WebContents, progress: ImportProgress): void => {
     webContents.send("import-progress", progress);
@@ -96,14 +97,15 @@ const getPurlsOfFile = (file: string, webContents: WebContents): Promise<string[
             if (filename.toLowerCase().endsWith('pom.properties')) {
                 // Read the content of the pom.properties file
                 const promise = zip.file(filename)?.async('string').then(content => {
+                    const properties = parse(content);
+
                     // Parse the content to create a purl
-                    const lines = content.split('\n');
-                    const groupId = lines.find(line => line.startsWith('groupId='));
-                    const artifactId = lines.find(line => line.startsWith('artifactId='));
-                    const version = lines.find(line => line.startsWith('version='));
+                    const groupId = properties['groupId'];
+                    const artifactId = properties['artifactId'];
+                    const version = properties['version'];
 
                     if (groupId && artifactId && version) {
-                        const purl = `pkg:maven/${groupId.split('=')[1]}/${artifactId.split('=')[1]}@${version.split('=')[1]}`;
+                        const purl = `pkg:maven/${groupId}/${artifactId}@${version}`;
                         purls.push(purl);
                     }
                 });
