@@ -35,7 +35,7 @@ export type AgentFileMetadata = FileMetadata & {
 export type SourceFile = {
     file: string;
     recursive: boolean;
-    filter?: FolderFilter
+    filter: FolderFilter
 }
 
 export type Project = {

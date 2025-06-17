@@ -145,7 +145,7 @@ const listFilesSync = (sourceFile: SourceFile): FileMetadata[] => {
 
     for (const file of files) {
         if (fs.statSync(file).isDirectory() && sourceFile.recursive) {
-            result.push(...listFilesSync({ file: file + path.sep, recursive: sourceFile.recursive }));
+            result.push(...listFilesSync({ file: file + path.sep, recursive: sourceFile.recursive, filter: sourceFile.filter }));
         } else if (file.toLowerCase().endsWith('.jar')) {
             result.push({ file, purls: []} )
         }
@@ -158,7 +158,8 @@ const listFiles = (files: SourceFile[], webContents: WebContents): Promise<FileM
     let collectedFiles: FileMetadata[] = [];
 
     for (const file of files) {
-        if (file === undefined || file.filter !== FolderFilter.ExcludeFolderRecursive) {
+        // Ignore exclude filter in this step because we want to collect all files first
+        if (file.filter === FolderFilter.ExcludeFolderRecursive) {
             continue;
         }
 
@@ -171,7 +172,7 @@ const listFiles = (files: SourceFile[], webContents: WebContents): Promise<FileM
 
     // Exclude filter
     for (const file of files) {
-        if (file === undefined || file.filter !== FolderFilter.ExcludeFolderRecursive) {
+        if (file.filter !== FolderFilter.ExcludeFolderRecursive) {
             continue;
         }
 
