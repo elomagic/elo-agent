@@ -32,8 +32,7 @@ export const JarsInUseView = () => {
             return FileOverloadStatus.NO_OVERLOAD;
         }
 
-        // TODO Multiple purls version are not supported yet
-        const versions = new Set(overloadedFiles.map((f) => f.purls[0].split('@')[1])); // Assuming purl format is "pkg:type:namespace:name:version"
+        const versions = new Set(overloadedFiles.flatMap(f => f.purls).map(purl => purl.split('@')[1]));
 
         return versions.size === 1 ? FileOverloadStatus.SAME_VERSION : FileOverloadStatus.DIFFERENT_VERSION;
     }
