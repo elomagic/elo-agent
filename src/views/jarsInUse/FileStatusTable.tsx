@@ -123,8 +123,6 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
 
         const overloadStatus = fs.overloadStatus;
 
-        // TODO Check overloads on different versions in filename
-
         return (
             <>
                 {overloadStatus === FileOverloadStatus.SAME_VERSION &&

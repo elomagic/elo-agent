@@ -93,7 +93,6 @@ const getPurlsOfFile = (file: string, webContents: WebContents): Promise<string[
 
         // Iterate over all files in the jar
         Object.keys(zip.files).forEach((filename) => {
-            // TODO Check that file like "META-INF/maven/*/*/pom.properties" is a pom.properties file
             if (filename.toLowerCase().endsWith('pom.properties')) {
                 // Read the content of the pom.properties file
                 const promise = zip.file(filename)?.async('string').then(content => {
