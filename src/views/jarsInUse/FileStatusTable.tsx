@@ -18,9 +18,10 @@ import {
     TableHead, TableRow, TextField,
     Tooltip, tooltipClasses, TooltipProps, Typography
 } from '@mui/material';
-import { ChangeEvent, ReactNode, useState } from 'react';
+import {ChangeEvent, MouseEvent, ReactNode, useState} from 'react';
 import {copyTextToClipboard, openFolder} from "@/IpcServices";
 import { FileMetadata } from '@/shared/Types';
+import {ColumnChooserDialog} from "@/components/table/ColumnChooserDialog";
 
 export enum FileOverloadStatus {
     NO_OVERLOAD = "no_overload",
@@ -71,6 +72,8 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
     const [filter, setFilter] = useState<string>("");
     const [sortColumn, setSortColumn] = useState<string | null>(null);
     const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
+
+    const [columnOpen, setColumnOpen] = useState<boolean>(false);
 
     const renderFilesTooltip = (files: FileMetadata[] | undefined): ReactNode => {
 
@@ -203,6 +206,8 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
 
     ];
 
+    const [visibleColumns, setVisibleColumns] = useState<string[]>(columns.map(c => c.id));
+
     const handleClose = () => {
         setContextMenu(null);
     };
@@ -228,6 +233,20 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
         } else {
             setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
         }
+    }
+
+    const handleOpenColumnDialog = (_evt: MouseEvent<HTMLTableCellElement>) => {
+        setColumnOpen(true);
+    }
+
+    const handleCloseColumnChooser = (columnIds: string[] | undefined) => {
+        setColumnOpen(false);
+
+        if (!columnIds) {
+            return
+        }
+
+        setVisibleColumns(columnIds);
     }
 
     const handleContextMenu = (event: React.MouseEvent) => {
@@ -264,9 +283,10 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
                     <Table stickyHeader>
                         <TableHead>
                             <TableRow>
-                                { columns.map((column) => (
+                                { columns.filter(c => visibleColumns.includes(c.id)).map((column) => (
                                     <TableCell
                                         onClick={() => handleSortingClick(column.id)}
+                                        onMouseUp={(evt) => handleOpenColumnDialog(evt)}
                                         key={column.id}
                                         style={{
                                             width: column.width,
@@ -291,7 +311,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
                                 .map((row) => {
                                     return (
                                         <TableRow hover key={row.file} sx={{ height: '32px'}} onContextMenu={handleContextMenu} data-id={row.file}>
-                                            {columns.map((column) => {
+                                            {columns.filter(c => visibleColumns.includes(c.id)).map((column) => {
                                                 const value = row[column.id];
                                                 return (
                                                     <TableCell key={column.id} align={column.align} sx={{ padding: '4px' }}>
@@ -306,7 +326,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
                         </TableBody>
                         <TableFooter>
                             <TableRow sx={{ bottom: 0, position: 'sticky', backgroundColor: 'black' }}>
-                                { columns.map((column) => (
+                                { columns.filter(c => visibleColumns.includes(c.id)).map((column) => (
                                     <TableCell
                                         key={column.id}
                                         style={{
@@ -348,6 +368,11 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
                     </MenuItem>
                 </Menu>
             </Box>
+
+            <ColumnChooserDialog open={columnOpen}
+                                 availableColumns={columns.map(c => [c.id, c.label])}
+                                 visibleColumns={visibleColumns}
+                                 onCloseClick={ (cols) => handleCloseColumnChooser(cols)} />
         </Stack>
     );
 
