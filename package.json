@@ -34,6 +34,7 @@
         "@mui/material": "^7.1.0",
         "@mui/x-data-grid": "^8.4.0",
         "@testing-library/react": "^16.3.0",
+        "dot-properties": "^1.1.0",
         "electron-log": "^5.4.0",
         "electron-updater": "^6.3.9",
         "jszip": "^3.10.1",
