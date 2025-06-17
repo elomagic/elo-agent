@@ -34,7 +34,7 @@ export const JarsInUseView = () => {
         }
 
         // TODO Multiple purls version are not supported yet
-        const versions = new Set(overloadedFiles.map((f) => f.purls[0].split(':')[2])); // Assuming purl format is "pkg:type:namespace:name:version"
+        const versions = new Set(overloadedFiles.map((f) => f.purls[0].split('@')[1])); // Assuming purl format is "pkg:type:namespace:name:version"
 
         return versions.size === 1 ? FileOverloadStatus.SAME_VERSION : FileOverloadStatus.DIFFERENT_VERSION;
     }
@@ -48,6 +48,7 @@ export const JarsInUseView = () => {
             readAgentFile(agentFilename)])
             .then(([fileMetas, agentMetas]) => {
                 console.info('Files found: ' + fileMetas.length);
+                console.info('Agent files reported: ' + agentMetas.length);
 
                 // Normalize paths
                 for (const element of fileMetas) {
@@ -55,40 +56,61 @@ export const JarsInUseView = () => {
                 }
 
                 const groupIdArtifactId2fileMetadata = new Map<string, FileMetadata[]>();
+
+                const file2fileStatus = new Map<string, FileStatus>();
                 fileMetas.forEach((meta) => {
+                    file2fileStatus.set(meta.file, {
+                        file: meta.file,
+                        pom: meta.purls.length !== 0,
+                        filename: meta.file.split("/").slice(-1)[0],
+                        purls: meta.purls,
+                        loaded: false,
+                        overloaded: false,
+                        elapsedTime: undefined,
+                        overloadStatus: FileOverloadStatus.NO_OVERLOAD
+                    });
+
                     meta.purls.forEach((purl) => {
-                        const groupIdArtifactId = purl.split(':').slice(0, 2).join(':'); // e.g. "com.example:my-artifact"
+                        const groupIdArtifactId = purl.split('@')[0]; // e.g. "com.example:my-artifact"
                         if (!groupIdArtifactId2fileMetadata.has(groupIdArtifactId)) {
                             groupIdArtifactId2fileMetadata.set(groupIdArtifactId, []);
                         }
                         groupIdArtifactId2fileMetadata.get(groupIdArtifactId)?.push(meta);
                     });
-                })
 
-                const agentFile2ElapsedTime = new Map<string, number | undefined>();
-                for (const agentMeta of agentMetas) {
-                    agentFile2ElapsedTime.set(agentMeta.file, agentMeta.elapsedTime);
-                }
+                });
+                agentMetas.forEach((agent) => {
+                    const fs = file2fileStatus.get(agent.file);
+                    if (fs) {
+                        fs.loaded = true;
+                        fs.pom = fs.pom || agent.purls.length !== 0;
+                        fs.elapsedTime = agent.elapsedTime;
+                    } else {
+                        file2fileStatus.set(agent.file, {
+                            file: agent.file,
+                            pom: agent.purls.length !== 0,
+                            filename: agent.file.split("/").slice(-1)[0],
+                            purls: agent.purls,
+                            loaded: true,
+                            overloaded: false,
+                            elapsedTime: undefined,
+                            overloadStatus: FileOverloadStatus.NO_OVERLOAD
+                        });
 
-                const bothFiles = Array.from(new Set([...fileMetas.map((m) => m.file), ...agentFile2ElapsedTime.keys()]));
-
-                // Create base table of file statuses
-                const file2fs = new Map<string, FileStatus>();
-                bothFiles.forEach((file) => {
-                    file2fs.set(file, {
-                        file,
-                        purls: [],
-                        loaded: agentFile2ElapsedTime.has(file),
-                        overloaded: false,
-                        elapsedTime: agentFile2ElapsedTime.get(file),
-                        overloadStatus: FileOverloadStatus.NO_OVERLOAD
-                    });
+                        agent.purls.forEach((purl) => {
+                            const groupIdArtifactId = purl.split('@')[0]; // e.g. "com.example:my-artifact"
+                            if (!groupIdArtifactId2fileMetadata.has(groupIdArtifactId)) {
+                                groupIdArtifactId2fileMetadata.set(groupIdArtifactId, []);
+                            }
+                            groupIdArtifactId2fileMetadata.get(groupIdArtifactId)?.push(agent);
+                        });
+                    }
                 })
 
                 groupIdArtifactId2fileMetadata.values().forEach((metas) => {
                     if (metas.length > 1) {
                         metas.forEach((meta) => {
-                            const fs = file2fs.get(meta.file);
+                            const fs = file2fileStatus.get(meta.file);
                             if (fs) {
                                 fs.overloaded = true;
                                 fs.overloadedFiles = metas;
@@ -98,7 +120,7 @@ export const JarsInUseView = () => {
                     }
                 })
 
-                setFileStatus(Array.from(file2fs.values()));
+                setFileStatus(Array.from(file2fileStatus.values()));
             })
             .then(() => toast.success('View reloaded!'))
             .finally(() => setProgressOpen(false))

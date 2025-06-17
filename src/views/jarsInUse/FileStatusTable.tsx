@@ -29,6 +29,8 @@ export enum FileOverloadStatus {
 }
 
 export type FileStatus = FileMetadata & {
+    filename: string;
+    pom: boolean;
     loaded: boolean;
     overloaded: boolean;
     overloadedFiles?: FileMetadata[];
@@ -37,7 +39,7 @@ export type FileStatus = FileMetadata & {
 }
 
 interface Column {
-    id: 'file' | 'loaded' | 'overloaded' | 'elapsedTime';
+    id: 'file' | 'pom' | 'filename' | 'loaded' | 'overloaded' | 'elapsedTime';
     label: string;
     width?: number | string;
     flex?: number;
@@ -70,7 +72,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
     const [sortColumn, setSortColumn] = useState<string | null>(null);
     const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
 
-    const renderTooltip = (files: FileMetadata[] | undefined): ReactNode => {
+    const renderFilesTooltip = (files: FileMetadata[] | undefined): ReactNode => {
 
         if (!files || files.length === 0) {
             return "No overloaded files";
@@ -84,6 +86,22 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
             </Typography>
         );
     }
+
+    const renderPOMTooltip = (purls: string[] | undefined): ReactNode => {
+
+        if (!purls || purls.length === 0) {
+            return "No POM information available";
+        }
+
+        return (
+            <Typography color="inherit">
+                {purls.map((purl) => (
+                    <span key={purl}>{purl}<br /></span>
+                ))}
+            </Typography>
+        );
+    }
+
 
     const renderFooterColumn = (column: Column, rows: FileStatus[]): string => {
         switch (column.id) {
@@ -110,12 +128,12 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
         return (
             <>
                 {overloadStatus === FileOverloadStatus.SAME_VERSION &&
-                  <HtmlTooltip title={renderTooltip(fs.overloadedFiles)}>
+                  <HtmlTooltip title={renderFilesTooltip(fs.overloadedFiles)}>
                     <Warning color="warning" sx={{ verticalAlign: 'bottom' }} />
                   </HtmlTooltip>
                 }
                 {overloadStatus === FileOverloadStatus.DIFFERENT_VERSION &&
-                  <HtmlTooltip title={renderTooltip(fs.overloadedFiles)}>
+                  <HtmlTooltip title={renderFilesTooltip(fs.overloadedFiles)}>
                     <Error color="error" sx={{ verticalAlign: 'bottom' }} />
                   </HtmlTooltip>
                 }
@@ -160,12 +178,31 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
             format: 'number',
         },
         {
-            id: 'file',
+            id: 'filename',
             label: 'Filename',
-            width: 800,
+            width: 250,
+            format: 'string',
+        },
+        {
+            id: 'pom',
+            label: 'POM',
+            width: "60px",
+            align: 'center',
+            format: 'boolean',
+            renderCell: (fs) => fs.pom ? (
+                <HtmlTooltip title={renderPOMTooltip(fs.purls)}>
+                    <CheckCircleOutline color="success" sx={{ verticalAlign: 'bottom' }} />
+                </HtmlTooltip>
+            ) : "",
+        },
+        {
+            id: 'file',
+            label: 'File',
+            width: 700,
             format: 'string',
             flex: 1,
         },
+
     ];
 
     const handleClose = () => {
