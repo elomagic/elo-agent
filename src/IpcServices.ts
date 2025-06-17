@@ -49,7 +49,3 @@ export function openFolder(folder: string): Promise<void> {
 export function readAgentFile(file: string | undefined): Promise<string[]> {
     return window.ipcRenderer.invoke('read-agent-file', file);
 }
-
-export function resetAgentFile(file: string): Promise<BackendResponse> {
-    return window.ipcRenderer.invoke('reset-agent-file', file);
-}

@@ -1,7 +1,7 @@
 "use client"
 
 import { Box, IconButton, Stack, Tooltip } from '@mui/material';
-import { Engineering, InsertDriveFileOutlined, OpenInNew, RestartAlt } from '@mui/icons-material';
+import { Engineering, InsertDriveFileOutlined, OpenInNew } from '@mui/icons-material';
 import { openFileExternal } from '@/IpcServices';
 import {FaRedhat} from "react-icons/fa";
 import { IntegrateAgentDialog } from '@/views/jarsInUse/IntegrateAgentDialog';
@@ -9,11 +9,10 @@ import { useState } from 'react';
 
 interface ComponentProps {
     onSelectAgentFileClick: () => void;
-    onResetAgentFileClick: () => void;
     agentFile: string | undefined;
 }
 
-export const AgentFileGroup = ({onSelectAgentFileClick, onResetAgentFileClick, agentFile}: Readonly<ComponentProps>) => {
+export const AgentFileGroup = ({onSelectAgentFileClick, agentFile}: Readonly<ComponentProps>) => {
 
     const [openIntegration, setOpenIntegration] = useState<boolean>(false);
 
@@ -43,12 +42,6 @@ export const AgentFileGroup = ({onSelectAgentFileClick, onResetAgentFileClick, a
             <Tooltip title="Load agent file">
                 <IconButton aria-label="add" onClick={onSelectAgentFileClick}>
                     <InsertDriveFileOutlined/>
-                </IconButton>
-            </Tooltip>
-
-            <Tooltip title="Backup and reset agent file">
-                <IconButton aria-label="reload" onClick={onResetAgentFileClick}>
-                    <RestartAlt />
                 </IconButton>
             </Tooltip>
 

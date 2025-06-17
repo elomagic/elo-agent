@@ -203,18 +203,6 @@ const readAgentFile = (file: string | undefined): Promise<string[]> => {
     return Promise.resolve(lines);
 }
 
-const resetAgentFile = (file: string): Promise<BackendResponse> => {
-    if (!fs.existsSync(file)) {
-        return Promise.resolve({ responseMessage: `Agent file '${file}' not found`});
-    }
-
-    // Append current timestamp to the file name
-    const newFilename = file + '.' + new Date().toISOString().replace(/[:.]/g, '-') + '.bak';
-    fs.renameSync(file, newFilename);
-
-    return Promise.resolve({ responseMessage: 'Agent file successful reset.' });
-}
-
 export const registerMainHandlers = () => {
     ipcMain.handle("copy-txt-to-clipboard", (_event, _text: string): Promise<void> => {
         // todo clipboard.writeText(text);
@@ -252,10 +240,6 @@ export const registerMainHandlers = () => {
 
     ipcMain.handle("read-agent-file", (_event, file: string | undefined): Promise<string[]> => {
         return readAgentFile(file);
-    })
-
-    ipcMain.handle("reset-agent-file", (_event, file: string): Promise<BackendResponse> => {
-        return resetAgentFile(file);
     })
 
     ipcMain.handle("read-file", (_event, file: string): Promise<Buffer> => {

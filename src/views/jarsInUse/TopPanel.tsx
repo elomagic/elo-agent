@@ -16,7 +16,6 @@ interface ComponentProps {
     onReloadFiles: () => void;
     agentFile: string | undefined;
     onSelectAgentFileClick: () => void;
-    onResetAgentFileClick: () => void;
     sourceFiles: SourceFile[];
     onUpdateSources: (files: SourceFile[]) => void;
 }
@@ -30,7 +29,6 @@ export const TopPanel = ({
                              onReloadFiles,
                              agentFile,
                              onSelectAgentFileClick,
-                             onResetAgentFileClick,
                              sourceFiles,
                              onUpdateSources
                          }: Readonly<ComponentProps>) => {
@@ -45,10 +43,7 @@ export const TopPanel = ({
                           onReloadFiles={onReloadFiles}
             />
 
-            <AgentFileGroup agentFile={agentFile}
-                            onSelectAgentFileClick={onSelectAgentFileClick}
-                            onResetAgentFileClick={onResetAgentFileClick}
-            />
+            <AgentFileGroup agentFile={agentFile} onSelectAgentFileClick={onSelectAgentFileClick} />
 
             <SourceFilesGroup items={sourceFiles} onUpdateSources={onUpdateSources} />
 

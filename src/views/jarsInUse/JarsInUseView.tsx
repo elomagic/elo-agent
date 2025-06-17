@@ -5,9 +5,9 @@ import { useEffect, useState } from 'react';
 import {
     chooseAgentFile,
     deleteProject,
-    listFiles, listProjects,
+    listFiles,
+    listProjects,
     readAgentFile,
-    resetAgentFile,
     updateProject
 } from '@/IpcServices';
 import { FileStatus, FileStatusTable } from '@/views/jarsInUse/FileStatusTable';
@@ -140,12 +140,6 @@ export const JarsInUseView = () => {
             .then((file) => project && saveProject({ name: project.name, sourceFiles, agentFile: file }));
     }
 
-    const handleResetAgentFileClick = () => {
-        agentFile && resetAgentFile(agentFile)
-            .then(() => reloadTable(sourceFiles, agentFile))
-            .then(() => toast.success('Successful'));
-    };
-
     const handleNewProject = (name: string) => {
         saveProject({ name, sourceFiles: [], agentFile: undefined })
             .then(() => {
@@ -206,7 +200,6 @@ export const JarsInUseView = () => {
                       onReloadFiles={() => reloadTable(sourceFiles, agentFile)}
                       agentFile={agentFile}
                       onSelectAgentFileClick={handleSelectAgentFileClick}
-                      onResetAgentFileClick={handleResetAgentFileClick}
                       sourceFiles={sourceFiles}
                       onUpdateSources={handleUpdateSourcesClick}
             />
