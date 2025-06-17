@@ -5,9 +5,20 @@ export type BackendResponse = {
 }
 
 export enum FolderFilter {
-    IncludeFolder,
-    IncludeFolderRecursive,
-    ExcludeFolderRecursive,
+    IncludeFolder = "include",
+    IncludeFolderRecursive = "includeRecursive",
+    ExcludeFolderRecursive = "excludeRecursive",
+}
+
+export enum ImportType {
+    Analyze = "analyze",
+}
+
+export type ImportProgress = {
+    type: ImportType;
+    file: string;
+    totalFiles?: number;
+    currentFileIndex?: number;
 }
 
 export type FileMetadata = {
@@ -16,10 +27,15 @@ export type FileMetadata = {
     purls: string[];
 }
 
+export type AgentFileMetadata = FileMetadata & {
+    elapsedTime: number | undefined;
+    timeInMs: number;
+}
+
 export type SourceFile = {
     file: string;
     recursive: boolean;
-    filter?: FolderFilter
+    filter: FolderFilter
 }
 
 export type Project = {

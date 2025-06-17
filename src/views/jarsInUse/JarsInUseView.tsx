@@ -10,7 +10,7 @@ import {
     readAgentFile,
     updateProject
 } from '@/IpcServices';
-import { FileStatus, FileStatusTable } from '@/views/jarsInUse/FileStatusTable';
+import { FileOverloadStatus, FileStatus, FileStatusTable } from '@/views/jarsInUse/FileStatusTable';
 import { toast, ToastContainer } from 'react-toastify';
 import { FileMetadata, Project, SourceFile } from '@/shared/Types';
 import { TopPanel } from '@/views/jarsInUse/TopPanel';
@@ -27,6 +27,17 @@ export const JarsInUseView = () => {
 
     const [progressOpen, setProgressOpen] = useState<boolean>(false);
 
+    const calcStatusOverload = (overloadedFiles: FileMetadata[]) => {
+        if (overloadedFiles.length === 0) {
+            return FileOverloadStatus.NO_OVERLOAD;
+        }
+
+        // TODO Multiple purls version are not supported yet
+        const versions = new Set(overloadedFiles.map((f) => f.purls[0].split('@')[1])); // Assuming purl format is "pkg:type:namespace:name:version"
+
+        return versions.size === 1 ? FileOverloadStatus.SAME_VERSION : FileOverloadStatus.DIFFERENT_VERSION;
+    }
+
     const reloadTable = (fileSources: SourceFile[], agentFilename: string | undefined) => {
 
         setProgressOpen(true);
@@ -34,68 +45,81 @@ export const JarsInUseView = () => {
         return Promise.all([
             listFiles(fileSources),
             readAgentFile(agentFilename)])
-            .then(([fileMetadatas, agentLines]) => {
-                console.info('Files found: ' + fileMetadatas.length);
+            .then(([fileMetas, agentMetas]) => {
+                console.info('Files found: ' + fileMetas.length);
+                console.info('Agent files reported: ' + agentMetas.length);
 
                 // Normalize paths
-                for (const element of fileMetadatas) {
+                for (const element of fileMetas) {
                     element.file = element.file.replace(/\\/g, '/');
                 }
 
                 const groupIdArtifactId2fileMetadata = new Map<string, FileMetadata[]>();
-                fileMetadatas.forEach((meta) => {
+
+                const file2fileStatus = new Map<string, FileStatus>();
+                fileMetas.forEach((meta) => {
+                    file2fileStatus.set(meta.file, {
+                        file: meta.file,
+                        pom: meta.purls.length !== 0,
+                        filename: meta.file.split("/").slice(-1)[0],
+                        purls: meta.purls,
+                        loaded: false,
+                        overloaded: false,
+                        elapsedTime: undefined,
+                        overloadStatus: FileOverloadStatus.NO_OVERLOAD
+                    });
+
                     meta.purls.forEach((purl) => {
-                        const groupIdArtifactId = purl.split(':').slice(0, 2).join(':'); // e.g. "com.example:my-artifact"
+                        const groupIdArtifactId = purl.split('@')[0]; // e.g. "com.example:my-artifact"
                         if (!groupIdArtifactId2fileMetadata.has(groupIdArtifactId)) {
                             groupIdArtifactId2fileMetadata.set(groupIdArtifactId, []);
                         }
                         groupIdArtifactId2fileMetadata.get(groupIdArtifactId)?.push(meta);
                     });
-                })
 
-                const agentFile2ElapsedTime = new Map<string, number | undefined>();
-                let columnsCount = undefined;
-                for (const line of agentLines) {
-                    const columns = line.split(';');
-                    if (columns.length === 1) {
-                        columnsCount = 1;
-                        agentFile2ElapsedTime.set(columns[1], undefined)
-                    } else if (columns.length > 2) {
-                        columnsCount = columns.length;
-                        agentFile2ElapsedTime.set(columns[1], Number(columns[2]))
+                });
+                agentMetas.forEach((agent) => {
+                    const fs = file2fileStatus.get(agent.file);
+                    if (fs) {
+                        fs.loaded = true;
+                        fs.pom = fs.pom || agent.purls.length !== 0;
+                        fs.elapsedTime = agent.elapsedTime;
+                    } else {
+                        file2fileStatus.set(agent.file, {
+                            file: agent.file,
+                            pom: agent.purls.length !== 0,
+                            filename: agent.file.split("/").slice(-1)[0],
+                            purls: agent.purls,
+                            loaded: true,
+                            overloaded: false,
+                            elapsedTime: undefined,
+                            overloadStatus: FileOverloadStatus.NO_OVERLOAD
+                        });
+
+                        agent.purls.forEach((purl) => {
+                            const groupIdArtifactId = purl.split('@')[0]; // e.g. "com.example:my-artifact"
+                            if (!groupIdArtifactId2fileMetadata.has(groupIdArtifactId)) {
+                                groupIdArtifactId2fileMetadata.set(groupIdArtifactId, []);
+                            }
+                            groupIdArtifactId2fileMetadata.get(groupIdArtifactId)?.push(agent);
+                        });
                     }
-                }
-
-                if (columnsCount === 1) {
-                    console.warn(("Old version of Agent file identified. Please update the agent in the Java runtime."));
-                }
-
-                const bothFiles = Array.from(new Set([...fileMetadatas.map((m) => m.file), ...agentFile2ElapsedTime.keys()]));
-
-                // Create base table of file statuses
-                const file2fs = new Map<string, FileStatus>();
-                bothFiles.forEach((file) => {
-                    file2fs.set(file, {
-                        id: file,
-                        loaded: agentFile2ElapsedTime.has(file),
-                        overloaded: false,
-                        elapsedTime: agentFile2ElapsedTime.get(file)
-                    });
                 })
 
                 groupIdArtifactId2fileMetadata.values().forEach((metas) => {
                     if (metas.length > 1) {
                         metas.forEach((meta) => {
-                            const fs = file2fs.get(meta.file);
+                            const fs = file2fileStatus.get(meta.file);
                             if (fs) {
                                 fs.overloaded = true;
-                                fs.overloadedFiles = metas.map((m) => m.file);
+                                fs.overloadedFiles = metas;
+                                fs.overloadStatus = calcStatusOverload(metas);
                             }
                         });
                     }
                 })
 
-                setFileStatus(Array.from(file2fs.values()));
+                setFileStatus(Array.from(file2fileStatus.values()));
             })
             .then(() => toast.success('View reloaded!'))
             .finally(() => setProgressOpen(false))
