@@ -13,6 +13,8 @@ The frontend tool for identifying (un-)used JAR libraries.
 * Find unused JAR libraries in your project
 * Identify multiple versions of same libraries of the same project
 
+![](/doc/screenshot-01.png "Screenshot")
+
 ---
 
 ## 👀 Overview
