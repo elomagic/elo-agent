@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { DataGrid, GridCellParams, GridColDef } from '@mui/x-data-grid';
 import { TransitionProps } from '@mui/material/transitions';
-import { forwardRef, useEffect, useState } from 'react';
+import React, { forwardRef, ReactElement, Ref, useEffect, useState } from 'react';
 import { FolderFilter, SourceFile } from '@/shared/Types';
 import { Delete, OpenInBrowser } from '@mui/icons-material';
 import { chooseFolder, openFolder } from '@/IpcServices';
@@ -26,9 +26,9 @@ import { MdFolder, MdFolderCopy } from 'react-icons/md';
 
 const Transition = forwardRef(function Transition(
     props: TransitionProps & {
-        children: React.ReactElement<unknown>;
+        children: ReactElement;
     },
-    ref: React.Ref<unknown>,
+    ref: Ref<unknown>,
 ) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
