@@ -1,18 +1,25 @@
 import fs from 'fs';
 import path from 'path';
-import {app, dialog, ipcMain, shell} from 'electron';
-import {applyRecentAgentFile, applyRecentFolder, getSettings} from "./appSettings";
-import {spawn} from 'child_process';
+import { app, dialog, ipcMain, shell } from 'electron';
+import { applyRecentAgentFile, applyRecentFolder, getSettings } from './appSettings';
+import { spawn } from 'child_process';
 import {
     AgentFileMetadata,
     BackendResponse,
     FileMetadata,
     FolderFilter,
+    ImportProgress,
+    ImportType,
     Project,
     SourceFile
 } from '../../src/shared/Types';
-import {deleteProject, loadProjects, updateProject} from './projects';
+import { deleteProject, loadProjects, updateProject } from './projects';
 import JSZip from 'jszip';
+import WebContents = Electron.WebContents;
+
+const sendProgress = (webContents: WebContents, progress: ImportProgress): void => {
+    webContents.send("import-progress", progress);
+}
 
 const chooseDirectory = (defaultFolder: string | undefined): Promise<string | undefined> => {
     return dialog.showOpenDialog({
@@ -59,7 +66,7 @@ const getJavaProcessesOnLinux: () => Promise<string[]> = () => {
     return Promise.resolve(["Currently not supported on Mac"]);
 }
 
-const getPurlsOfFile = (file: string): Promise<string[]> => {
+const getPurlsOfFile = (file: string, webContents: WebContents): Promise<string[]> => {
     // Get all pom.properties files which is placed in a subfolder of the in the META-INF of a zipped jar file.
     // The content of the pom.properties file is used to create a purl.
     // As method will return an array of purls or undefined if no pom.properties file is found.
@@ -73,6 +80,8 @@ const getPurlsOfFile = (file: string): Promise<string[]> => {
 
     // Read the jar file
     const jarFile = fs.readFileSync(file);
+
+    sendProgress(webContents, { file: file.replaceAll("\\", "/"), type: ImportType.Analyze });
 
     // Check if the jar file contains a META-INF folder
     const jar = new JSZip();
@@ -145,11 +154,11 @@ const listFilesSync = (sourceFile: SourceFile): FileMetadata[] => {
     return result;
 }
 
-const listFiles = (files: SourceFile[]): Promise<FileMetadata[]> => {
+const listFiles = (files: SourceFile[], webContents: WebContents): Promise<FileMetadata[]> => {
     let collectedFiles: FileMetadata[] = [];
 
     for (const file of files) {
-        if (file === undefined || file.filter === FolderFilter.ExcludeFolderRecursive) {
+        if (file === undefined || file.filter !== FolderFilter.ExcludeFolderRecursive) {
             continue;
         }
 
@@ -174,7 +183,7 @@ const listFiles = (files: SourceFile[]): Promise<FileMetadata[]> => {
 
     // Get purls for each file
     return Promise.all(collectedFiles.map((f) => {
-        return getPurlsOfFile(f.file).then(purls => {
+        return getPurlsOfFile(f.file, webContents).then(purls => {
             f.purls = purls;
             return f;
         });
@@ -192,7 +201,7 @@ const readFile = (file: string,): Promise<Buffer> => {
     });
 }
 
-const readAgentFile = (file: string | undefined): Promise<AgentFileMetadata[]> => {
+const readAgentFile = (file: string | undefined, webContents: WebContents): Promise<AgentFileMetadata[]> => {
     if (!file) {
         return Promise.resolve([]);
     }
@@ -219,7 +228,7 @@ const readAgentFile = (file: string | undefined): Promise<AgentFileMetadata[]> =
 
     // Get purls for each file
     return Promise.all(meta.map((m) => {
-        return getPurlsOfFile(m.file).then(purls => {
+        return getPurlsOfFile(m.file, webContents).then(purls => {
             m.purls = purls;
             return m;
         });
@@ -256,8 +265,8 @@ export const registerMainHandlers = () => {
         return Promise.resolve(app.getVersion());
     })
 
-    ipcMain.handle("list-files", (_event, folder: SourceFile[]): Promise<FileMetadata[]> => {
-        return listFiles(folder);
+    ipcMain.handle("list-files", (event, folder: SourceFile[]): Promise<FileMetadata[]> => {
+        return listFiles(folder, event.sender);
     })
 
     ipcMain.handle("list-projects", (_event): Promise<Project[]> => {
@@ -273,8 +282,8 @@ export const registerMainHandlers = () => {
         return Promise.resolve();
     })
 
-    ipcMain.handle("read-agent-file", (_event, file: string | undefined): Promise<AgentFileMetadata[]> => {
-        return readAgentFile(file);
+    ipcMain.handle("read-agent-file", (event, file: string | undefined): Promise<AgentFileMetadata[]> => {
+        return readAgentFile(file, event.sender);
     })
 
     ipcMain.handle("reset-agent-file", (_event, file: string): Promise<BackendResponse> => {
