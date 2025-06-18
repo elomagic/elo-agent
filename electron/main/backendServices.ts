@@ -67,6 +67,49 @@ const getJavaProcessesOnLinux: () => Promise<string[]> = () => {
     return Promise.resolve(["Currently not supported on Mac"]);
 }
 
+const getClassPathJarManifest = (file: string, webContents: WebContents): Promise<string[] | undefined> => {
+    // Get the manifest file from a jar file
+    if (!file || !fs.existsSync(file)) {
+        return Promise.resolve(undefined);
+    }
+
+    // Read the jar file
+    const jarFile = fs.readFileSync(file);
+
+    sendProgress(webContents, { file: file.replaceAll("\\", "/"), type: ImportType.Analyze });
+
+    // Check if the jar file contains a META-INF folder
+    const jar = new JSZip();
+
+    return jar.loadAsync(jarFile).then(zip => {
+        const classPaths: string[] = [];
+        const promises: Promise<void>[] = [];
+
+        // Iterate over all files in the jar
+        Object.keys(zip.files).forEach((filename) => {
+            if (filename.toLowerCase().endsWith('META-INF/MANIFEST.MF')) {
+                // Read the content of the pom.properties file
+                const promise = zip.file(filename)?.async('string').then(content => {
+                    const properties = parse(content);
+
+                    // Parse the content to create a purl
+                    const classPath = properties['Class-Path'];
+
+                    if (classPath) {
+                        classPaths.push(String(classPath));
+                    }
+                });
+                if (promise) {
+                    promises.push(promise);
+                }
+            }
+        });
+
+        return Promise.all(promises).then(() => classPaths);
+    });
+
+}
+
 const getPurlsOfFile = (file: string, webContents: WebContents): Promise<string[]> => {
     // Get all pom.properties files which is placed in a subfolder of the in the META-INF of a zipped jar file.
     // The content of the pom.properties file is used to create a purl.
