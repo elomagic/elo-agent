@@ -104,6 +104,19 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
         );
     }
 
+    const renderFooterColumn = (column: Column<ColumnId>, rows: FileStatus[]): string => {
+        switch (column.id) {
+            case "filename":
+                return `${rows.length} items`;
+            case "loaded":
+                return `${rows.filter(row => row.loaded).length} loaded`;
+            case "overloaded":
+                return `${rows.filter(row => row.overloaded).length} overloaded`;
+            default:
+                return "";
+        }
+    }
+
     const columns: readonly Column<ColumnId>[] = [
         {
             id: 'loaded',
@@ -114,6 +127,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
             renderCell: (fs) => fs.loaded ? (
                 <CheckCircleOutline color="success" sx={{ verticalAlign: 'bottom' }} />
             ) : <NotInterested color="disabled" sx={{ verticalAlign: 'bottom' }} />,
+            renderFooter: renderFooterColumn
         },
         {
             id: 'overloaded',
@@ -122,6 +136,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
             align: 'center',
             format: 'boolean',
             renderCell: (fs) => renderOverloadedFiles(fs),
+            renderFooter: renderFooterColumn
         }, {
             id: 'elapsedTime',
             label: 'Elapsed Time',
@@ -134,6 +149,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
             label: 'Filename',
             width: 250,
             format: 'string',
+            renderFooter: renderFooterColumn
         },
         {
             id: 'pom',
@@ -248,7 +264,8 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
                         />
 
                         <DataTableFooter<ColumnId> visibleRows={items.filter(row => filter?.length == 0 || row.file.toLowerCase().includes(filter))}
-                                         visibleColumns={visibleColumns} />
+                                                   visibleColumns={visibleColumns}
+                        />
                     </Table>
                 </TableContainer>
 

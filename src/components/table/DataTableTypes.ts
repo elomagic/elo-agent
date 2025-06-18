@@ -25,4 +25,5 @@ export interface Column<C extends Key> {
     align?: 'right' | 'left' | 'center';
     format?: 'boolean' | 'number' | 'string';
     renderCell?: (row: FileStatus) => ReactNode;
+    renderFooter?: (column: Column<C>, rows: FileStatus[]) => string;
 }

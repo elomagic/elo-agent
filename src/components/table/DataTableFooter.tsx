@@ -13,19 +13,6 @@ interface ComponentProps<C extends Key> {
 
 export const DataTableFooter = <C extends Key,>({ visibleColumns, visibleRows }: Readonly<ComponentProps<C>>) => {
 
-    const renderFooterColumn = (column: Column<C>, rows: FileStatus[]): string => {
-        switch (column.id) {
-            case "file":
-                return `${rows.length} items`;
-            case "loaded":
-                return `${rows.filter(row => row.loaded).length} loaded`;
-            case "overloaded":
-                return `${rows.filter(row => row.overloaded).length} overloaded`;
-            default:
-                return "";
-        }
-    }
-
     return (
         <TableFooter>
             <TableRow sx={{ bottom: 0, position: 'sticky', backgroundColor: 'black' }}>
@@ -39,7 +26,7 @@ export const DataTableFooter = <C extends Key,>({ visibleColumns, visibleRows }:
                             textAlign: column.align
                         }}
                     >
-                        {  renderFooterColumn(column, visibleRows) }
+                        { column.renderFooter && column.renderFooter(column, visibleRows) }
                     </TableCell>
                 ))}
             </TableRow>
