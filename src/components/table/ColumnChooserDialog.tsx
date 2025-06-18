@@ -7,25 +7,26 @@ import {
     DialogTitle, FormControlLabel, FormGroup,
     Paper
 } from "@mui/material";
-import {useState} from "react";
+import { Key, useState } from 'react';
+import { Column } from '@/components/table/DataTableTypes';
 
-interface ComponentProps {
+interface ComponentProps<C extends Key> {
     open: boolean;
-    availableColumns: string[][];
-    visibleColumns: string[];
-    onCloseClick: (columnIds: string[] | undefined) => void;
+    availableColumns: readonly Column<C>[];
+    visibleColumns: C[];
+    onCloseClick: (columnIds: C[] | undefined) => void;
 }
 
-export const ColumnChooserDialog = ({
+export const ColumnChooserDialog = <C extends Key,>({
                                         open,
                                         availableColumns,
                                         visibleColumns,
                                         onCloseClick
-                                    }: Readonly<ComponentProps>) => {
+                                    }: Readonly<ComponentProps<C>>) => {
 
-    const [selectedColumns, setSelectedColumns] = useState<string[]>(visibleColumns);
+    const [selectedColumns, setSelectedColumns] = useState<C[]>(visibleColumns);
 
-    const handleCheckboxChange = (columnId: string) => {
+    const handleCheckboxChange = (columnId: C) => {
         setSelectedColumns(prevSelected => {
             if (prevSelected.includes(columnId)) {
                 return prevSelected.filter(id => id !== columnId);
@@ -43,11 +44,11 @@ export const ColumnChooserDialog = ({
                     <FormGroup>
                         {availableColumns.map(c =>
                             (
-                                <FormControlLabel key={c[0]}
-                                                  control={<Checkbox key={c[0]}
-                                                                     defaultChecked={selectedColumns.includes(c[0])}
-                                                                     onClick={() => handleCheckboxChange(c[0])}/>}
-                                                  label={c[1]}
+                                <FormControlLabel key={c.id}
+                                                  control={<Checkbox key={c.id}
+                                                                     defaultChecked={selectedColumns.includes(c.id)}
+                                                                     onClick={() => handleCheckboxChange(c.id)}/>}
+                                                  label={c.label}
                                 />
                             )
                         )}

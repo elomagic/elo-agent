@@ -1,7 +1,6 @@
 import {
-    ArrowDropDown, ArrowDropUp,
     CheckCircleOutline,
-    ContentCopy, Error,
+    ContentCopy, Error as ErrorIcon,
     NotInterested,
     OpenInBrowser,
     Warning
@@ -13,41 +12,18 @@ import {
     Menu,
     MenuItem,
     Stack, styled,
-    Table, TableBody, TableCell,
-    TableContainer, TableFooter,
-    TableHead, TableRow, TextField,
+    Table,
+    TableContainer,
+    TextField,
     Tooltip, tooltipClasses, TooltipProps, Typography
 } from '@mui/material';
-import {ChangeEvent, MouseEvent, ReactNode, useState} from 'react';
+import {ChangeEvent, ReactNode, useState} from 'react';
 import {copyTextToClipboard, openFolder} from "@/IpcServices";
 import { FileMetadata } from '@/shared/Types';
-import {ColumnChooserDialog} from "@/components/table/ColumnChooserDialog";
-
-export enum FileOverloadStatus {
-    NO_OVERLOAD = "no_overload",
-    SAME_VERSION = "same_version",
-    DIFFERENT_VERSION = "different_version",
-}
-
-export type FileStatus = FileMetadata & {
-    filename: string;
-    pom: boolean;
-    loaded: boolean;
-    overloaded: boolean;
-    overloadedFiles?: FileMetadata[];
-    overloadStatus: FileOverloadStatus;
-    elapsedTime: number | undefined; // in milliseconds
-}
-
-interface Column {
-    id: 'file' | 'pom' | 'filename' | 'loaded' | 'overloaded' | 'elapsedTime';
-    label: string;
-    width?: number | string;
-    flex?: number;
-    align?: 'right' | 'left' | 'center';
-    format?: string;
-    renderCell?: (row: FileStatus) => ReactNode;
-}
+import { Column, FileOverloadStatus, FileStatus } from '@/components/table/DataTableTypes';
+import { DataTableFooter } from '@/components/table/DataTableFooter';
+import { DataTableHeader } from '@/components/table/DataTableHeader';
+import { DataTableBody } from '@/components/table/DataTableBody';
 
 interface ComponentProps {
     items: FileStatus[];
@@ -65,15 +41,15 @@ const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
     },
 }));
 
+type ColumnId = 'file' | 'pom' | 'filename' | 'loaded' | 'overloaded' | 'elapsedTime';
+
 export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
 
     const [contextMenu, setContextMenu] = useState<{ mouseX: number; mouseY: number; } | null>(null);
     const [currentStatus, setCurrentStatus] = useState<FileStatus | undefined>(undefined);
     const [filter, setFilter] = useState<string>("");
-    const [sortColumn, setSortColumn] = useState<string | null>(null);
+    const [sortColumn, setSortColumn] = useState<ColumnId | null>(null);
     const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
-
-    const [columnOpen, setColumnOpen] = useState<boolean>(false);
 
     const renderFilesTooltip = (files: FileMetadata[] | undefined): ReactNode => {
 
@@ -105,20 +81,6 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
         );
     }
 
-
-    const renderFooterColumn = (column: Column, rows: FileStatus[]): string => {
-        switch (column.id) {
-            case "file":
-                return `${rows.length} items`;
-            case "loaded":
-                return `${rows.filter(row => row.loaded).length} loaded`;
-            case "overloaded":
-                return `${rows.filter(row => row.overloaded).length} overloaded`;
-            default:
-                return "";
-        }
-    }
-
     const renderOverloadedFiles = (fs: FileStatus): ReactNode => {
         if (!fs.overloaded || !fs.overloadedFiles || fs.overloadedFiles.length === 0) {
             return "";
@@ -135,25 +97,14 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
                 }
                 {overloadStatus === FileOverloadStatus.DIFFERENT_VERSION &&
                   <HtmlTooltip title={renderFilesTooltip(fs.overloadedFiles)}>
-                    <Error color="error" sx={{ verticalAlign: 'bottom' }} />
+                    <ErrorIcon color="error" sx={{ verticalAlign: 'bottom' }} />
                   </HtmlTooltip>
                 }
             </>
         );
     }
 
-    const compareValue = (a: FileStatus, b: FileStatus): number => {
-        if (sortColumn === null) return 0;
-        const aValue = a[sortColumn as keyof FileStatus];
-        const bValue = b[sortColumn as keyof FileStatus];
-        if (aValue === undefined) return 1;
-        if (bValue === undefined) return -1;
-        if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
-        if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
-        return 0;
-    }
-
-    const columns: readonly Column[] = [
+    const columns: readonly Column<ColumnId>[] = [
         {
             id: 'loaded',
             label: 'In use',
@@ -206,7 +157,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
 
     ];
 
-    const [visibleColumns, setVisibleColumns] = useState<string[]>(columns.map(c => c.id));
+    const [visibleColumns, setVisibleColumns] = useState<Column<ColumnId>[]>(Array.from(columns));
 
     const handleClose = () => {
         setContextMenu(null);
@@ -226,7 +177,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
         setFilter(event.target.value.toLowerCase());
     };
 
-    const handleSortingClick = (columnId: string) => {
+    const handleSortingClick = (columnId: ColumnId) => {
         if (columnId != sortColumn) {
             setSortColumn(columnId);
             setSortOrder('asc');
@@ -235,18 +186,18 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
         }
     }
 
-    const handleOpenColumnDialog = (_evt: MouseEvent<HTMLTableCellElement>) => {
-        setColumnOpen(true);
-    }
-
-    const handleCloseColumnChooser = (columnIds: string[] | undefined) => {
-        setColumnOpen(false);
-
+    const handleColumnsVisibilityChanged = (columnIds: ColumnId[] | undefined) => {
         if (!columnIds) {
             return
         }
 
-        setVisibleColumns(columnIds);
+        setVisibleColumns(columnIds.map(id => {
+            const column = columns.find(c => c.id === id) ?? null;
+            if (!column) {
+                throw new Error(`Column with id ${id} not found`);
+            }
+            return column;
+        }));
     }
 
     const handleContextMenu = (event: React.MouseEvent) => {
@@ -281,66 +232,23 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
             <Box flexGrow={1} sx={{ height: 500 }}>
                 <TableContainer sx={{ maxHeight: "100%" }}>
                     <Table stickyHeader>
-                        <TableHead>
-                            <TableRow>
-                                { columns.filter(c => visibleColumns.includes(c.id)).map((column) => (
-                                    <TableCell
-                                        onClick={() => handleSortingClick(column.id)}
-                                        onMouseUp={(evt) => handleOpenColumnDialog(evt)}
-                                        key={column.id}
-                                        style={{
-                                            width: column.width,
-                                            minWidth: column.width,
-                                            padding: '4px',
-                                            cursor: 'pointer',
-                                            textAlign: column.align
-                                        }}
-                                    >
-                                        {column.label}
-                                        {sortColumn === column.id && sortOrder === 'asc' && (<ArrowDropDown sx={{ verticalAlign: 'bottom' }}/>)}
-                                        {sortColumn === column.id && sortOrder === 'desc' && (<ArrowDropUp sx={{ verticalAlign: 'bottom' }}/>)}
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        </TableHead>
+                        <DataTableHeader<ColumnId> visibleColumns={visibleColumns}
+                                         availableColumns={columns}
+                                         sortColumn={sortColumn}
+                                         sortOrder={sortOrder}
+                                         onSortingChanged={handleSortingClick}
+                                         onColumnVisibilityChanged={handleColumnsVisibilityChanged}
+                        />
 
-                        <TableBody sx={{ bottom: "20px" }}>
-                            {items
-                                .filter(row => filter?.length == 0 || row.file.toLowerCase().includes(filter))
-                                .sort(compareValue)
-                                .map((row) => {
-                                    return (
-                                        <TableRow hover key={row.file} sx={{ height: '32px'}} onContextMenu={handleContextMenu} data-id={row.file}>
-                                            {columns.filter(c => visibleColumns.includes(c.id)).map((column) => {
-                                                const value = row[column.id];
-                                                return (
-                                                    <TableCell key={column.id} align={column.align} sx={{ padding: '4px' }}>
-                                                        { column.renderCell && column.renderCell(row) }
-                                                        { !column.renderCell && value === undefined ? "" : value }
-                                                    </TableCell>
-                                                );
-                                            })}
-                                        </TableRow>
-                                    );
-                                })}
-                        </TableBody>
-                        <TableFooter>
-                            <TableRow sx={{ bottom: 0, position: 'sticky', backgroundColor: 'black' }}>
-                                { columns.filter(c => visibleColumns.includes(c.id)).map((column) => (
-                                    <TableCell
-                                        key={column.id}
-                                        style={{
-                                            width: column.width,
-                                            minWidth: column.width,
-                                            padding: '4px',
-                                            textAlign: column.align
-                                        }}
-                                    >
-                                        {  renderFooterColumn(column, items.filter(row => filter?.length == 0 || row.file.toLowerCase().includes(filter))) }
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                        </TableFooter>
+                        <DataTableBody<ColumnId> visibleRows={items.filter(row => filter?.length == 0 || row.file.toLowerCase().includes(filter))}
+                                       visibleColumns={visibleColumns}
+                                       sortColumn={sortColumn}
+                                       sortOrder={sortOrder}
+                                       onContextMenu={handleContextMenu}
+                        />
+
+                        <DataTableFooter<ColumnId> visibleRows={items.filter(row => filter?.length == 0 || row.file.toLowerCase().includes(filter))}
+                                         visibleColumns={visibleColumns} />
                     </Table>
                 </TableContainer>
 
@@ -368,11 +276,6 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
                     </MenuItem>
                 </Menu>
             </Box>
-
-            <ColumnChooserDialog open={columnOpen}
-                                 availableColumns={columns.map(c => [c.id, c.label])}
-                                 visibleColumns={visibleColumns}
-                                 onCloseClick={ (cols) => handleCloseColumnChooser(cols)} />
         </Stack>
     );
 

@@ -8,16 +8,39 @@
 
 ![](/doc/header.png "Logo")
 
+## 👀 Overview
+
 The frontend tool for identifying (un-)used JAR libraries. 
+
+## 🚀 Features
 
 * Find unused JAR libraries in your project
 * Identify multiple versions of same libraries of the same project
 
+## 📸 Screenshots
+
 ![](/doc/screenshot-01.png "Screenshot")
+ 
 
 ---
 
-## 👀 Overview
+## ❔ FAQ
+
+### Meaning of the columns in the table
+
+| Column          | Meaning                                                                                                                |
+|-----------------|------------------------------------------------------------------------------------------------------------------------|
+| `In Use`        | Indicates whether the JAR library is loaded by the Java Runtime or not. If not, this would be a candidate for removal. |
+| `Overloaded`    | tbd                                                                                                                    |
+| `Elapsed Time` | The time in milliseconds after the Java Runtime Environment was started that the JAR file was loaded.                  |
+| `Filename`      | Name of the JAR file                                                                                                   |    
+| `POM`           | Checked if at least one POM properties file was found in the JAR                                                       |
+| `File`          | Full qualified path of the JAR file                                                                                    |    
+
+
+- [C/C++ addons, Node.js modules - Pre-Bundling](https://github.com/electron-vite/vite-plugin-electron-renderer#dependency-pre-bundling)
+- [dependencies vs devDependencies](https://github.com/electron-vite/vite-plugin-electron-renderer#dependencies-vs-devdependencies)
+
 
 ## 🛫 Quick Setup
 
@@ -76,16 +99,6 @@ export default {
 }
 ```
 -->
-
-## 🔧 Additional features
-
-1. electron-updater 👉 [see docs](src/components/update/README.md)
-1. playwright
-
-## ❔ FAQ
-
-- [C/C++ addons, Node.js modules - Pre-Bundling](https://github.com/electron-vite/vite-plugin-electron-renderer#dependency-pre-bundling)
-- [dependencies vs devDependencies](https://github.com/electron-vite/vite-plugin-electron-renderer#dependencies-vs-devdependencies)
 
 ## Contributing
 
