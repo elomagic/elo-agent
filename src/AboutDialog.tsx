@@ -1,26 +1,9 @@
-import {
-    Box,
-    Button,
-    Dialog,
-    DialogActions,
-    DialogContent,
-    DialogTitle,
-    Slide, Tab, Tabs, Typography
-} from '@mui/material';
-import {TransitionProps} from "@mui/material/transitions";
-import {forwardRef, SyntheticEvent, useEffect, useState} from 'react';
+import {Box, DialogContent, Tab, Tabs, Typography} from '@mui/material';
+import {SyntheticEvent, useEffect, useState} from 'react';
 import LicenseList from '@/LicenseList';
 import {getApplicationVersion} from "@/IpcServices";
 import {toast} from "react-toastify";
-
-const Transition = forwardRef(function Transition(
-    props: TransitionProps & {
-        children: React.ReactElement<unknown>;
-    },
-    ref: React.Ref<unknown>,
-) {
-    return <Slide direction="up" ref={ref} {...props} />;
-});
+import {ContentDialog} from "@/components/dialogs/ContentDialog";
 
 interface ComponentProps {
     open: boolean;
@@ -43,8 +26,7 @@ export const AboutDialog = ({ open, onCloseClick }: Readonly<ComponentProps>) =>
     }, []);
 
     return (
-        <Dialog open={open} onClose={onCloseClick} TransitionComponent={Transition} fullWidth>
-            <DialogTitle>About</DialogTitle>
+        <ContentDialog props={{ title: "About", open: open, onClose: onCloseClick }}>
             <DialogContent sx={{ height: '400px' }}>
                 <Tabs value={activeTab} onChange={handleChange}>
                     <Tab label="This Project" />
@@ -66,9 +48,6 @@ export const AboutDialog = ({ open, onCloseClick }: Readonly<ComponentProps>) =>
                     <LicenseList />
                 </Box>}
             </DialogContent>
-            <DialogActions>
-                <Button onClick={onCloseClick}>Close</Button>
-            </DialogActions>
-        </Dialog>
+        </ContentDialog>
     );
 };
