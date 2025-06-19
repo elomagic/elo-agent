@@ -11,27 +11,17 @@ import {
     ListItemText,
     Menu,
     MenuItem,
-    Slide,
     Stack
 } from '@mui/material';
 import { DataGrid, GridCellParams, GridColDef } from '@mui/x-data-grid';
-import { TransitionProps } from '@mui/material/transitions';
-import React, { forwardRef, ReactElement, Ref, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FolderFilter, SourceFile } from '@/shared/Types';
 import { Delete, OpenInBrowser } from '@mui/icons-material';
 import { chooseFolder, openFolder } from '@/IpcServices';
 import { FaFolderMinus, FaJava } from 'react-icons/fa';
 import { SelectProcessDialog } from '@/views/jarsInUse/SelectProcessDialog';
 import { MdFolder, MdFolderCopy } from 'react-icons/md';
-
-const Transition = forwardRef(function Transition(
-    props: TransitionProps & {
-        children: ReactElement;
-    },
-    ref: Ref<unknown>,
-) {
-    return <Slide direction="up" ref={ref} {...props} />;
-});
+import {UpTransition} from "@/components/UiUtils";
 
 type SourceFileId = SourceFile & {
     id: string;
@@ -172,7 +162,7 @@ export const SourceFilesDialog = ({ items, open, onOkClick, onCancelClick }: Rea
     ];
 
     return (
-        <Dialog fullScreen open={open} onClose={onCancelClick} TransitionComponent={Transition}>
+        <Dialog fullScreen open={open} onClose={onCancelClick} TransitionComponent={UpTransition}>
             <DialogTitle>Data sources</DialogTitle>
 
             <DialogContent sx={{ display: "flex", flexDirection: "column" }}>

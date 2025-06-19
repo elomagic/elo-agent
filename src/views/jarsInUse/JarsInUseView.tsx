@@ -15,6 +15,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import { FileMetadata, Project, SourceFile } from '@/shared/Types';
 import { TopPanel } from '@/views/jarsInUse/TopPanel';
 import { ProgressDialog } from '@/views/jarsInUse/ProgressDialog';
+import {confirm, DialogProvider} from "@/components/dialogs/DialogContainer";
 
 export const JarsInUseView = () => {
 
@@ -181,21 +182,26 @@ export const JarsInUseView = () => {
     };
 
     const handleDeleteProjectClick = () => {
-        // TODO Add yes no dialog
-
         if (!project) {
             toast.error('No project selected for deletion');
             return;
         }
 
-        deleteProject(project.name).then(() => {
-            setProject(undefined);
-            return listProjects();
-        }).then((p) => {
-            setProjects(p);
-            toast.success('Successful');
+        confirm({
+            open: true,
+            text: `Are you sure you want to delete the project "${project?.name}"?`,
+            onClose: (confirm) => {
+                if (confirm) {
+                    deleteProject(project.name).then(() => {
+                        setProject(undefined);
+                        return listProjects();
+                    }).then((p) => {
+                        setProjects(p);
+                        toast.success('Successful');
+                    });
+                }
+            }
         });
-
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -215,6 +221,7 @@ export const JarsInUseView = () => {
     return (
         <Stack direction="column" width="100%" height="100vh">
             <ToastContainer position="bottom-center" theme="colored" autoClose={2000} />
+            <DialogProvider />
             <TopPanel project={project}
                       projects={projects}
                       onNewProject={handleNewProject}
@@ -226,6 +233,7 @@ export const JarsInUseView = () => {
                       sourceFiles={sourceFiles}
                       onUpdateSources={handleUpdateSourcesClick}
             />
+
             <FileStatusTable items={fileStatus} />
 
             <ProgressDialog open={progressOpen} text={"Importing files..."} />

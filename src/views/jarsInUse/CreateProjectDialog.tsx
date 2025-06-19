@@ -5,20 +5,10 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
-    Slide,
     TextField
 } from '@mui/material';
-import {TransitionProps} from "@mui/material/transitions";
-import { forwardRef, useState } from 'react';
-
-const Transition = forwardRef(function Transition(
-    props: TransitionProps & {
-        children: React.ReactElement<unknown>;
-    },
-    ref: React.Ref<unknown>,
-) {
-    return <Slide direction="up" ref={ref} {...props} />;
-});
+import { useState } from 'react';
+import {UpTransition} from "@/components/UiUtils";
 
 interface ComponentProps {
     open: boolean;
@@ -31,7 +21,7 @@ export const CreateProjectDialog = ({ open, onCreateClick, onCancelClick }: Read
     const [name, setName] = useState<string | undefined>(undefined);
 
     return (
-        <Dialog open={open} onClose={onCancelClick} TransitionComponent={Transition} fullWidth>
+        <Dialog open={open} onClose={onCancelClick} TransitionComponent={UpTransition} fullWidth>
             <DialogTitle>Create Project</DialogTitle>
             <DialogContent>
                 <DialogContentText sx={{ mt: 2 }}>Please enter a new project name.</DialogContentText>

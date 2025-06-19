@@ -4,20 +4,10 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
-    Slide
 } from '@mui/material';
-import {TransitionProps} from "@mui/material/transitions";
-import { forwardRef, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ImportProgress } from '@/shared/Types';
-
-const Transition = forwardRef(function Transition(
-    props: TransitionProps & {
-        children: React.ReactElement<unknown>;
-    },
-    ref: React.Ref<unknown>,
-) {
-    return <Slide direction="up" ref={ref} {...props} />;
-});
+import {UpTransition} from "@/components/UiUtils";
 
 interface ComponentProps {
     text: string,
@@ -41,7 +31,7 @@ export const ProgressDialog = ({ text, open }: Readonly<ComponentProps>) => {
     }, [])
 
     return (
-        <Dialog open={open} fullWidth maxWidth="sm" TransitionComponent={Transition}>
+        <Dialog open={open} fullWidth maxWidth="sm" TransitionComponent={UpTransition}>
             <DialogTitle>{text}</DialogTitle>
             <DialogContent>
                 <DialogContentText sx={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
