@@ -19,7 +19,7 @@ import { FolderFilter, SourceFile } from '@/shared/Types';
 import { Delete, OpenInBrowser } from '@mui/icons-material';
 import { chooseFolder, openFolder } from '@/IpcServices';
 import { FaFolderMinus, FaJava } from 'react-icons/fa';
-import { SelectProcessDialog } from '@/views/jarsInUse/SelectProcessDialog';
+import { SelectProcessDialog } from '@/views/main/SelectProcessDialog';
 import { MdFolder, MdFolderCopy } from 'react-icons/md';
 import {UpTransition} from "@/components/UiUtils";
 

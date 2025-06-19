@@ -2,10 +2,10 @@
 
 import { Stack } from '@mui/material';
 import {Project, SourceFile} from "@/shared/Types";
-import {AgentFileGroup} from "@/views/jarsInUse/AgentFileGroup";
-import {SourceFilesGroup} from "@/views/jarsInUse/SourceFilesGroup";
-import { CommonGroup } from '@/views/jarsInUse/CommonGroup';
-import { ProjectGroup } from '@/views/jarsInUse/ProjectGroup';
+import {AgentFileGroup} from "@/views/main/AgentFileGroup";
+import {SourceFilesGroup} from "@/views/main/SourceFilesGroup";
+import { CommonGroup } from '@/views/main/CommonGroup';
+import { ProjectGroup } from '@/views/main/ProjectGroup';
 
 interface ComponentProps {
     project: Project | undefined;

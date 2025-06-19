@@ -4,7 +4,7 @@ import { Box, IconButton, Stack, Tooltip } from '@mui/material';
 import { Engineering, InsertDriveFileOutlined, OpenInNew } from '@mui/icons-material';
 import { openFileExternal } from '@/IpcServices';
 import {FaRedhat} from "react-icons/fa";
-import { IntegrateAgentDialog } from '@/views/jarsInUse/IntegrateAgentDialog';
+import { IntegrateAgentDialog } from '@/views/main/IntegrateAgentDialog';
 import { useState } from 'react';
 
 interface ComponentProps {

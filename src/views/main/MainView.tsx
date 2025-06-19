@@ -10,15 +10,15 @@ import {
     readAgentFile,
     updateProject
 } from '@/IpcServices';
-import { FileStatusTable } from '@/views/jarsInUse/FileStatusTable';
+import { FileStatusTable } from '@/views/main/FileStatusTable';
 import { toast, ToastContainer } from 'react-toastify';
 import { FileMetadata, Project, SourceFile } from '@/shared/Types';
-import { TopPanel } from '@/views/jarsInUse/TopPanel';
-import { ProgressDialog } from '@/views/jarsInUse/ProgressDialog';
+import { TopPanel } from '@/views/main/TopPanel';
+import { ProgressDialog } from '@/views/main/ProgressDialog';
 import {confirm, DialogProvider} from "@/components/dialogs/DialogContainer";
 import { FileOverloadStatus, FileStatus } from '@/components/table/DataTableTypes';
 
-export const JarsInUseView = () => {
+export const MainView = () => {
 
     const [sourceFiles, setSourceFiles] = useState<SourceFile[]>([]);
     const [agentFile, setAgentFile] = useState<string | undefined>(undefined);

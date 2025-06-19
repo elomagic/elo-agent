@@ -2,7 +2,7 @@
 
 import {Box, IconButton, Stack, Tooltip} from '@mui/material';
 import { EditNote } from '@mui/icons-material';
-import { SourceFilesDialog } from '@/views/jarsInUse/SourceFilesDialog';
+import { SourceFilesDialog } from '@/views/main/SourceFilesDialog';
 import { useState } from 'react';
 import {SourceFile} from "@/shared/Types";
 import {GrResources} from "react-icons/gr";

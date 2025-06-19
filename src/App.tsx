@@ -1,7 +1,7 @@
 'use client';
 
 import './App.css';
-import { JarsInUseView } from '@/views/jarsInUse/JarsInUseView';
+import { MainView } from '@/views/main/MainView';
 import { createTheme, CssBaseline, Stack, ThemeProvider } from '@mui/material';
 
 const darkTheme = createTheme({
@@ -22,7 +22,7 @@ function App() {
         <ThemeProvider theme={darkTheme}>
             <CssBaseline />
             <Stack direction="column" height="100vh" style={{ width: '100%' }}>
-                <JarsInUseView />
+                <MainView />
 
                 { /* Place static files into the<code>/public</code> folder <img style={{ width: '5em' }} src='./node.svg' alt='Node logo' />
         <UpdateElectron />
