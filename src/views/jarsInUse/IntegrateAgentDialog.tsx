@@ -1,22 +1,11 @@
+import { UpTransition } from '@/components/UiUtils';
 import {
     Button,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle, Paper,
-    Slide
 } from '@mui/material';
-import {TransitionProps} from "@mui/material/transitions";
-import { forwardRef } from 'react';
-
-const Transition = forwardRef(function Transition(
-    props: TransitionProps & {
-        children: React.ReactElement<unknown>;
-    },
-    ref: React.Ref<unknown>,
-) {
-    return <Slide direction="up" ref={ref} {...props} />;
-});
 
 interface ComponentProps {
     open: boolean;
@@ -26,7 +15,7 @@ interface ComponentProps {
 export const IntegrateAgentDialog = ({ open, onCloseClick }: Readonly<ComponentProps>) => {
 
     return (
-        <Dialog open={open} onClose={onCloseClick} TransitionComponent={Transition} fullWidth>
+        <Dialog open={open} onClose={onCloseClick} TransitionComponent={UpTransition} fullWidth>
             <DialogTitle>Java Agent Integration Examples</DialogTitle>
             <DialogContent>
                 <p>Java command line arguments to integrate the agent into your application:</p>

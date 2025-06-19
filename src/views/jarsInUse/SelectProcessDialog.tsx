@@ -6,22 +6,12 @@ import {
     DialogContent,
     DialogContentText,
     DialogTitle,
-    Slide,
     Stack
 } from "@mui/material";
-import {DataGrid, GridColDef} from "@mui/x-data-grid";
-import {TransitionProps} from "@mui/material/transitions";
-import { forwardRef, ReactElement, Ref, useEffect, useState } from 'react';
-import {getJavaProcesses} from "@/IpcServices";
-
-const Transition = forwardRef(function Transition(
-    props: TransitionProps & {
-        children: ReactElement<unknown>;
-    },
-    ref: Ref<unknown>,
-) {
-    return <Slide direction="up" ref={ref} {...props} />;
-});
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { useEffect, useState } from 'react';
+import { getJavaProcesses } from "@/IpcServices";
+import { UpTransition } from "@/components/UiUtils";
 
 export type ProcessId = {
     id: string;
@@ -87,7 +77,7 @@ export const SelectProcessDialog = ({ open, onSelectClick, onCancelClick }: Read
     }, [open]);
 
     return (
-        <Dialog fullScreen open={open} onClose={onCancelClick} TransitionComponent={Transition}>
+        <Dialog fullScreen open={open} onClose={onCancelClick} TransitionComponent={UpTransition}>
             <DialogTitle>Select Java Process</DialogTitle>
             <DialogContent sx={{ display: "flex", flexDirection: "column" }}>
                 <Stack spacing={2} direction="row">
