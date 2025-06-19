@@ -1,6 +1,6 @@
 
 import {Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,} from '@mui/material';
-import { UpTransition } from './UiUtils';
+import { UpTransition } from '../UiUtils';
 
 interface ComponentProps {
     open: boolean,
