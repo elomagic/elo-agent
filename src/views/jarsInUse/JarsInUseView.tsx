@@ -10,12 +10,13 @@ import {
     readAgentFile,
     updateProject
 } from '@/IpcServices';
-import { FileOverloadStatus, FileStatus, FileStatusTable } from '@/views/jarsInUse/FileStatusTable';
+import { FileStatusTable } from '@/views/jarsInUse/FileStatusTable';
 import { toast, ToastContainer } from 'react-toastify';
 import { FileMetadata, Project, SourceFile } from '@/shared/Types';
 import { TopPanel } from '@/views/jarsInUse/TopPanel';
 import { ProgressDialog } from '@/views/jarsInUse/ProgressDialog';
 import {confirm, DialogProvider} from "@/components/dialogs/DialogContainer";
+import { FileOverloadStatus, FileStatus } from '@/components/table/DataTableTypes';
 
 export const JarsInUseView = () => {
 
