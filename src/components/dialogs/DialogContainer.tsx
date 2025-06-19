@@ -2,7 +2,7 @@ import {ConfirmDialog} from "@/components/dialogs/ConfirmDialog";
 import {createContext, ReactNode, useEffect, useState} from "react";
 
 
-type DialogOptions = {
+type ConfirmDialogOptions = {
     open: boolean,
     title?: string,
     text: string,
@@ -12,15 +12,15 @@ type DialogOptions = {
 }
 
 type DialogContextType = {
-    confirm: (options: DialogOptions) => void;
+    confirm: (options: ConfirmDialogOptions) => void;
 };
 
 const DialogContainerContext = createContext<DialogContextType | undefined>(undefined);
 
 // 🔧 globales Dialog-API (z. B. für Utility-Zugriff)
-let _openDialogGlobal: ((options: DialogOptions) => void) | null = null;
+let _openDialogGlobal: ((options: ConfirmDialogOptions) => void) | null = null;
 
-export const confirm = (options: DialogOptions) => {
+export const confirm = (options: ConfirmDialogOptions) => {
     if (_openDialogGlobal) {
         _openDialogGlobal(options);
     } else {
@@ -29,9 +29,9 @@ export const confirm = (options: DialogOptions) => {
 };
 
 export const DialogProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
-    const [dialog, setDialog] = useState<DialogOptions | null>(null);
+    const [dialog, setDialog] = useState<ConfirmDialogOptions | null>(null);
 
-    const openDialog = (props: DialogOptions) => {
+    const openDialog = (props: ConfirmDialogOptions) => {
         setDialog(props);
     };
 

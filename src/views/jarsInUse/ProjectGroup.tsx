@@ -15,8 +15,8 @@ import {
 } from '@mui/material';
 import { Cached, CheckCircle } from '@mui/icons-material';
 import { Project } from '@/shared/Types';
-import { CreateProjectDialog } from '@/views/jarsInUse/CreateProjectDialog';
 import { useEffect, useState } from 'react';
+import {AskDialog} from "@/components/dialogs/AskDialog";
 
 interface ComponentProps {
     project: Project | undefined;
@@ -52,8 +52,13 @@ export const ProjectGroup = ({project, projects, onNewProject, onDeleteProject, 
         name && onSelectProjectName(name);
     }
 
-    const handleCreateProject = (name: string) => {
+    const handleCreateProject = (confirm: boolean, name: string | undefined) => {
         setOpenNewProject(false);
+
+        if (!confirm || !name || name.trim().length === 0) {
+            return
+        }
+
         onNewProject(name);
     }
 
@@ -114,9 +119,12 @@ export const ProjectGroup = ({project, projects, onNewProject, onDeleteProject, 
                 </IconButton>
             </Tooltip>
 
-            <CreateProjectDialog open={openNewProject}
-                                 onCreateClick={handleCreateProject}
-                                 onCancelClick={() => setOpenNewProject(false)} />
+            <AskDialog open={openNewProject}
+                       title="Create Project"
+                       text="Please enter a new project name."
+                       confirmText="Create"
+                       onClose={(confirm, value) => handleCreateProject(confirm, value)}
+            />
         </Stack>
     );
 
