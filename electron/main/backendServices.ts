@@ -213,7 +213,7 @@ const readAgentFile = (file: string | undefined, webContents: WebContents): Prom
     }
 
     // Datei synchron lesen
-    const text = fs.readFileSync(file, 'utf-8');
+    const text = fs.readFileSync(file, 'utf8');
 
     // Separe lines  (Supported  \n and \r\n)
     const lines: string[] = text.split(/\r?\n/).filter(l => l.trim() !== '');

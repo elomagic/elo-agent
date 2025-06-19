@@ -151,7 +151,8 @@ export const JarsInUseView = () => {
     const handleUpdateSourcesClick = (newFiles: SourceFile[]) => {
         setSourceFiles(newFiles);
         reloadTable(newFiles, agentFile)
-            .then(() => project && saveProject({ name: project.name, sourceFiles: newFiles, agentFile }));
+            .then(() => project && saveProject({ name: project.name, sourceFiles: newFiles, agentFile }))
+            .catch((err) => toast.error(err));
     };
 
     const handleSelectAgentFileClick = () => {
@@ -161,24 +162,25 @@ export const JarsInUseView = () => {
                 file && reloadTable(sourceFiles, file);
                 return file;
             })
-            .then((file) => project && saveProject({ name: project.name, sourceFiles, agentFile: file }));
+            .then((file) => project && saveProject({ name: project.name, sourceFiles, agentFile: file }))
+            .catch((err) => toast.error(err));
     }
 
     const handleNewProject = (name: string) => {
         saveProject({ name, sourceFiles: [], agentFile: undefined })
-            .then(() => {
-                toast.success('Successful');
-            });
+            .then(() => toast.success('Successful'))
+            .catch((err) => toast.error(err));
     };
 
     const handleProjectNameChanged = (name: string) => {
         listProjects()
             .then(p => {
                 const ps = p.filter((f) => f.name === name);
-                ps.length > 0 && loadProject(ps[0]).then(() => {
-                    toast.success('Successful');
-                });
-            });
+                ps.length > 0 && loadProject(ps[0])
+                    .then(() => toast.success('Successful'))
+                    .catch((err) => toast.error(err));
+            })
+            .catch((err) => toast.error(err));
     };
 
     const handleDeleteProjectClick = () => {
@@ -198,7 +200,8 @@ export const JarsInUseView = () => {
                     }).then((p) => {
                         setProjects(p);
                         toast.success('Successful');
-                    });
+                    })
+                        .catch((err) => toast.error(err));
                 }
             }
         });
@@ -212,7 +215,9 @@ export const JarsInUseView = () => {
     };
 
     useEffect(() => {
-        listProjects().then((items) => setProjects(items));
+        listProjects()
+            .then((items) => setProjects(items))
+            .catch((err) => toast.error(err));
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);

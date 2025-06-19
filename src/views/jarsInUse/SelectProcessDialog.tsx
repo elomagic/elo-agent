@@ -12,6 +12,7 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { useEffect, useState } from 'react';
 import { getJavaProcesses } from "@/IpcServices";
 import { UpTransition } from "@/components/UiUtils";
+import {toast} from "react-toastify";
 
 export type ProcessId = {
     id: string;
@@ -50,24 +51,26 @@ export const SelectProcessDialog = ({ open, onSelectClick, onCancelClick }: Read
     ];
 
     const handleRefreshClick = () => {
-        getJavaProcesses().then(processes => {
-            const pids: ProcessId[] = processes.map((line) => {
-                const spaceIndex = line.indexOf(' ');
-                const id = line.substring(0, spaceIndex);
-                let args = line.substring(spaceIndex + 1).trim();
+        getJavaProcesses()
+            .then(processes => {
+                const pids: ProcessId[] = processes.map((line) => {
+                    const spaceIndex = line.indexOf(' ');
+                    const id = line.substring(0, spaceIndex);
+                    let args = line.substring(spaceIndex + 1).trim();
 
-                if (args.length === 0) {
-                    args = "No arguments provided. You may need admin permissions to access the Java arguments.";
-                }
+                    if (args.length === 0) {
+                        args = "No arguments provided. You may need admin permissions to access the Java arguments.";
+                    }
 
-                return {
-                    id,
-                    args
-                }
-            });
+                    return {
+                        id,
+                        args
+                    }
+                });
 
-            setItems(pids);
-        });
+                setItems(pids);
+            })
+            .catch((err) => toast.error(err));
     }
 
     useEffect(() => {

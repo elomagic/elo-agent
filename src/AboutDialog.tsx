@@ -11,6 +11,7 @@ import {TransitionProps} from "@mui/material/transitions";
 import {forwardRef, SyntheticEvent, useEffect, useState} from 'react';
 import LicenseList from '@/LicenseList';
 import {getApplicationVersion} from "@/IpcServices";
+import {toast} from "react-toastify";
 
 const Transition = forwardRef(function Transition(
     props: TransitionProps & {
@@ -36,7 +37,9 @@ export const AboutDialog = ({ open, onCloseClick }: Readonly<ComponentProps>) =>
     };
 
     useEffect(() => {
-        getApplicationVersion().then((v) => setVersion(v));
+        getApplicationVersion()
+            .then((v) => setVersion(v))
+            .catch((err) => toast.error(err));
     }, []);
 
     return (
