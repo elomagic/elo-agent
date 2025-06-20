@@ -7,7 +7,7 @@ interface ComponentProps<COL extends Key, ROW> {
     visibleColumns: Column<COL, ROW>[],
     sortColumn: string | null,
     sortOrder: "asc" | "desc" | null,
-    onContextMenu: (event: React.MouseEvent) => void;
+    onContextMenu: (row: ROW, mouseX: number, mouseY: number) => void;
 }
 
 export const DataTableBody = <COL extends Key, ROW,>({ visibleRows, visibleColumns, sortColumn, sortOrder, onContextMenu }: Readonly<ComponentProps<COL, ROW>>) => {
@@ -23,13 +23,18 @@ export const DataTableBody = <COL extends Key, ROW,>({ visibleRows, visibleColum
         return 0;
     }
 
+    const handleContextMenu = (event: React.MouseEvent, row: ROW) => {
+        event.preventDefault();
+        onContextMenu(row, event.clientX + 2, event.clientY - 6,);
+    };
+
     return (
         <TableBody sx={{ bottom: "20px" }}>
             {visibleRows
                 .toSorted(compareValue)
                 .map((row, i) => {
                     return (
-                        <TableRow hover key={i} sx={{ height: '32px'}} onContextMenu={onContextMenu} data-id={i}>
+                        <TableRow hover key={i} sx={{ height: '32px'}} onContextMenu={(evt) => handleContextMenu(evt, row)} data-id={i}>
                             {visibleColumns.map((column) => {
                                 const value = row[column.id as unknown as keyof ROW];
                                 return (

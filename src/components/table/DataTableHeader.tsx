@@ -8,9 +8,9 @@ import { ColumnChooserDialog } from '@/components/table/ColumnChooserDialog';
 interface ComponentProps<COL extends Key, ROW> {
     visibleColumns: Column<COL, ROW>[],
     availableColumns: readonly Column<COL, ROW>[],
-    sortColumn: COL | null,
+    sortColumn: string | null,
     sortOrder: "asc" | "desc" | null,
-    onSortingChanged: (columnId: COL) => void,
+    onSortingChanged: (columnId: string) => void,
     onColumnVisibilityChanged: (columnIds: COL[]) => void,
 }
 
@@ -45,7 +45,7 @@ export const DataTableHeader = <COL extends Key, ROW,>({
             <TableRow>
                 { visibleColumns.map((column) => (
                     <TableCell
-                        onClick={() => onSortingChanged && onSortingChanged(column.id)}
+                        onClick={() => onSortingChanged && onSortingChanged(String(column.id))}
                         onMouseUp={(evt) => handleOpenColumnDialog(evt)}
                         key={column.id}
                         style={{
