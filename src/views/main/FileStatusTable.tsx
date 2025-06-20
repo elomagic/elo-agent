@@ -20,13 +20,23 @@ import {
 import {ChangeEvent, ReactNode, useState} from 'react';
 import {copyTextToClipboard, openFolder} from "@/IpcServices";
 import { FileMetadata } from '@/shared/Types';
-import { Column, FileOverloadStatus, FileStatus } from '@/components/table/DataTableTypes';
+import { Column, FileOverloadStatus } from '@/components/table/DataTableTypes';
 import { DataTableFooter } from '@/components/table/DataTableFooter';
 import { DataTableHeader } from '@/components/table/DataTableHeader';
 import { DataTableBody } from '@/components/table/DataTableBody';
 
 interface ComponentProps {
     items: FileStatus[];
+}
+
+export type FileStatus = FileMetadata & {
+    filename: string;
+    pom: boolean;
+    loaded: boolean;
+    overloaded: boolean;
+    overloadedFiles?: FileMetadata[];
+    overloadStatus: FileOverloadStatus;
+    elapsedTime: number | undefined; // in milliseconds
 }
 
 const HtmlTooltip = styled(({ className, ...props }: TooltipProps) => (
@@ -104,7 +114,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
         );
     }
 
-    const renderFooterColumn = (column: Column<ColumnId>, rows: FileStatus[]): string => {
+    const renderFooterColumn = (column: Column<ColumnId, FileStatus>, rows: FileStatus[]): string => {
         switch (column.id) {
             case "filename":
                 return `${rows.length} items`;
@@ -117,7 +127,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
         }
     }
 
-    const columns: readonly Column<ColumnId>[] = [
+    const columns: readonly Column<ColumnId, FileStatus>[] = [
         {
             id: 'loaded',
             label: 'In use',
@@ -173,7 +183,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
 
     ];
 
-    const [visibleColumns, setVisibleColumns] = useState<Column<ColumnId>[]>(Array.from(columns));
+    const [visibleColumns, setVisibleColumns] = useState<Column<ColumnId, FileStatus>[]>(Array.from(columns));
 
     const handleClose = () => {
         setContextMenu(null);
@@ -248,7 +258,7 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
             <Box flexGrow={1} sx={{ height: 500 }}>
                 <TableContainer sx={{ maxHeight: "100%" }}>
                     <Table stickyHeader>
-                        <DataTableHeader<ColumnId> visibleColumns={visibleColumns}
+                        <DataTableHeader<ColumnId, FileStatus> visibleColumns={visibleColumns}
                                          availableColumns={columns}
                                          sortColumn={sortColumn}
                                          sortOrder={sortOrder}
@@ -256,14 +266,14 @@ export const FileStatusTable = ({ items }: Readonly<ComponentProps>) => {
                                          onColumnVisibilityChanged={handleColumnsVisibilityChanged}
                         />
 
-                        <DataTableBody<ColumnId> visibleRows={items.filter(row => filter?.length == 0 || row.file.toLowerCase().includes(filter))}
+                        <DataTableBody<ColumnId, FileStatus> visibleRows={items.filter(row => filter?.length == 0 || row.file.toLowerCase().includes(filter))}
                                        visibleColumns={visibleColumns}
                                        sortColumn={sortColumn}
                                        sortOrder={sortOrder}
                                        onContextMenu={handleContextMenu}
                         />
 
-                        <DataTableFooter<ColumnId> visibleRows={items.filter(row => filter?.length == 0 || row.file.toLowerCase().includes(filter))}
+                        <DataTableFooter<ColumnId, FileStatus> visibleRows={items.filter(row => filter?.length == 0 || row.file.toLowerCase().includes(filter))}
                                                    visibleColumns={visibleColumns}
                         />
                     </Table>

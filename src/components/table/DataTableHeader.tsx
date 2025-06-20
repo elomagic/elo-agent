@@ -1,29 +1,26 @@
 
-import {
-    TableCell, TableHead,
-    TableRow
-} from '@mui/material';
+import { TableCell, TableHead, TableRow } from '@mui/material';
 import { Column } from '@/components/table/DataTableTypes';
 import { ArrowDropDown, ArrowDropUp } from '@mui/icons-material';
 import { Key, MouseEvent, useState } from 'react';
 import { ColumnChooserDialog } from '@/components/table/ColumnChooserDialog';
 
-interface ComponentProps<C extends Key> {
-    visibleColumns: Column<C>[],
-    availableColumns: readonly Column<C>[],
-    sortColumn: C | null,
+interface ComponentProps<COL extends Key, ROW> {
+    visibleColumns: Column<COL, ROW>[],
+    availableColumns: readonly Column<COL, ROW>[],
+    sortColumn: COL | null,
     sortOrder: "asc" | "desc" | null,
-    onSortingChanged: (columnId: C) => void,
-    onColumnVisibilityChanged: (columnIds: C[]) => void,
+    onSortingChanged: (columnId: COL) => void,
+    onColumnVisibilityChanged: (columnIds: COL[]) => void,
 }
 
-export const DataTableHeader = <C extends Key,>({
+export const DataTableHeader = <COL extends Key, ROW,>({
                                     visibleColumns,
                                     availableColumns,
                                     sortColumn,
                                     sortOrder,
                                     onSortingChanged,
-                                    onColumnVisibilityChanged }: Readonly<ComponentProps<C>>) => {
+                                    onColumnVisibilityChanged }: Readonly<ComponentProps<COL, ROW>>) => {
 
     const [columnOpen, setColumnOpen] = useState<boolean>(false);
 
@@ -33,7 +30,7 @@ export const DataTableHeader = <C extends Key,>({
         }
     }
 
-    const handleCloseColumnChooser = (columnIds: C[] | undefined) => {
+    const handleCloseColumnChooser = (columnIds: COL[] | undefined) => {
         setColumnOpen(false);
 
         if (!columnIds) {

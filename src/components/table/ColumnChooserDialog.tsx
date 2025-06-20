@@ -10,23 +10,23 @@ import {
 import { Key, useState } from 'react';
 import { Column } from '@/components/table/DataTableTypes';
 
-interface ComponentProps<C extends Key> {
+interface ComponentProps<COL extends Key, ROW> {
     open: boolean;
-    availableColumns: readonly Column<C>[];
-    visibleColumns: C[];
-    onCloseClick: (columnIds: C[] | undefined) => void;
+    availableColumns: readonly Column<COL, ROW>[];
+    visibleColumns: COL[];
+    onCloseClick: (columnIds: COL[] | undefined) => void;
 }
 
-export const ColumnChooserDialog = <C extends Key,>({
+export const ColumnChooserDialog = <COL extends Key, ROW,>({
                                         open,
                                         availableColumns,
                                         visibleColumns,
                                         onCloseClick
-                                    }: Readonly<ComponentProps<C>>) => {
+                                    }: Readonly<ComponentProps<COL, ROW>>) => {
 
-    const [selectedColumns, setSelectedColumns] = useState<C[]>(visibleColumns);
+    const [selectedColumns, setSelectedColumns] = useState<COL[]>(visibleColumns);
 
-    const handleCheckboxChange = (columnId: C) => {
+    const handleCheckboxChange = (columnId: COL) => {
         setSelectedColumns(prevSelected => {
             if (prevSelected.includes(columnId)) {
                 return prevSelected.filter(id => id !== columnId);

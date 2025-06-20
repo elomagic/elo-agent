@@ -10,13 +10,13 @@ import {
     readAgentFile,
     updateProject
 } from '@/IpcServices';
-import { FileStatusTable } from '@/views/main/FileStatusTable';
+import { FileStatus, FileStatusTable } from '@/views/main/FileStatusTable';
 import { toast, ToastContainer } from 'react-toastify';
 import { FileMetadata, Project, SourceFile } from '@/shared/Types';
 import { TopPanel } from '@/views/main/TopPanel';
 import { ProgressDialog } from '@/views/main/ProgressDialog';
 import {confirm, DialogProvider} from "@/components/dialogs/DialogContainer";
-import { FileOverloadStatus, FileStatus } from '@/components/table/DataTableTypes';
+import { FileOverloadStatus } from '@/components/table/DataTableTypes';
 
 export const MainView = () => {
 
@@ -83,7 +83,7 @@ export const MainView = () => {
                     const fs = file2fileStatus.get(agent.file);
                     if (fs) {
                         fs.loaded = true;
-                        fs.pom = fs.pom || agent.purls.length !== 0;
+                        fs.pom = fs.pom ?? agent.purls.length !== 0;
                         fs.elapsedTime = agent.elapsedTime;
                     } else {
                         file2fileStatus.set(agent.file, {

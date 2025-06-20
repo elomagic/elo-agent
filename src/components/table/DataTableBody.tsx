@@ -1,23 +1,23 @@
 import { TableBody, TableCell, TableRow } from '@mui/material';
-import { Column, FileStatus } from './DataTableTypes';
+import { Column } from './DataTableTypes';
 import { Key } from 'react';
 
-interface ComponentProps<C extends Key> {
-    visibleRows: FileStatus[],
-    visibleColumns: Column<C>[],
+interface ComponentProps<COL extends Key, ROW> {
+    visibleRows: ROW[],
+    visibleColumns: Column<COL, ROW>[],
     sortColumn: string | null,
     sortOrder: "asc" | "desc" | null,
     onContextMenu: (event: React.MouseEvent) => void;
 }
 
-export const DataTableBody = <C extends Key,>({ visibleRows, visibleColumns, sortColumn, sortOrder, onContextMenu }: Readonly<ComponentProps<C>>) => {
+export const DataTableBody = <COL extends Key, ROW,>({ visibleRows, visibleColumns, sortColumn, sortOrder, onContextMenu }: Readonly<ComponentProps<COL, ROW>>) => {
 
-    const compareValue = (a: FileStatus, b: FileStatus): number => {
+    const compareValue = (a: ROW, b: ROW): number => {
         if (sortColumn === null) return 0;
-        const aValue = a[sortColumn as keyof FileStatus];
-        const bValue = b[sortColumn as keyof FileStatus];
-        if (aValue === undefined) return 1;
-        if (bValue === undefined) return -1;
+        const aValue = a[sortColumn as keyof ROW];
+        const bValue = b[sortColumn as keyof ROW];
+        if (aValue === undefined || aValue === null) return 1;
+        if (bValue === undefined || bValue === null) return -1;
         if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
         if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
         return 0;
@@ -27,11 +27,11 @@ export const DataTableBody = <C extends Key,>({ visibleRows, visibleColumns, sor
         <TableBody sx={{ bottom: "20px" }}>
             {visibleRows
                 .toSorted(compareValue)
-                .map((row) => {
+                .map((row, i) => {
                     return (
-                        <TableRow hover key={row.file} sx={{ height: '32px'}} onContextMenu={onContextMenu} data-id={row.file}>
+                        <TableRow hover key={i} sx={{ height: '32px'}} onContextMenu={onContextMenu} data-id={i}>
                             {visibleColumns.map((column) => {
-                                const value = row[column.id as keyof FileStatus];
+                                const value = row[column.id as unknown as keyof ROW];
                                 return (
                                     <TableCell key={column.id} align={column.align} sx={{ padding: '4px' }}>
                                         { column.renderCell && column.renderCell(row) }
