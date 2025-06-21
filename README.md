@@ -32,8 +32,8 @@ The frontend tool for identifying (un-)used JAR libraries.
 | Column          | Meaning                                                                                                                |
 |-----------------|------------------------------------------------------------------------------------------------------------------------|
 | `In Use`        | Indicates whether the JAR library is loaded by the Java Runtime or not. If not, this would be a candidate for removal. |
-| `Overloaded`    | tbd                                                                                                                    |
-| `Elapsed Time` | The time in milliseconds after the Java Runtime Environment was started that the JAR file was loaded.                  |
+| `Overloaded`    | - Warn (Orange) - An identical JAR was found multiple times in one of the specified directories with identical version<br>- Stop (red) - An identical JAR was found several times in one of the specified directories with different versions    |
+| `Elapsed Time`  | The time in milliseconds after the Java Runtime Environment was started that the JAR file was loaded.                  |
 | `Filename`      | Name of the JAR file                                                                                                   |    
 | `POM`           | Checked if at least one POM properties file was found in the JAR                                                       |
 | `File`          | Full qualified path of the JAR file                                                                                    |    
