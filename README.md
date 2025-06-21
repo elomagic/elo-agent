@@ -1,4 +1,5 @@
 [![Apache License, Version 2.0, January 2004](https://img.shields.io/github/license/apache/maven.svg?label=License)][license]
+[![build workflow](https://github.com/elomagic/elo-agent/actions/workflows/build.yml/badge.svg)](https://github.com/elomagic/elo-agent/actions)
 [![Latest](https://img.shields.io/github/release/elomagic/elo-agent.svg)](https://github.com/elomagic/elo-agent/releases)
 ![GitHub stars](https://img.shields.io/github/stars/elomagic/elo-agent?color=fa6470)
 [![GitHub issues](https://img.shields.io/github/issues/elomagic/elo-agent?color=d8b22d)](https://github.com/elomagic/elo-agent/issues)
