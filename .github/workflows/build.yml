@@ -38,6 +38,7 @@ jobs:
         run: npm run build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # This will fix the "EMFILE: too many open files" error on macOS
           CHOKIDAR_USEPOLLING: true
 
       - name: Upload Artifact
