@@ -118,6 +118,43 @@ const getPurlsOfFile = (file: string, webContents: WebContents): Promise<string[
     });
 }
 
+const getFilesFromWar = (file: string, webContents: WebContents): Promise<FileMetadata[]> => {
+    // Get all files from a warZip file
+
+    if (!file
+        || !fs.existsSync(file)
+        || !file.toLowerCase().endsWith('.war')) {
+        return Promise.resolve([]);
+    }
+
+    // Read the jar file
+    const warFile = fs.readFileSync(file);
+
+    sendProgress(webContents, { file: file.replaceAll("\\", "/"), type: ImportType.Analyze });
+
+    // Check if the jar file contains a META-INF folder
+    const warZip = new JSZip();
+
+    return warZip.loadAsync(warFile).then(zip => {
+        const fileMetas: FileMetadata[] = [];
+        const jarPromises: Promise<any>[] = [];
+
+        // Iterate over all files in the war
+        Object.keys(zip.files).forEach((filename) => {
+            if (filename.startsWith("WEB-INF/lib/")
+                && filename.toLowerCase().endsWith('.jar')) {
+
+                jarPromises.push(
+                    getPurlsOfFile(filename, webContents)
+                        .then((purls) => fileMetas.push({ file: filename, purls })));
+            }
+        });
+
+        return Promise.all(jarPromises).then(() => fileMetas);
+    });
+
+}
+
 const getJavaProcesses = (): Promise<string[]> => {
     if (process.platform === 'win32') {
         return getJavaProcessesOnWindows();
@@ -155,7 +192,7 @@ const listFilesSync = (sourceFile: SourceFile): FileMetadata[] => {
     return result;
 }
 
-const listFiles = (files: SourceFile[], webContents: WebContents): Promise<FileMetadata[]> => {
+const listFilesASync = (files: SourceFile[], webContents: WebContents): Promise<FileMetadata[]> => {
     let collectedFiles: FileMetadata[] = [];
 
     for (const file of files) {
@@ -256,7 +293,7 @@ export const registerMainHandlers = () => {
     })
 
     ipcMain.handle("list-files", (event, folder: SourceFile[]): Promise<FileMetadata[]> => {
-        return listFiles(folder, event.sender);
+        return listFilesASync(folder, event.sender);
     })
 
     ipcMain.handle("list-projects", (_event): Promise<Project[]> => {
